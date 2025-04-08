@@ -3,47 +3,70 @@ version: '3.8'
 services:
   db:
     image: postgres:15
+    restart: always
+    container_name: postgresql
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: postgres
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: database
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     networks:
       - app-network
 
-  backend:
-    build: ./backend
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - ./backend:/app
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
     ports:
-      - "8000:8000"
+      - "8080:80"  # Cambiado a 8080 para evitar conflictos
     depends_on:
       - db
     networks:
       - app-network
+
+  web:
+    build: ./
+    container_name: django
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app  # Cambiado a /app para consistencia
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_HOST: db  # Asegurar que use el nombre correcto
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: database
+    depends_on:
+      - db
+    networks:
+      - app-network  # Añadido
 
   frontend-web:
     build: ./frontend-web
     ports:
       - "3000:80"
     depends_on:
-      - backend
+      - web
     networks:
       - app-network
-
+    restart: unless-stopped  # Añadido para mayor resiliencia
 
   frontend-mobile:
+    profiles: ["mobile"]
     build: ./frontend-mobile
     ports:
       - "19000:19000"
       - "19001:19001"
       - "19002:19002"
     networks:
-    - app-network
+      - app-network
+    restart: unless-stopped  # Añadido
 
 networks:
   app-network:
