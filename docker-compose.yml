@@ -1,5 +1,6 @@
-services:
+version: '3.8'
 
+services:
   backend:
     build: ./backend
     ports:
@@ -10,15 +11,17 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
+    command: sh -c "npm install && npm install -g nodemon && nodemon --legacy-watch server.js"
     environment:
       DB_HOST: db
       DB_USER: admin
       DB_PASSWORD: admin
       DB_NAME: uguee_db
       DB_PORT: 5432
+      NODE_ENV: development
+      CHOKIDAR_USEPOLLING: "true"
     depends_on:
       - db
-
 
   db:
     image: postgis/postgis:15-3.3
@@ -37,14 +40,17 @@ services:
   app-web:
     build: ./app-web
     ports:
-      - "3000:3000" 
+      - "3000:3000"
     networks:
       - app-network
     restart: unless-stopped
-    command: npm run start
     volumes:
       - ./app-web:/app
       - /app/node_modules
+    command: sh -c "npm install && npm start"
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+      WATCHPACK_POLLING: "true"
 
 volumes:
   postgres_data:

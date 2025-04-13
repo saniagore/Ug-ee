@@ -2,6 +2,7 @@ import ColombiaFlag from '../../resources/ColombiaFlag.png';
 import UwayLogo from '../../resources/UwayLogo.png';
 import '../../css/homePage.css';
 import { useState } from 'react';
+import { checkUserInDatabase } from '../../components/phoneValid';
 
 function usePhoneInput(){
     const [phone, setPhone] = useState('');
@@ -22,21 +23,32 @@ function PhoneInput({ onRegister }) {
 
     const handlePhoneChange = async (event) => { 
         event.preventDefault();
+        
         if (!phoneNumber(phone)) {
-            setAlertMessage('El número de celular no es válido. Debe tener al menos 10 dígitos y contener solo números.');
-            setShowAlert(true);
-            return;
+          setAlertMessage('Número inválido. Debe tener 10 dígitos numéricos.');
+          setShowAlert(true);
+          return;
         }
-
+      
         try {
-            // agregar validacion en la base de datos
-            onRegister();
-        } catch (error) {
-            console.error("Error al verificar el número:", error);
-            setAlertMessage('Ocurrió un error al verificar el número. Por favor intenta nuevamente.');
+          const { exists, user } = await checkUserInDatabase(phone);
+          
+          console.log('Respuesta del backend:', { exists, user }); // Debug
+          
+          if (exists) {
+            onRegister(); // Usuario existe
+          } else {
+            setAlertMessage('Número no registrado');
             setShowAlert(true);
+          }
+          
+        } catch (error) {
+          // Muestra el mensaje real del backend
+          setAlertMessage(error.message);
+          setShowAlert(true);
+          console.error('Error completo:', error);
         }
-    };
+      };
 
 
     return (
