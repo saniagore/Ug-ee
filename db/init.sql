@@ -111,3 +111,4 @@ VALUES ('María Gómez', 'maria.gomez@example.edu', 'profesor', 'profpassword456
 -- 3. Administrativo
 INSERT INTO usuario (nombre, correo, tipo, contraseña, celular, estado_verificacion, numero_identificacion, tipo_identificacion, institucion_id)
 VALUES ('Carlos Ruiz', 'carlos.ruiz@admin.edu', 'administrativo', 'adminpass789', '3201112233', FALSE, '543216789', 'CE', 2);
+

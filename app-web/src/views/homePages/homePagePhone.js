@@ -1,6 +1,6 @@
 import ColombiaFlag from '../../resources/ColombiaFlag.png';
 import UwayLogo from '../../resources/UwayLogo.png';
-import '../../css/homePage.css';
+import '../../css/homePagePhone.css';
 import { useState } from 'react';
 import { checkUserInDatabase } from '../../components/phoneValid';
 

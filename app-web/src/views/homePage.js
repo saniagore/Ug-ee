@@ -1,4 +1,4 @@
-import '../css/homePage.css';
+import '../css/homePagePhone.css';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
@@ -35,7 +35,7 @@ function HomePage() {
 
             <div style={{ 
                 width: '2000px',
-                height: '2000px', 
+                height: '900px', 
                 marginLeft: '20px', 
                 borderRadius: '15px', 
                 overflow: 'hidden',
