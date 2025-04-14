@@ -8,7 +8,7 @@ function usePhoneInput(){
     const [phone, setPhone] = useState('');
 
     const phoneNumber = (number) => {
-        if (number.length < 10) return false;
+        if (number.length !== 10) return false;
         if (!/^[0-9]+$/.test(number)) return false;
         return true;
     };
@@ -16,7 +16,7 @@ function usePhoneInput(){
     return { phone, setPhone, phoneNumber };
 }
 
-function PhoneInput({ onRegister }) {
+function PhoneInput({ onRegister, onLogin }) {
     const {phone, setPhone, phoneNumber} = usePhoneInput();
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
@@ -32,18 +32,14 @@ function PhoneInput({ onRegister }) {
       
         try {
           const { exists, user } = await checkUserInDatabase(phone);
-          
-          console.log('Respuesta del backend:', { exists, user }); // Debug
-          
-          if (exists) {
-            onRegister(); // Usuario existe
+          console.log('Respuesta del backend:', { exists, user });
+          if (!exists) {
+            onRegister();
           } else {
-            setAlertMessage('Número no registrado');
-            setShowAlert(true);
+            onLogin();
           }
           
         } catch (error) {
-          // Muestra el mensaje real del backend
           setAlertMessage(error.message);
           setShowAlert(true);
           console.error('Error completo:', error);

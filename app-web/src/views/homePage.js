@@ -6,6 +6,7 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import { useState } from 'react';
 import { PhoneInput } from './homePages/homePagePhone';
 import Register from './homePages/homePageSingUp';
+import Login from './homePages/homePageSingIn';
 
 function HomePage() {
     const [currentView, setCurrentView] = useState('phoneInput');
@@ -16,14 +17,20 @@ function HomePage() {
             <div className="container" style={{width: '100%', maxWidth: '400px'}}>
                 
                 {currentView === 'phoneInput' && (
-                    <PhoneInput onRegister={() => setCurrentView('verification')} />
+                    <PhoneInput 
+                        onRegister={() => setCurrentView('register')}
+                        onLogin={() => setCurrentView('login')}
+                        />
                 )}
                 
-                {currentView === 'verification' && (
+                {currentView === 'register' && (
                     <Register onBack={() => setCurrentView('phoneInput')} />
                 )}
+                {currentView === 'login' && (
+                    <Login onBack={() => setCurrentView('phoneInput')}/>
+                )}
                 
-                {/* Puedes añadir más vistas aquí */}
+
             </div>
 
             <div style={{ 

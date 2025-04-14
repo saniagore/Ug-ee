@@ -1,6 +1,6 @@
 import {FaArrowLeft} from 'react-icons/fa';
 
-export default function Register({ onBack }) {
+export default function Login({ onBack }) {
     return (
         <>
             <button 
@@ -17,7 +17,7 @@ export default function Register({ onBack }) {
             >
                 <FaArrowLeft />
             </button>
-            <h2>Ingresa tu código de verificación</h2>
+            <h2>Ingresa tu código de  singin</h2>
 
         </>
     );

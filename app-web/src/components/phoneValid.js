@@ -4,7 +4,6 @@ export const checkUserInDatabase = async (phone) => {
       
       if (!response.ok) {
         const errorData = await response.json();
-        // Muestra el error real del backend
         throw new Error(errorData.details || errorData.error || 'Error en la petición');
       }
       
