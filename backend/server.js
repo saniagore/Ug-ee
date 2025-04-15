@@ -78,15 +78,26 @@ app.get('/api/institucion', async (req,res) => {
 
 app.post('/api/usuario', async (req, res) => {
   try {
-    const { 
-      nombre,
-      telefono,
-      nid,
-      correo,
-      tid,
-      institucion,
-      contraseña 
-    } = req.body; 
+    const { nombre,telefono,nid,correo,tid,institucion,contraseña } = req.body; 
+
+    const validationResult = await pool.query(
+      `SELECT 
+        (SELECT 1 FROM usuario WHERE celular = $1 LIMIT 1) AS telefono_exists,
+        (SELECT 1 FROM usuario WHERE numero_identificacion = $2 LIMIT 1) AS nid_exists,
+        (SELECT 1 FROM usuario WHERE correo = $3 LIMIT 1) AS correo_exists`,
+      [telefono, nid, correo]
+    );
+
+    const { telefono_exists, nid_exists, correo_exists } = validationResult.rows[0];
+    const errors = {};
+    
+    if (telefono_exists) errors.telefono = 'Este número de teléfono ya está registrado';
+    if (nid_exists) errors.nid = 'Este número de identificación ya está registrado';
+    if (correo_exists) errors.correo = 'Este correo electrónico ya está registrado';
+    
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({ errors });
+    }
 
     const institucionResult = await pool.query(
       'SELECT id FROM institucion WHERE nombre = $1', 
@@ -105,7 +116,6 @@ app.post('/api/usuario', async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
-    // Validar formato de teléfono
     if (!/^\d+$/.test(telefono)) {
       return res.status(400).json({ 
         error: 'El teléfono solo debe contener números' 
@@ -139,4 +149,41 @@ app.post('/api/usuario', async (req, res) => {
   }
 });
 
-//VALIDAR NO SE VAYA A REGISTRAR UN USUARIO CON MISMO NUMERO DE CELULAR, CORREO O NUMERO IDENTIFICACION
+app.get('/api/usuario/:telefono/estado', async (req, res) => {
+  try {
+    const { telefono } = req.params;
+    
+    if (!/^\d+$/.test(telefono)) {
+      return res.status(400).json({ 
+        error: 'El teléfono solo debe contener números' 
+      });
+    }
+    
+    const result = await pool.query(
+      'SELECT estado_verificacion FROM usuario WHERE celular = $1', 
+      [telefono]
+    );
+    
+    if (result.rows.length === 0) {
+      return res.status(404).json({ 
+        error: 'Usuario no encontrado' 
+      });
+    }
+    
+
+    res.json({ 
+      estado: result.rows[0].estado_verificacion
+    });
+    
+  } catch (err) {
+    console.error('Error al consultar estado del usuario:', err);
+    res.status(500).json({ 
+      error: 'Error en el servidor',
+      details: err.message  
+    });
+  }
+})
+
+
+
+

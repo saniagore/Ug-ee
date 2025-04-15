@@ -3,40 +3,38 @@ import UwayLogo from '../../resources/UwayLogo.png';
 import '../../css/homePagePhone.css';
 import { useState } from 'react';
 import { checkUserInDatabase } from '../../components/phoneValid';
+import { phoneValidation } from '../../components/dataValid';
+import { checkUserStatus } from '../../components/estadoUsuario';
+import { useNavigation } from '../../components/navigations';
 
 function usePhoneInput(){
     const [phone, setPhone] = useState('');
-
-    const phoneNumber = (number) => {
-        if (number.length !== 10) return false;
-        if (!/^[0-9]+$/.test(number)) return false;
-        return true;
-    };
-
-    return { phone, setPhone, phoneNumber };
+    return { phone, setPhone};
 }
 
 function PhoneInput({ onRegister, onLogin }) {
-    const {phone, setPhone, phoneNumber} = usePhoneInput();
+    const { goToWaitForValid } = useNavigation();
+    const {phone, setPhone} = usePhoneInput();
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
 
     const handlePhoneChange = async (event) => { 
         event.preventDefault();
         
-        if (!phoneNumber(phone)) {
+        if (!phoneValidation(phone)) {
           setAlertMessage('Número inválido. Debe tener 10 dígitos numéricos.');
           setShowAlert(true);
           return;
         }
       
         try {
-          const { exists, user } = await checkUserInDatabase(phone);
-          console.log('Respuesta del backend:', { exists, user });
+          const { exists } = await checkUserInDatabase(phone);
           if (!exists) {
             onRegister();
           } else {
-            onLogin();
+            checkUserStatus(phone).then((status) => {
+              status ? onLogin() : goToWaitForValid(); 
+            });
           }
           
         } catch (error) {

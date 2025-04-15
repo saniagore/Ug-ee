@@ -8,11 +8,13 @@ import { PhoneInput } from './homePages/homePagePhone';
 import Register from './homePages/homePageSingUp';
 import Login from './homePages/homePageSingIn';
 
+
 function HomePage() {
     const [currentView, setCurrentView] = useState('phoneInput');
     const caliPosition = [3.375658, -76.529885];
 
     return (
+
         <div className="App" style={{ display: 'flex', padding: '20px' }}>
             <div className="container" style={{width: '100%', maxWidth: '400px'}}>
                 

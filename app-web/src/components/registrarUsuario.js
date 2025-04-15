@@ -28,7 +28,7 @@ export const registrarUsuario = async (
         const errorData = await response.json();
         throw new Error(errorData.error || 'Error al registrar usuario');
       }
-  
+      console.log('usuario registrado');
       return await response.json();
     } catch (error) {
       console.error('Error completo:', error);
