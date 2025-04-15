@@ -4,8 +4,6 @@ import '../../css/homePagePhone.css';
 import { useState } from 'react';
 import { checkUserInDatabase } from '../../components/phoneValid';
 import { phoneValidation } from '../../components/dataValid';
-import { checkUserStatus } from '../../components/estadoUsuario';
-import { useNavigation } from '../../components/navigations';
 
 function usePhoneInput(){
     const [phone, setPhone] = useState('');
@@ -13,7 +11,6 @@ function usePhoneInput(){
 }
 
 function PhoneInput({ onRegister, onLogin }) {
-    const { goToWaitForValid } = useNavigation();
     const {phone, setPhone} = usePhoneInput();
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
@@ -32,9 +29,7 @@ function PhoneInput({ onRegister, onLogin }) {
           if (!exists) {
             onRegister();
           } else {
-            checkUserStatus(phone).then((status) => {
-              status ? onLogin() : goToWaitForValid(); 
-            });
+            onLogin();
           }
           
         } catch (error) {
@@ -63,7 +58,7 @@ function PhoneInput({ onRegister, onLogin }) {
                     />
                 </div>
             </div>
-            <button className="continue-button" onClick={handlePhoneChange}>Continuar</button>
+            <button className="continue-button-home" onClick={handlePhoneChange}>Continuar</button>
 
             {showAlert && (
                 <div className="custom-alert">

@@ -10,6 +10,10 @@ export const useNavigation = () => {
   const goToWaitForValid = () => {
     navigate('/WaitForValid');
   };
+
+  const goToMenu = () => {
+    navigate('/Menu');
+  };
   
-  return { goToHomePage, goToWaitForValid };
+  return { goToHomePage, goToWaitForValid, goToMenu };
 };

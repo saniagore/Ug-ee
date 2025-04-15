@@ -6,10 +6,9 @@ import { useState, useEffect } from 'react';
 import { registrarUsuario } from '../../components/registrarUsuario';
 import { checkUserInDatabase } from '../../components/phoneValid';
 import { dataValid } from '../../components/dataValid';
-import { useNavigation } from '../../components/navigations';
+
 
 export default function Register({ onBack }) {
-  const { goToWaitForValid } = useNavigation();
   const [formData, setFormData] = useState({
     nombre: '',
     celular: '',
@@ -60,7 +59,6 @@ export default function Register({ onBack }) {
     )) {
       setAlertMessage('Datos invalidos, revise los datos ingresados');
       setShowAlert(true);
-      return;
     }
 
     try {
@@ -68,7 +66,6 @@ export default function Register({ onBack }) {
       if (exists) {
         setAlertMessage('Número de celular ya registrado');
         setShowAlert(true);
-        return;
       }
       
       await registrarUsuario(
@@ -81,7 +78,11 @@ export default function Register({ onBack }) {
         formData.institucion
       );
       
-      goToWaitForValid();
+      setAlertMessage("Usuario registrado, espere la validación de la institución");
+      setShowAlert(true);
+      setTimeout(() => {
+        onBack();
+      }, 5000);
     } catch (error) {
       setAlertMessage(error.message);
       setShowAlert(true);
@@ -120,7 +121,7 @@ export default function Register({ onBack }) {
         />
       </div>
       
-      <div className='inputs-section' style={{
+      <div className='inputs-section-register' style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -147,7 +148,7 @@ export default function Register({ onBack }) {
         />
       </div>
 
-      <div className='inputs-section' style={{
+      <div className='inputs-section-register' style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -173,7 +174,7 @@ export default function Register({ onBack }) {
         </select>
       </div>
 
-      <div className='inputs-section' style={{
+      <div className='inputs-section-register' style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -205,7 +206,7 @@ export default function Register({ onBack }) {
         </select>
       </div>
       
-      <button className="continue-button" onClick={handleSubmit}>Continuar</button>
+      <button className="Register-button" onClick={handleSubmit}>Registrar</button>
 
       {showAlert && (
         <div className="custom-alert">

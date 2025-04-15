@@ -19,11 +19,7 @@ app.use(express.json());
 app.get('/api/usuario/:telefono', async (req, res) => {
   try {
     const { telefono } = req.params;
-    if (!/^\d+$/.test(telefono)) {
-      return res.status(400).json({ 
-        error: 'El teléfono solo debe contener números' 
-      });
-    }
+
     const result = await pool.query(
       'SELECT * FROM usuario WHERE celular = $1', 
       [telefono]
@@ -116,11 +112,6 @@ app.post('/api/usuario', async (req, res) => {
       return res.status(400).json({ error: 'Faltan campos obligatorios' });
     }
 
-    if (!/^\d+$/.test(telefono)) {
-      return res.status(400).json({ 
-        error: 'El teléfono solo debe contener números' 
-      });
-    }
     const result = await pool.query(
       `INSERT INTO usuario 
        (nombre, correo, contraseña, celular, numero_identificacion, tipo_identificacion, institucion_id) 
@@ -187,3 +178,22 @@ app.get('/api/usuario/:telefono/estado', async (req, res) => {
 
 
 
+app.get('/api/usuario/:telefono/contraseña'), async (req,res) => {
+  try{
+    const {telefono} = req.params;
+    const result = await pool.query(
+      'SELECT contraseña FROM usuario WHERE celular = $1', [telefono]);
+
+    if(result.rows.length===0){
+      return res.status(404).json({error: 'Usuario no encontrado'});
+    }
+
+    res.json({contraseña: result.rows[0].contraseña});
+  }catch(err){
+    console.error('Error al consultar contraseña del usuario:', err);
+    res.status(500).json({
+      error: 'Error en el servidor',
+      details: err.message
+    });
+  }
+}

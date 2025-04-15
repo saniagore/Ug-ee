@@ -30,7 +30,7 @@
     word-wrap: break-word; 
 }
 
-.inputs-section{
+.inputs-section-register{
     margin-top: 40px;
 }
 
@@ -52,7 +52,7 @@
 }
 
 
-.continue-button {
+.Register-button {
     margin-top: 100px;
     background-color: #7e46d2;
     color: white;
