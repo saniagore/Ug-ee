@@ -1,10 +1,10 @@
 import { FaArrowLeft } from "react-icons/fa";
 import { VscAccount } from "react-icons/vsc";
-import "../../css/homePageSingUp.css";
-import { getInstituciones } from "../../components/instituciones";
+import "../../../css/homePageSingUp.css";
+import { getInstituciones } from "../../../components/instituciones";
 import { useState, useEffect } from "react";
-import { QueryUser } from "../../components/queryUser";
-import { Validar_datos } from "../../components/dataValid";
+import { QueryUser } from "../../../components/queryUser";
+import { Validar_datos } from "../../../components/dataValid";
 
 export default function Register({ onBack }) {
   const [formData, setFormData] = useState({

@@ -1,9 +1,9 @@
-import ColombiaFlag from "../../resources/ColombiaFlag.png";
-import UwayLogo from "../../resources/UwayLogo.png";
-import "../../css/homePagePhone.css";
+import ColombiaFlag from "../../../resources/ColombiaFlag.png";
+import UwayLogo from "../../../resources/UwayLogo.png";
+import "../../../css/homePagePhone.css";
 import { useState } from "react";
-import { QueryUser } from "../../components/queryUser";
-import { Validar_datos } from "../../components/dataValid";
+import { QueryUser } from "../../../components/queryUser";
+import { Validar_datos } from "../../../components/dataValid";
 
 function usePhoneInput() {
   const [phone, setPhone] = useState("");
@@ -22,8 +22,9 @@ function PhoneInput({ onRegister, onLogin }) {
     try {
       Validar_datos.celular(phone);
     } catch (err) {
-      setAlertMessage(err);
+      setAlertMessage(err.message);
       setShowAlert(true);
+      return;
     }
 
     try {

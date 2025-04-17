@@ -26,12 +26,13 @@ export class Validar_datos {
       throw new Error("La identificacion solo debe de contener numeros");
   }
   static contraseña(contraseña) {
-    if (!typeof contraseña === "string")
+    if (typeof contraseña !== "string")
       throw new Error("La contraseña debe de ser un string");
-    if (!contraseña.length >= 8)
+    if (contraseña.trim() === "")
+      throw new Error("La contraseña no puede estar vacía");
+    if (contraseña.length < 8)
       throw new Error("La contraseña debe de tener minimo longitud 8");
   }
-
   static tipo_documento(tipo_documento) {
     if (!typeof tipo_documento === "string")
       throw new Error("El tipo de documento debe de ser un string");

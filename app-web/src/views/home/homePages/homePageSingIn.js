@@ -1,9 +1,9 @@
 import {FaArrowLeft} from 'react-icons/fa';
-import '../../css/homePageSingIn.css';
-import { useNavigation } from '../../components/navigations';
+import '../../../css/homePageSingIn.css';
+import { useNavigation } from '../../../components/navigations';
 import { useState } from 'react';
-import { Validar_datos } from '../../components/dataValid';
-import { QueryUser } from '../../components/queryUser';
+import { Validar_datos } from '../../../components/dataValid';
+import { QueryUser } from '../../../components/queryUser';
 
 export default function Login({ onBack }) {
     const userQuery = new QueryUser();

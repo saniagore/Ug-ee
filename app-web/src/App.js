@@ -1,4 +1,4 @@
-import HomePage from './views/homePage.js';
+import HomePage from './views/home/homePage.js';
 import WaitForValid from './views/waitForValid.js';
 import Menu from './views/menu.js'
 import './css/App.css';

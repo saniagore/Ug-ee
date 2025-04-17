@@ -1,4 +1,4 @@
-import '../css/homePagePhone.css';
+import '../../css/homePagePhone.css';
 import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
