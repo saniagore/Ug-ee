@@ -6,7 +6,7 @@ CREATE TABLE institucion(
     contraseña VARCHAR(255) NOT NULL,
     color_primario VARCHAR(7) NOT NULL,
     color_secundario VARCHAR(7) NOT NULL,
-    logo BYTEA NOT NULL,
+    logo BYTEA,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     direccion VARCHAR(255) NOT NULL,
     estado_verificacion BOOLEAN DEFAULT TRUE

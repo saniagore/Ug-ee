@@ -4,8 +4,9 @@ import '../../css/homePageSingUp.css';
 import { Arrayinstituciones } from '../../components/instituciones';
 import { useState, useEffect } from 'react';
 import { registrarUsuario } from '../../components/registrarUsuario';
-import { checkUserInDatabase } from '../../components/phoneValid';
-import { dataValid } from '../../components/dataValid';
+import { QueryUser } from '../../components/queryUser';
+import { Validar_datos } from '../../components/dataValid';
+
 
 
 export default function Register({ onBack }) {
@@ -19,6 +20,7 @@ export default function Register({ onBack }) {
     institucion: ''
   });
   
+  const userQuery = new QueryUser();
   const [instituciones, setInstituciones] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState('');
@@ -47,27 +49,30 @@ export default function Register({ onBack }) {
 
   const handleSubmit = async (event) => { 
     event.preventDefault();  
-    
-    if (!dataValid(
-      formData.celular,
-      formData.nombre,
-      formData.correo,
-      formData.numeroIdentificacion,
-      formData.contraseña,
-      formData.tipoIdentificacion,
-      formData.institucion
-    )) {
-      setAlertMessage('Datos invalidos, revise los datos ingresados');
-      setShowAlert(true);
-    }
 
+
+    try{
+      Validar_datos.celular(formData.celular);
+      Validar_datos.nombre(formData.nombre);
+      Validar_datos.correo(formData.correo);
+      Validar_datos.contraseña(formData.contraseña);
+      Validar_datos.Identificacion(formData.numeroIdentificacion);
+      Validar_datos.tipo_documento(formData.tipoIdentificacion);
+      Validar_datos.institucion(formData.institucion);
+    }catch(err){
+      setAlertMessage(err.message);
+      setShowAlert(true);
+      return;
+    }
+    
     try {
-      const { exists } = await checkUserInDatabase(formData.celular);
-      if (exists) {
+      const exists = await userQuery.verificarExistencia(formData.celular);
+      if (exists.existe) {
         setAlertMessage('Número de celular ya registrado');
         setShowAlert(true);
       }
       
+      //arreglar registrar usuario
       await registrarUsuario(
         formData.nombre,
         formData.contraseña,

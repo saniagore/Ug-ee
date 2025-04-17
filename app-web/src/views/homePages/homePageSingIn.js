@@ -2,12 +2,11 @@ import {FaArrowLeft} from 'react-icons/fa';
 import '../../css/homePageSingIn.css';
 import { useNavigation } from '../../components/navigations';
 import { useState } from 'react';
-import { contraseñaValidation, phoneValidation } from '../../components/dataValid';
-import { checkUserInDatabase } from '../../components/phoneValid';
-import { verificarContraseña } from '../../components/reqcontraseña';
-
+import { Validar_datos } from '../../components/dataValid';
+import { QueryUser } from '../../components/queryUser';
 
 export default function Login({ onBack }) {
+    const userQuery = new QueryUser();
     const {goToMenu} = useNavigation();
     const [alertMessage, setAlertMessage] = useState('');
     const [showAlert, setShowAlert] = useState(false);
@@ -20,19 +19,22 @@ export default function Login({ onBack }) {
         setFormData(prev => ({ ...prev, [field]: e.target.value }));
     };
 
-
-
     const handleSubmit = async (event) => { 
         event.preventDefault();  
         
-        if (!phoneValidation(formData.celular)&& !contraseñaValidation(formData.contraseña)) {
-          setAlertMessage('Datos invalidos, revise los datos ingresados');
+        try{
+          Validar_datos.celular(formData.celular);
+          Validar_datos.contraseña(formData.contraseña);
+        }catch(err){
+          setAlertMessage(err);
           setShowAlert(true);
+          return;
         }
     
         try {
-          const { exists } = await checkUserInDatabase(formData.celular);
-          if (!exists) {
+          const exists = await userQuery.verificarExistencia(formData.celular);
+          console.log(exists);
+          if (!exists.existe) {
             setAlertMessage('Número de celular no registrado');
             setShowAlert(true);
             setTimeout(() => {
@@ -40,7 +42,9 @@ export default function Login({ onBack }) {
               }, 5000);
           } 
 
-          if(verificarContraseña(formData.celular, formData.contraseña)){
+
+          //corregir esto
+          if(Validar_datos.contraseña(formData.contraseña)){
             goToMenu();
           }else{
             setAlertMessage('Contraseña incorrecta');

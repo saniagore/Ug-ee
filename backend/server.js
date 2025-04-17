@@ -1,80 +1,129 @@
-const express = require('express');
-const { Pool } = require('pg');
-const cors = require('cors');
+import { PORT, DB_CONFIG, SALT_ROUNDS } from "./config.js";
+
+import express from 'express';
+import pg from 'pg';
+const { Pool } = pg;
+import cors from 'cors';
+import bcrypt from 'bcrypt';
+
 const app = express();
-const port = process.env.PORT || 5000;
-const config = {
-  user: process.env.DB_USER || 'admin',
-  host: process.env.DB_HOST || 'db',
-  password: process.env.DB_PASSWORD || 'admin',
-  database: process.env.DB_NAME || 'uguee_db',
-  port: parseInt(process.env.DB_PORT) || 5432
-};
+const pool = new Pool(DB_CONFIG);
 
-const pool = new Pool(config);
-app.use(cors());
+app.use(cors(
+  {origin: 'http://localhost:3000'}
+));
 app.use(express.json());
-
-
-app.get('/api/usuario/:telefono', async (req, res) => {
-  try {
-    const { telefono } = req.params;
-
-    const result = await pool.query(
-      'SELECT * FROM usuario WHERE celular = $1', 
-      [telefono]
-    );
-    res.json({ 
-      exists: result.rows.length > 0,
-      user: result.rows[0] || null
-    });
-    
-  } catch (err) {
-    console.error('Error detallado:', err);
-    res.status(500).json({ 
-      error: 'Error en el servidor',
-      details: err.message  
-    });
-  }
-});
-
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).send('Algo salió mal!');
+  res.status(500).send("Algo salió mal!");
 });
 
-
-app.listen(port, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${port}`);
+app.listen(PORT, () => {
+  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
 });
 
+pool
+  .connect()
+  .then(() => console.log("Conectado a PostgreSQL"))
+  .catch((err) => console.error("Error de conexión a PostgreSQL:", err));
 
-pool.connect()
-  .then(() => console.log('Conectado a PostgreSQL'))
-  .catch(err => console.error('Error de conexión a PostgreSQL:', err));
+//------------------------ USER FUNCTIONS -------------------------------------------
+
+const userFunctions = {
+  async obtener_datos(celular) {
+    try {
+      const result = await pool.query("SELECT * FROM usuario WHERE celular = $1", [celular]);
+      return result.rows[0] || null;
+    } catch (err) {
+      console.error("Error en obtener_datos:", err);
+      throw err;
+    }
+  },
+
+  async existeUsuario(celular) {
+    try {
+      const usuario = await this.obtener_datos(celular);
+      return usuario !== null;
+    } catch (err) {
+      console.error("Error en existeUsuario:", err);
+      throw err;
+    }
+  },
+
+  async verificarContraseña(celular, contraseñaIngresada) {
+    const usuario = await userFunctions.obtenerUsuarioPorCelular(celular);
+    const isValid = bcrypt.compareSync(contraseñaIngresada, usuario.contraseña);
+    return isValid;
+  },
+
+  async obtenerEstado(celular) {
+    const usuario = await userFunctions.obtener_datos(celular);
+    return usuario.estado_verificacion;
+  },
 
 
+  async crearUsuario(array) {
+    
+  }
+};
 
-app.get('/api/institucion', async (req,res) => {
-  try{
-    const result = await pool.query('SELECT nombre FROM institucion');
-    res.json({ 
-      instituciones: result.rows
+
+// -----------------------------------APP.GET----------------------------------------
+
+app.get("/api/institucion", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT nombre FROM institucion");
+    res.json({
+      instituciones: result.rows,
     });
-  
-  }catch(err){
-    console.error('Error detallado: ', err);
+  } catch (err) {
+    console.error("Error detallado: ", err);
     res.status(500).json({
-      error: 'Error en el servidor',
-      details: err.message
+      error: "Error en el servidor",
+      details: err.message,
     });
   }
 });
 
-app.post('/api/usuario', async (req, res) => {
+//--------------------------------------------------------------------------------------------------
+
+app.get("/api/usuario/existe/:celular", async (req, res) => {
   try {
-    const { nombre,telefono,nid,correo,tid,institucion,contraseña } = req.body; 
+    const { celular } = req.params;
+    const existe = await userFunctions.existeUsuario(celular)
+    res.json({ existe });
+  } catch (err) {
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
+app.get("/api/usuario/verificar-contraseña", async (req, res) => {
+  try {
+    const { celular, contraseña } = req.body;
+    const coincide = await userFunctions.verificarContraseña(celular, contraseña)
+    res.json({ coincide });
+  } catch (err) {
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
+app.get("/api/usuario/estado/:celular", async (req, res) => {
+  try {
+    const { celular } = req.params;
+    const estado = await userFunctions.obtenerEstado(celular);
+    res.json({ estado });
+  } catch (err) {
+    res.status(500).json({ error: "Error en el servidor" });
+  }
+});
+
+//---------------------------------REGISTRAR USUARIO-------------------------------------------
+
+app.post("/api/usuario", async (req, res) => {
+  try {
+    const { nombre, telefono, nid, correo, tid, institucion, contraseña } =
+      req.body;
 
     const validationResult = await pool.query(
       `SELECT 
@@ -84,32 +133,45 @@ app.post('/api/usuario', async (req, res) => {
       [telefono, nid, correo]
     );
 
-    const { telefono_exists, nid_exists, correo_exists } = validationResult.rows[0];
+    const contraseñahasheada = bcrypt.hashSync(contraseña, SALT_ROUNDS);
+    const { telefono_exists, nid_exists, correo_exists } =
+      validationResult.rows[0];
     const errors = {};
-    
-    if (telefono_exists) errors.telefono = 'Este número de teléfono ya está registrado';
-    if (nid_exists) errors.nid = 'Este número de identificación ya está registrado';
-    if (correo_exists) errors.correo = 'Este correo electrónico ya está registrado';
-    
+
+    if (telefono_exists)
+      errors.telefono = "Este número de teléfono ya está registrado";
+    if (nid_exists)
+      errors.nid = "Este número de identificación ya está registrado";
+    if (correo_exists)
+      errors.correo = "Este correo electrónico ya está registrado";
+
     if (Object.keys(errors).length > 0) {
       return res.status(400).json({ errors });
     }
 
     const institucionResult = await pool.query(
-      'SELECT id FROM institucion WHERE nombre = $1', 
+      "SELECT id FROM institucion WHERE nombre = $1",
       [institucion]
     );
 
     if (institucionResult.rows.length === 0) {
-      return res.status(400).json({ 
-        error: 'La institución especificada no existe' 
+      return res.status(400).json({
+        error: "La institución especificada no existe",
       });
     }
 
     const institucion_id = institucionResult.rows[0].id;
 
-    if (!nombre || !telefono || !contraseña|| !tid || !nid|| !institucion|| !correo) {
-      return res.status(400).json({ error: 'Faltan campos obligatorios' });
+    if (
+      !nombre ||
+      !telefono ||
+      !contraseña ||
+      !tid ||
+      !nid ||
+      !institucion ||
+      !correo
+    ) {
+      return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
 
     const result = await pool.query(
@@ -117,83 +179,25 @@ app.post('/api/usuario', async (req, res) => {
        (nombre, correo, contraseña, celular, numero_identificacion, tipo_identificacion, institucion_id) 
        VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING *`,
-      [nombre, correo, contraseña, telefono, nid, tid, institucion_id]
+      [nombre, correo, contraseñahasheada, telefono, nid, tid, institucion_id]
     );
 
-    res.status(201).json({ 
-      message: 'Usuario registrado exitosamente',
-      user: result.rows[0]
+    res.status(201).json({
+      message: "Usuario registrado exitosamente",
+      user: result.rows[0],
     });
-    
   } catch (err) {
-    console.error('Error al registrar usuario:', err);
-    if (err.code === '23505') {
-      return res.status(400).json({ 
-        error: 'El número de teléfono ya está registrado' 
+    console.error("Error al registrar usuario:", err);
+    if (err.code === "23505") {
+      return res.status(400).json({
+        error: "El número de teléfono ya está registrado",
       });
     }
-    
-    res.status(500).json({ 
-      error: 'Error en el servidor al registrar usuario',
-      details: err.message  
+
+    res.status(500).json({
+      error: "Error en el servidor al registrar usuario",
+      details: err.message,
     });
   }
 });
-
-app.get('/api/usuario/:telefono/estado', async (req, res) => {
-  try {
-    const { telefono } = req.params;
-    
-    if (!/^\d+$/.test(telefono)) {
-      return res.status(400).json({ 
-        error: 'El teléfono solo debe contener números' 
-      });
-    }
-    
-    const result = await pool.query(
-      'SELECT estado_verificacion FROM usuario WHERE celular = $1', 
-      [telefono]
-    );
-    
-    if (result.rows.length === 0) {
-      return res.status(404).json({ 
-        error: 'Usuario no encontrado' 
-      });
-    }
-    
-
-    res.json({ 
-      estado: result.rows[0].estado_verificacion
-    });
-    
-  } catch (err) {
-    console.error('Error al consultar estado del usuario:', err);
-    res.status(500).json({ 
-      error: 'Error en el servidor',
-      details: err.message  
-    });
-  }
-})
-
-
-
-
-app.get('/api/usuario/:telefono/contraseña'), async (req,res) => {
-  try{
-    const {telefono} = req.params;
-    const result = await pool.query(
-      'SELECT contraseña FROM usuario WHERE celular = $1', [telefono]);
-
-    if(result.rows.length===0){
-      return res.status(404).json({error: 'Usuario no encontrado'});
-    }
-
-    res.json({contraseña: result.rows[0].contraseña});
-  }catch(err){
-    console.error('Error al consultar contraseña del usuario:', err);
-    res.status(500).json({
-      error: 'Error en el servidor',
-      details: err.message
-    });
-  }
-}
+//---------------------------------------REGISTRAR USUARIO----------------------------
