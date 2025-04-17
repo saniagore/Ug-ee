@@ -42,9 +42,7 @@ export default function Login({ onBack }) {
               }, 5000);
           } 
 
-
-          //corregir esto
-          if(Validar_datos.contraseña(formData.contraseña)){
+          if(userQuery.verificarContraseña(formData.celular,formData.contraseña)){
             goToMenu();
           }else{
             setAlertMessage('Contraseña incorrecta');
