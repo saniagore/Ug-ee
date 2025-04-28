@@ -9,3 +9,6 @@ export const DB_CONFIG = {
   database: process.env.DB_NAME || "uguee_db",
   port: parseInt(process.env.DB_PORT) || 5432,
 };
+
+export const JWT_SECRET = process.env.JWT_SECRET || '1mX4#bP7z!qN8$KwD@eLf2Rs9HtV0gYcWi6*pZhAjXs3oV&QbMt';
+export const JWT_EXPIRATION = process.env.JWT_EXPIRATION || "1h";

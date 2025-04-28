@@ -3,21 +3,18 @@ export class QueryUser {
 
   async verificarContraseña(celular, contraseña) {
     try {
-      const response = await fetch(
-        `${QueryUser.BASE_URL}/api/usuario/verificar-contraseña`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ celular, contraseña }),
-        }
-      );
+      const response = await fetch(`${QueryUser.BASE_URL}/api/usuario/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ celular, contraseña }),
+      });
 
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
+      const data = await response.json();
+
+      if (!response.ok || data.coincide === false) {
+        return false;
       }
-
-      const { coincide } = await response.json();
-      return coincide;
+      return data.token;
     } catch (error) {
       console.error("Error en verificar contraseña:", error);
       return false;
@@ -60,32 +57,27 @@ export class QueryUser {
     }
   }
   
-  async login(celular,contraseña){
-    try{
-      const response = await fetch(
-        `${QueryUser.BASE_URL}/api/usuario/crearusuario`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(celular, contraseña)
-        }
-      );
+  async login(celular, contraseña) {
+    try {
+      const token = await this.verificarContraseña(celular, contraseña);
 
-      const result = await response.json();
-      if (!response.ok) {
+      if (!token) {
         return {
           error: true,
-          message: result.message || "Error al logear usuario",
-          details: result.details
+          message: "Credenciales incorrectas",
         };
       }
-  
-      return result;
-    } catch (err) {
-      console.error("Error al logear usuario:", err);
-      return { 
+      localStorage.setItem("jwt_token", token);
+
+      return {
+        error: false,
+        token,
+      };
+    } catch (error) {
+      console.error("Error al hacer login:", error);
+      return {
         error: true,
-        message: "Error de conexión al servidor"
+        message: "Error de conexión al servidor",
       };
     }
   }
