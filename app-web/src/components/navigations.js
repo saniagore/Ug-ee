@@ -15,5 +15,9 @@ export const useNavigation = () => {
     navigate('/Menu');
   };
   
-  return { goToHomePage, goToWaitForValid, goToMenu };
+  const goToColaborador = () => {
+    navigate('/Colaborador');
+  };
+  
+  return { goToHomePage, goToWaitForValid, goToMenu, goToColaborador };
 };

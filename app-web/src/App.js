@@ -1,6 +1,7 @@
 import HomePage from './views/home/homePage.js';
 import WaitForValid from './views/waitForValid.js';
 import Menu from './views/menu.js'
+import Colaborador from './views/home/colaborador.js'
 import './css/App.css';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 
@@ -11,6 +12,7 @@ function App() {
         <Route path='/' element={<div className="app"><HomePage /></div>} />
         <Route path='/WaitForValid' element={<WaitForValid/>} />
         <Route path='/Menu' element={<Menu/>} />
+        <Route path='/Colaborador' element={<Colaborador/>} />
       </Routes>
     </Router>
   );

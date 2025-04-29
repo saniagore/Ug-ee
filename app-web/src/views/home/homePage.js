@@ -7,13 +7,13 @@ import { useState, useEffect } from 'react';
 import { PhoneInput } from './homePages/homePagePhone';
 import Register from './homePages/homePageSingUp';
 import Login from './homePages/homePageSingIn';
-import { useNavigate } from 'react-router-dom';
+import { useNavigation } from '../../components/navigations';
 
 
 function HomePage() {
     const [currentView, setCurrentView] = useState('phoneInput');
     const caliPosition = [3.375658, -76.529885];
-    const { goToMenu } = useNavigate();
+    const { goToMenu } = useNavigation();
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -25,7 +25,7 @@ function HomePage() {
                 if (response.ok) {
                     const data = await response.json();
                     if (data.authenticated) {
-                        goToMenu(); // Usar el hook personalizado para redirigir
+                        goToMenu(); 
                     }
                 }
             } catch (error) {

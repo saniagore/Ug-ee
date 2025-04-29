@@ -47,7 +47,7 @@
 }
 
 .title {
-  margin-top: 250px;
+  margin-top: 180px;
   text-align: center;
   color: #333;
   font-size: 28px;
@@ -141,4 +141,18 @@
   border: none;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.boton-trabaja{
+  margin-top: 10px;
+  background-color: #c9c4d1;
+  border-color: #7e46d2;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 25px;
+  font-size: 16px;
+  cursor: pointer;
+  width: 100%;
+  transition: background-color 0.3s;
 }

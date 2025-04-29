@@ -191,7 +191,28 @@ router.get('/auth/verify', async (req, res) => {
   }
 });
 
-
+router.post("/logout", (req, res) => {
+  try {
+    // Clear the access token cookie
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict'
+    });
+    
+    // Also provide a response for clients that might not use cookies
+    res.json({
+      success: true,
+      message: "Logout exitoso"
+    });
+  } catch (error) {
+    console.error("Error en logout:", error);
+    res.status(500).json({ 
+      success: false, 
+      error: "Error en el servidor durante el logout" 
+    });
+  }
+});
 
 
 export default router;

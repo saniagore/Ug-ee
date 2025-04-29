@@ -4,6 +4,7 @@ import "../../../css/homePagePhone.css";
 import { useState } from "react";
 import { QueryUser } from "../../../components/queryUser";
 import { Validar_datos } from "../../../components/dataValid";
+import { useNavigation } from "../../../components/navigations";
 
 function usePhoneInput() {
   const [phone, setPhone] = useState("");
@@ -11,10 +12,15 @@ function usePhoneInput() {
 }
 
 function PhoneInput({ onRegister, onLogin }) {
+  const { goToColaborador } = useNavigation();
   const userQuery = new QueryUser();
   const { phone, setPhone } = usePhoneInput();
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
+
+  const handleColaborador = async () => {
+    goToColaborador();
+  };
 
   const handlePhoneChange = async (event) => {
     event.preventDefault();
@@ -65,6 +71,9 @@ function PhoneInput({ onRegister, onLogin }) {
       </div>
       <button className="continue-button-home" onClick={handlePhoneChange}>
         Continuar
+      </button>
+      <button className="boton-trabaja" onClick={handleColaborador}>
+        Trabaja con nosotros
       </button>
 
       {showAlert && (
