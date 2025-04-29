@@ -1,9 +1,8 @@
 import pg from "pg";
-const { Pool } = pg;
 import bcrypt from "bcrypt";
 import { DB_CONFIG, SALT_ROUNDS } from "../config.js";
 import { obtenerInstitucion } from "./institucion.controller.js";
-
+const { Pool } = pg;
 const pool = new Pool(DB_CONFIG);
 
 export const obtenerDatosUsuario = async (celular) => {
@@ -30,9 +29,24 @@ export const existeUsuario = async (celular) => {
 };
 
 export const verificarContraseña = async (celular, contraseñaIngresada) => {
-  const usuario = await obtenerDatosUsuario(celular);
-  if (!usuario) return false;
-  return bcrypt.compareSync(contraseñaIngresada, usuario.contraseña);
+  try {
+    const usuario = await obtenerDatosUsuario(celular);
+    if (!usuario) {
+      console.log('Usuario no encontrado');
+      return false;
+    }
+    
+    // Verificación más robusta con bcrypt
+    const coincide = await bcrypt.compare(contraseñaIngresada, usuario.contraseña);
+    if (!coincide) {
+      console.log('Contraseña no coincide');
+    }
+    return coincide;
+    
+  } catch (err) {
+    console.error("Error en verificarContraseña:", err);
+    throw err;
+  }
 };
 
 export const existenDatos = async (telefono, nid, correo) => {
@@ -66,8 +80,18 @@ export const existenDatos = async (telefono, nid, correo) => {
 };
 
 export const obtenerEstadoUsuario = async (celular) => {
-  const usuario = await obtenerDatosUsuario(celular);
-  return usuario.estado_verificacion;
+  try {
+    const usuario = await obtenerDatosUsuario(celular);
+    if (!usuario) {
+      throw new Error('Usuario no encontrado');
+    }
+    return {
+      estado_verificacion: usuario.estado_verificacion,
+    };
+  } catch (err) {
+    console.error("Error en obtenerEstadoUsuario:", err);
+    throw err;
+  }
 };
 
 export const crearUsuario = async (formData) => {

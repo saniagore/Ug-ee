@@ -3,15 +3,45 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { PhoneInput } from './homePages/homePagePhone';
 import Register from './homePages/homePageSingUp';
 import Login from './homePages/homePageSingIn';
+import { useNavigate } from 'react-router-dom';
 
 
 function HomePage() {
     const [currentView, setCurrentView] = useState('phoneInput');
     const caliPosition = [3.375658, -76.529885];
+    const { goToMenu } = useNavigate();
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            try {
+                const response = await fetch('http://localhost:5000/api/usuario/auth/verify', {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.authenticated) {
+                        goToMenu(); // Usar el hook personalizado para redirigir
+                    }
+                }
+            } catch (error) {
+                console.error("Error verificando autenticación:", error);
+            }
+        };
+
+        checkAuth();
+    }, [goToMenu]); // Agregar goToMenu como dependencia
+
+    const handleLoginSuccess = () => {
+        goToMenu(); // Usar el hook personalizado para redirigir
+    };
+
+
+
 
     return (
 
@@ -29,7 +59,9 @@ function HomePage() {
                     <Register onBack={() => setCurrentView('phoneInput')} />
                 )}
                 {currentView === 'login' && (
-                    <Login onBack={() => setCurrentView('phoneInput')}/>
+                    <Login onBack={() => setCurrentView('phoneInput')}
+                    onLoginSuccess={handleLoginSuccess}
+                    />
                 )}
                 
 

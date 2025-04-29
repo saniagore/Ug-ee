@@ -1,71 +1,76 @@
 import { FaArrowLeft } from "react-icons/fa";
 import "../../../css/homePageSingIn.css";
 import { useNavigation } from "../../../components/navigations";
-import { useState } from "react";
-import { Validar_datos } from "../../../components/dataValid";
+import { useState, useEffect } from "react";
+//import { Validar_datos } from "../../../components/dataValid";
 import { QueryUser } from "../../../components/queryUser";
 
-export default function Login({ onBack }) {
+export default function Login({ onBack, onLoginSuccess }) {
   const userQuery = new QueryUser();
   const { goToMenu } = useNavigation();
+  const [user, setUser] = useState(null); // Add state for user
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     celular: "",
     contraseña: "",
   });
+  const [error, setError] = useState(null);
+
+  // Limpiar alertas cuando se cambian los campos
+  useEffect(() => {
+    if (showAlert) {
+      setShowAlert(false);
+    }
+  }, [formData.celular, formData.contraseña, showAlert]);
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
 
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    
     try {
-      Validar_datos.celular(formData.celular);
-      Validar_datos.contraseña(formData.contraseña);
-    } catch (err) {
-      setAlertMessage(err);
-      setShowAlert(true);
-      return;
-    }
-
-    try {
-      const exists = await userQuery.verificarExistencia(formData.celular);
-
-      if (!exists) {
-        setAlertMessage("Error verificando existencia");
-        setShowAlert(true);
-        return;
+      // 1. Realizar login
+      const loginResponse = await userQuery.verificarContraseña(formData.celular, formData.contraseña);
+      
+      if (!loginResponse.success) {
+        throw new Error(loginResponse.message || "Credenciales incorrectas");
       }
-
-      if (!exists.existe) {
-        setAlertMessage("Número de celular no registrado");
-        setShowAlert(true);
-        setTimeout(() => {
-          onBack();
-        }, 5000);
-        return;
+  
+      // 2. Verificar autenticación
+      const verifyResponse = await userQuery.verifyAuth();
+      
+      if (!verifyResponse.authenticated) {
+        throw new Error(verifyResponse.error || "No autenticado");
       }
-
-      const token = await userQuery.verificarContraseña(
-        formData.celular,
-        formData.contraseña
-      );
-
-
-      if (!token) {
-        setAlertMessage("Contraseña incorrecta");
-        setShowAlert(true);
-        return;
-      }
-
-      goToMenu(); 
+  
+      // 3. Guardar datos de usuario en estado/contexto
+      setUser(verifyResponse.user);
+      
+      // 4. Redirigir
+      goToMenu();
+      onLoginSuccess(verifyResponse.user); // Llamar a la función de éxito de inicio de sesión
+  
     } catch (error) {
-      console.error(error);
-      setAlertMessage(error.message || "Error desconocido");
-      setShowAlert(true);
+      // Manejo específico de errores
+      let errorMessage = error.message;
+      
+      if (error.message.includes("Token inválido")) {
+        errorMessage = "Sesión expirada, por favor inicia sesión nuevamente";
+        // Limpiar token inválido
+        localStorage.removeItem("jwt_token");
+      }
+      
+      if (error.message.includes("Credenciales incorrectas")) {
+        errorMessage = "Celular o contraseña incorrectos";
+      }
+  
+      setError(errorMessage);
+      console.error("Error en login:", error);
     }
   };
 
@@ -88,32 +93,40 @@ export default function Login({ onBack }) {
 
       <h1 className="Title">Iniciar sesión</h1>
 
-      <h1 className="indicador">Número de celular</h1>
-      <div className="inputs-section">
-        <input
-          className="input"
-          placeholder="Número de celular"
-          onChange={handleChange("celular")}
-          value={formData.celular}
-          style={{ width: "500px" }}
-        />
-      </div>
+      <form onSubmit={handleSubmit}>
+        <h1 className="indicador">Número de celular</h1>
+        <div className="inputs-section">
+          <input
+            className="input"
+            placeholder="Número de celular"
+            onChange={handleChange("celular")}
+            value={formData.celular}
+            style={{ width: "300px" }}
+            required
+          />
+        </div>
 
-      <h1 className="indicador">Contraseña</h1>
-      <div className="inputs-section">
-        <input
-          className="input"
-          placeholder="Contraseña"
-          type="password"
-          onChange={handleChange("contraseña")}
-          value={formData.contraseña}
-          style={{ width: "500px" }}
-        />
-      </div>
+        <h1 className="indicador">Contraseña</h1>
+        <div className="inputs-section">
+          <input
+            className="input"
+            placeholder="Contraseña"
+            type="password"
+            onChange={handleChange("contraseña")}
+            value={formData.contraseña}
+            style={{ width: "300px" }}
+            required
+          />
+        </div>
 
-      <button className="continue-button" onClick={handleSubmit}>
-        Iniciar
-      </button>
+        <button 
+          className="continue-button" 
+          type="submit"
+          disabled={isLoading}
+        >
+          {isLoading ? "Cargando..." : "Iniciar"}
+        </button>
+      </form>
 
       {showAlert && (
         <div className="custom-alert">
