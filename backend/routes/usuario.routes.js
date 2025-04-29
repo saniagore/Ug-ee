@@ -8,7 +8,9 @@ import {
   obtenerEstadoUsuario,
   crearUsuario,
 } from "../controllers/usuario.controller.js";
+
 import { obtenerInstitucion } from "../controllers/institucion.controller.js";
+import cookieParser from "cookie-parser";
 
 const router = Router();
 
@@ -84,7 +86,14 @@ router.post("/login", async (req, res) => {
     };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
 
-    res.json({ token });
+    res
+      .cookie('access_token', token,{
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
+        sameSite: 'Strict', // Adjust as needed
+        maxAge: 1000*60*60
+      })
+      .send({celular, token})
   } catch (err) {
     console.error("Error login user:", err);
     res.status(500).json({
@@ -93,5 +102,25 @@ router.post("/login", async (req, res) => {
     });
   }
 });
+
+
+router.get('/auth/verify', (req, res) => {
+  const token = req.cookies.access_token;
+
+  if (!token) {
+    return res.status(401).json({ error: 'No autorizado' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    res.json({ authenticated: true, user: decoded });
+  } catch (err) {
+    res.status(403).json({ error: 'Token inválido' });
+  }
+});
+
+
+
+
 
 export default router;
