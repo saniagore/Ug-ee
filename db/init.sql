@@ -135,7 +135,9 @@ CREATE TABLE reserva(
 
 CREATE INDEX idx_persona_celular ON persona(celular);
 CREATE INDEX idx_persona_correo ON persona(correo);
+
 CREATE INDEX idx_persona_institucion ON persona(institucion_id);
+
 CREATE INDEX idx_persona_celular_institucion ON persona(celular, institucion_id);
 
 

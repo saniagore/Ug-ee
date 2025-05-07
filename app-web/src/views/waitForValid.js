@@ -1,8 +1,23 @@
 import '../css/WaitForValid.css';
 import React from "react";
 import UwayLogo from '../resources/UwayLogo.png';
+import { useNavigation } from '../components/navigations';
 
 export default function WaitForValid() {
+  const { goToHomePage } = useNavigation();
+
+  const handleLogout = async () => {
+    try {
+        await fetch('http://localhost:5000/api/usuario/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+        goToHomePage();
+    } catch (error) {
+        console.error("Error al cerrar sesión:", error);
+    }
+};
+
   return (
     <div className='wait-for-valid-container' style={{ 
         display: 'flex', 
@@ -19,6 +34,7 @@ export default function WaitForValid() {
             <h1>Esperando validación</h1>
             <div className="spinner"></div>
             <p>Tu cuenta está siendo verificada. Por favor, espera.</p>
+            <button onClick={handleLogout}>Cerrar sesión</button>
         </div>
     </div>
   );

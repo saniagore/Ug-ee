@@ -151,6 +151,7 @@ router.get("/auth/verify", async (req, res) => {
         id: usuario.id,
         celular: usuario.celular,
         nombre: usuario.nombre,
+        estado: usuario.estado_verificacion
       },
     });
   } catch (error) {

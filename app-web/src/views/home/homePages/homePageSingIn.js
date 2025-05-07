@@ -1,29 +1,17 @@
 import { FaArrowLeft } from "react-icons/fa";
 import "../../../css/homePageSingIn.css";
 import { useNavigation } from "../../../components/navigations";
-import { useState, useEffect } from "react";
-//import { Validar_datos } from "../../../components/dataValid";
+import { useState } from "react";
 import { QueryUser } from "../../../components/queryUser";
 
 export default function Login({ onBack, onLoginSuccess }) {
   const userQuery = new QueryUser();
   const { goToMenu } = useNavigation();
-  const [user, setUser] = useState(null);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     celular: "",
     contraseña: "",
   });
   const [error, setError] = useState(null);
-
-  // Limpiar alertas cuando se cambian los campos
-  useEffect(() => {
-    if (showAlert) {
-      setShowAlert(false);
-    }
-  }, [formData.celular, formData.contraseña, showAlert]);
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -42,7 +30,6 @@ export default function Login({ onBack, onLoginSuccess }) {
       if (!verifyResponse.authenticated) {
         throw new Error(verifyResponse.error || "No autenticado");
       }
-      setUser(verifyResponse.user);
       goToMenu();
       onLoginSuccess(verifyResponse.user); 
   
@@ -51,7 +38,6 @@ export default function Login({ onBack, onLoginSuccess }) {
       
       if (error.message.includes("Token inválido")) {
         errorMessage = "Sesión expirada, por favor inicia sesión nuevamente";
-        // Limpiar token inválido
         localStorage.removeItem("jwt_token");
       }
       
@@ -109,24 +95,12 @@ export default function Login({ onBack, onLoginSuccess }) {
           />
         </div>
 
-        <button 
-          className="continue-button" 
-          type="submit"
-          disabled={isLoading}
-        >
-          {isLoading ? "Cargando..." : "Iniciar"}
+        {error && <div style={{ color: 'red', margin: '10px 0' }}>{error}</div>}
+
+        <button className="continue-button" type="submit">
+          Iniciar
         </button>
       </form>
-
-      {showAlert && (
-        <div className="custom-alert">
-          <div className="alert-content">
-            <h3>Error</h3>
-            <p>{alertMessage}</p>
-            <button onClick={() => setShowAlert(false)}>Cerrar</button>
-          </div>
-        </div>
-      )}
     </>
   );
 }
