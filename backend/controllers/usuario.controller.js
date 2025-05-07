@@ -36,7 +36,6 @@ export const verificarContraseña = async (celular, contraseñaIngresada) => {
       return false;
     }
     
-    // Verificación más robusta con bcrypt
     const coincide = await bcrypt.compare(contraseñaIngresada, usuario.contraseña);
     if (!coincide) {
       console.log('Contraseña no coincide');

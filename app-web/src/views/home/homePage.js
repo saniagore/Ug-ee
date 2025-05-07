@@ -20,24 +20,24 @@ function HomePage() {
             try {
                 const response = await fetch('http://localhost:5000/api/usuario/auth/verify', {
                     credentials: 'include'
-                });
+                }).catch(() => {}); 
                 
-                if (response.ok) {
+                if (response?.ok) { 
                     const data = await response.json();
                     if (data.authenticated) {
                         goToMenu(); 
                     }
                 }
             } catch (error) {
-                console.error("Error verificando autenticación:", error);
+
             }
         };
-
+    
         checkAuth();
-    }, [goToMenu]); // Agregar goToMenu como dependencia
+    }, [goToMenu]);
 
     const handleLoginSuccess = () => {
-        goToMenu(); // Usar el hook personalizado para redirigir
+        goToMenu();
     };
 
 

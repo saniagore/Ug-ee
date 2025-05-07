@@ -8,7 +8,7 @@ import { QueryUser } from "../../../components/queryUser";
 export default function Login({ onBack, onLoginSuccess }) {
   const userQuery = new QueryUser();
   const { goToMenu } = useNavigation();
-  const [user, setUser] = useState(null); // Add state for user
+  const [user, setUser] = useState(null);
   const [alertMessage, setAlertMessage] = useState("");
   const [showAlert, setShowAlert] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -34,29 +34,19 @@ export default function Login({ onBack, onLoginSuccess }) {
     setError(null);
     
     try {
-      // 1. Realizar login
       const loginResponse = await userQuery.verificarContraseña(formData.celular, formData.contraseña);
-      
       if (!loginResponse.success) {
         throw new Error(loginResponse.message || "Credenciales incorrectas");
       }
-  
-      // 2. Verificar autenticación
       const verifyResponse = await userQuery.verifyAuth();
-      
       if (!verifyResponse.authenticated) {
         throw new Error(verifyResponse.error || "No autenticado");
       }
-  
-      // 3. Guardar datos de usuario en estado/contexto
       setUser(verifyResponse.user);
-      
-      // 4. Redirigir
       goToMenu();
-      onLoginSuccess(verifyResponse.user); // Llamar a la función de éxito de inicio de sesión
+      onLoginSuccess(verifyResponse.user); 
   
     } catch (error) {
-      // Manejo específico de errores
       let errorMessage = error.message;
       
       if (error.message.includes("Token inválido")) {

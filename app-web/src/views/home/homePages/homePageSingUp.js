@@ -23,6 +23,7 @@ export default function Register({ onBack }) {
   const [alertMessage, setAlertMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [alertType, setAlertType] = useState("error");
 
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
@@ -72,12 +73,14 @@ export default function Register({ onBack }) {
       setAlertMessage(
         "Usuario registrado, espere la validación de la institución"
       );
+      setAlertType("success");
       setShowAlert(true);
       setTimeout(() => {
         onBack();
       }, 5000);
     } catch (error) {
       setAlertMessage(error.message);
+      setAlertType("error");
       setShowAlert(true);
     }
   };
@@ -209,11 +212,7 @@ export default function Register({ onBack }) {
             Institucion educativa
           </option>
           {instituciones.map((institucion, index) => (
-            <option
-              key={index}
-              className="input-label"
-              value={institucion}
-            >
+            <option key={index} className="input-label" value={institucion}>
               {institucion}
             </option>
           ))}
@@ -225,9 +224,13 @@ export default function Register({ onBack }) {
       </button>
 
       {showAlert && (
-        <div className="custom-alert">
+        <div
+          className={`custom-alert ${
+            alertType === "success" ? "alert-success" : "alert-error"
+          }`}
+        >
           <div className="alert-content">
-            <h3>Error</h3>
+            <h3>{alertType === "success" ? "Éxito" : "Error"}</h3>
             <p>{alertMessage}</p>
             <button onClick={() => setShowAlert(false)}>Cerrar</button>
           </div>

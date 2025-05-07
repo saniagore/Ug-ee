@@ -1,5 +1,37 @@
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+ -- CREACION DE TIPO DE DATOS --
+
+CREATE TYPE tipo_cargo AS ENUM(
+    'estudiante', 'administrativo', 'profesor'
+);
+
+CREATE TYPE tipo_de_identificacion AS ENUM(
+    'CC', 'TI', 'CE', 'PP'
+);
+
+CREATE TYPE vehiculo_categoria AS ENUM(
+    'camioneta', 'bus', 'moto', 'carro'
+);
+
+CREATE TYPE tipo_de_documento AS ENUM(
+    'licencia', 'identificacion'
+);
+
+CREATE TYPE categorias_estado_viaje AS ENUM(
+    'pendiente', 'en curso', 'finalizado'
+);
+
+CREATE TYPE categoria_de_documento AS ENUM(
+    'tecnomecanica', 'soat'
+);
+
+CREATE TYPE estado_reserva AS ENUM(
+    'pendiente', 'confirmada', 'cancelada'
+);
+
+-- CREACION DE TABLAS --
+
 CREATE TABLE institucion(
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
@@ -16,14 +48,14 @@ CREATE TABLE persona (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     correo VARCHAR(100) UNIQUE NOT NULL,
-    tipo VARCHAR(50) CHECK (tipo IN ('estudiante', 'administrativo', 'profesor')),
+    tipo tipo_cargo,
     contraseña VARCHAR(255) NOT NULL,
     celular VARCHAR(20) NOT NULL UNIQUE,
     estado_verificacion BOOLEAN DEFAULT FALSE,
     codigo_estudiante VARCHAR(20) UNIQUE,
     carne_estudiante BYTEA,
     numero_identificacion VARCHAR(20) UNIQUE NOT NULL,
-    tipo_identificacion VARCHAR(50) CHECK (tipo_identificacion IN ('CC', 'TI', 'CE', 'PP')),
+    tipo_identificacion tipo_de_identificacion,
     institucion_id INTEGER NOT NULL,
     FOREIGN KEY (institucion_id) REFERENCES institucion(id) ON DELETE CASCADE
 );
@@ -39,14 +71,14 @@ CREATE TABLE conductor (
 CREATE TABLE foto_documento (
     conductor_id INTEGER NOT NULL,
     documento BYTEA NOT NULL,
-    tipo_documento VARCHAR(20) NOT NULL CHECK (tipo_documento IN ('licencia', 'identificación')),
+    tipo_documento tipo_de_documento NOT NULL,
     FOREIGN KEY (conductor_id) REFERENCES persona(id) ON DELETE CASCADE,
     PRIMARY KEY (conductor_id, tipo_documento) 
 );
 
 CREATE TABLE vehiculo(
     id SERIAL PRIMARY KEY,
-    categoria VARCHAR(50) NOT NULL CHECK (categoria IN ('camioneta', 'bus', 'moto', 'carro')),
+    categoria vehiculo_categoria NOT NULL,
     vencimiento_soat DATE NOT NULL,
     vencimiento_tecnomecanica DATE NOT NULL,
     color VARCHAR(20) NOT NULL,
@@ -62,14 +94,14 @@ CREATE TABLE vehiculo(
 CREATE TABLE foto_documento_vehiculo (
     vehiculo_id INTEGER NOT NULL,
     documento BYTEA NOT NULL,
-    tipo_documento VARCHAR(20) NOT NULL CHECK (tipo_documento IN ('tecnomecanica', 'soat')),
+    tipo_documento categoria_de_documento NOT NULL, 
     FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id) ON DELETE CASCADE,
     PRIMARY KEY (vehiculo_id, tipo_documento) 
 );
 
 CREATE TABLE viaje(
     id SERIAL PRIMARY KEY,
-    estado VARCHAR(50) NOT NULL CHECK (estado IN ('pendiente', 'en curso', 'finalizado')),
+    estado categorias_estado_viaje NOT NULL,
     punto_partida GEOGRAPHY(POINT, 4326) NOT NULL,
     ruta_planificada GEOGRAPHY(LINESTRING, 4326) NOT NULL,
     hora_salida TIMESTAMP NOT NULL,
@@ -92,23 +124,31 @@ CREATE TABLE calificacion(
 
 CREATE TABLE reserva(
     id SERIAL PRIMARY KEY,
-    estado VARCHAR(50) NOT NULL CHECK (estado IN ('pendiente', 'confirmada', 'cancelada')),
+    estado estado_reserva NOT NULL,
     codigo_qr BYTEA NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     hora_salida TIMESTAMP NOT NULL,
     punto_partida GEOGRAPHY(POINT, 4326) NOT NULL
 );
 
+-- CREACION DE INDICES -- 
 
--- 1. Estudiante
-INSERT INTO usuario (nombre, correo, tipo, contraseña, celular, estado_verificacion, codigo_estudiante, numero_identificacion, tipo_identificacion, institucion_id)
-VALUES ('Juan Pérez', 'juan.perez@example.com', 'estudiante', 'hashedpassword123', '3101234567', TRUE, '20231001', '1234567890', 'CC', 1);
+CREATE INDEX idx_persona_celular ON persona(celular);
+CREATE INDEX idx_persona_correo ON persona(correo);
+CREATE INDEX idx_persona_institucion ON persona(institucion_id);
+CREATE INDEX idx_persona_celular_institucion ON persona(celular, institucion_id);
 
--- 2. Profesor
-INSERT INTO usuario (nombre, correo, tipo, contraseña, celular, estado_verificacion, numero_identificacion, tipo_identificacion, institucion_id)
-VALUES ('María Gómez', 'maria.gomez@example.edu', 'profesor', 'profpassword456', '3157654321', TRUE, '987654321', 'CC', 1);
 
--- 3. Administrativo
-INSERT INTO usuario (nombre, correo, tipo, contraseña, celular, estado_verificacion, numero_identificacion, tipo_identificacion, institucion_id)
-VALUES ('Carlos Ruiz', 'carlos.ruiz@admin.edu', 'administrativo', 'adminpass789', '3201112233', FALSE, '543216789', 'CE', 2);
+-- CARGAR UNIVERSIDAD ( BASE PARA PRUEBAS ) -- 
 
+INSERT INTO institucion (nombre, contraseña, color_primario, color_secundario, direccion, estado_verificacion) VALUES 
+('Universidad Nacional de Colombia', 'Un4l2023!', '#FFCD00', '#004B87', 'Carrera 45 # 26-85, Bogotá', TRUE),
+('Universidad de los Andes', 'And3s2023!', '#005FAB', '#FFFFFF', 'Carrera 1 # 18A-12, Bogotá', TRUE),
+('Pontificia Universidad Javeriana', 'J4v3r2023!', '#003366', '#FFFFFF', 'Carrera 7 # 40-62, Bogotá', TRUE),
+('Universidad del Rosario', 'R0s4r2023!', '#8B2635', '#F1D3B2', 'Carrera 6 # 12B-40, Bogotá', TRUE),
+('Universidad Externado de Colombia', 'Ext3rn2023!', '#005FAB', '#FFD700', 'Calle 12 # 1-17 Este, Bogotá', TRUE),
+('Colegio Gimnasio Moderno', 'G1m4s2023!', '#003366', '#FFCC00', 'Carrera 9 # 74-99, Bogotá', FALSE),
+('Colegio Anglo Colombiano', 'Angl02023!', '#00205B', '#FFFFFF', 'Calle 152 # 45-20, Bogotá', FALSE),
+('Universidad de Antioquia', 'Ant1oqu2023!', '#005A8C', '#FFFFFF', 'Calle 67 # 53-108, Medellín', TRUE),
+('Universidad del Valle', 'V4ll32023!', '#005A29', '#FFFFFF', 'Calle 13 # 100-00, Cali', TRUE),
+('Universidad Industrial de Santander', 'U1S2023!', '#E2001A', '#FFFFFF', 'Carrera 27 # 9, Bucaramanga', TRUE);
