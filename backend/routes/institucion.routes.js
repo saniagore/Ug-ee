@@ -7,6 +7,7 @@ const { Pool } = pg;
 const pool = new Pool(DB_CONFIG);
 
 import {
+  crearInstitucion,
   obtenerInstitucion,
   obtenerTodasInstituciones,
 } from "../controllers/institucion.controller.js";
@@ -165,10 +166,10 @@ router.post("/crearinstitucion", async(req,res) =>{
     const result = await crearInstitucion(formData);
     res.json(result);
   }catch(error){
-    console.error("Error creating user:", err);
+    console.error("Error creating user:", error);
     res.status(500).json({
       error: "Error al crear usuario",
-      details: err.message,
+      details: error.message,
     });
   }
 })

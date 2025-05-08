@@ -11,6 +11,7 @@ function ColaboratorHomePage() {
     const handleLoginSuccess = () => {
         navigate('/colaborator/menu');
     };
+    
     return (
         <div className="colaborator-app">
             <div className="colaborator-container">

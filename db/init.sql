@@ -41,7 +41,7 @@ CREATE TABLE institucion(
     logo BYTEA,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     direccion VARCHAR(255) NOT NULL,
-    estado_verificacion BOOLEAN DEFAULT TRUE
+    estado_verificacion BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE persona (

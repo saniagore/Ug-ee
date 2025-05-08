@@ -78,7 +78,7 @@ export const crearInstitucion = async (formData) => {
       ]
     );
 
-    return {succes: true, institucion: result.row[0]};
+    return {succes: true, institucion: result.rows[0]};
 
   }catch(err){
     console.error("Error al crear el usuario", err);
