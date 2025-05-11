@@ -4,6 +4,7 @@ import Menu from './views/menu.js'
 import Colaborador from './views/home/colaborador.js'
 import './css/App.css';
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
+import MenuColaborador from './views/menuColaborador.js';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path='/WaitForValid' element={<WaitForValid/>} />
         <Route path='/Menu' element={<Menu/>} />
         <Route path='/Colaborador' element={<Colaborador/>} />
+        <Route path='/Colaborador/Menu' element={<MenuColaborador/>} />
       </Routes>
     </Router>
   );

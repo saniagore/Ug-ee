@@ -89,3 +89,33 @@ export const crearInstitucion = async (formData) => {
     };
   }
 }
+
+export const obtenerDatosInstitucion = async(nombre) => {
+  try{
+      const result = await pool.query(
+      "SELECT * FROM institucion WHERE nombre = $1",
+      [nombre]
+    );
+    return result.rows[0] || null;
+  } catch (err) {
+    console.error("Error en obtener_datos:", err);
+    throw err;
+  }
+}
+
+export const verificarLogin = async(nombre, contraseIngresada) => {
+  try{
+    const Institucion = obtenerDatosInstitucion(nombre);
+    if(!Institucion){
+      return false;
+    }
+
+    const coincide = await bcrypt.compare(contraseñaIngresada, Institucion.contraseña);
+    return coincide;
+
+  }catch (err) {
+    console.error("Error en verificarContraseña:", err);
+    throw err;
+  }
+}
+

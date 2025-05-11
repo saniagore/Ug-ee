@@ -149,7 +149,7 @@ export class QueryUser {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
         method: "GET",
-        credentials: 'include', // Solo cookies
+        credentials: 'include',
         headers: {
           "Content-Type": "application/json"
         }
@@ -160,8 +160,6 @@ export class QueryUser {
       if (!response.ok) {
         throw new Error(data.error || "Error en verificación con cookies");
       }
-      
-      // Si funciona con cookies, actualizar el token en localStorage
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }
@@ -178,16 +176,13 @@ export class QueryUser {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
         method: "GET",
-        credentials: 'include', // Solo cookies
+        credentials: 'include',
       });
-
       const data = await response.json();
       
       if (!response.ok) {
         throw new Error(data.error || "Error en verificación");
-      }
-      
-      // Actualizar token en localStorage si viene en la respuesta
+      }      
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }

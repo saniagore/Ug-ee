@@ -32,14 +32,9 @@ export const verificarContraseña = async (celular, contraseñaIngresada) => {
   try {
     const usuario = await obtenerDatosUsuario(celular);
     if (!usuario) {
-      console.log('Usuario no encontrado');
       return false;
     }
-    
     const coincide = await bcrypt.compare(contraseñaIngresada, usuario.contraseña);
-    if (!coincide) {
-      console.log('Contraseña no coincide');
-    }
     return coincide;
     
   } catch (err) {

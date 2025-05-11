@@ -21,11 +21,64 @@ export class QueryInstitucion {
 
             return result;
         }catch(error){
-            console.error("Error al crear la institucion:", error);
             return {
               error: true,
               message: "Error de conexión al servidor",
             };
+        }
+    }
+
+    async verificarColaborador(nombre,contraseña){
+        try{
+            const response =  await fetch(`${QueryInstitucion.BASE_URL}/login`,{
+                method: "POST",
+                credentials: 'include',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({nombre,contraseña}),
+            });
+
+            const data = await response.json();
+
+            if(!response.ok){
+                throw new Error(data.message || "Error en autenticación");
+            }
+
+            if(data.token){
+                localStorage.setItem("jwt_token", data.token);
+            }
+
+            return data;
+        }catch(error){
+            throw error;
+        }
+    }
+
+    async verifyAuth(){
+        try{
+            const response = await fetch(`${QueryInstitucion.BASE_URL}/auth/verify`, {
+                method: "GET",
+                credentials: 'include',
+                headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+                }
+            });
+
+            const data = await response.json();
+
+            if(!response.ok){
+                if(response.status === 403){
+                    localStorage.removeItem("jwt_token");
+                }
+                throw new Error(data.error || "Error de autenticación");
+            }
+
+            return data;
+        
+        }catch(error){
+            throw error;
         }
     }
 }

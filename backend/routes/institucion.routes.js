@@ -37,7 +37,7 @@ router.post("/login", async(req,res) =>{
 
     if (!institucion.rows.length) {
       return res
-        .status(401)
+        .status(200)
         .json({ success: false, error: "Institucion no existe" });
     }
 
@@ -48,7 +48,7 @@ router.post("/login", async(req,res) =>{
     if(!contraseñaValida){
 
     return res
-        .status(401)
+        .status(200)
         .json({ success: false, error: "Contraseña incorrecta" });
     }
 
@@ -76,7 +76,6 @@ router.post("/login", async(req,res) =>{
         user: payload,
       });
   }catch(error){
-    console.error("Error en login:", error);
     res.status(500).json({ success: false, error: "Error en el servidor" });
   }
 });
@@ -174,5 +173,63 @@ router.post("/crearinstitucion", async(req,res) =>{
   }
 })
 
+router.post("/login", async(req,res)=>{
+  try{
+    const { nombre, contraseña} = req.body;
+
+    const institucion = await pool.query(`SELECT * FROM institucion WHERE nombre = $1`,
+      [nombre]
+    );
+
+    if(!institucion.rows.length){
+      return res
+        .status(401)
+        .json({success: false, error: "Institucion no existe"});
+    }
+
+    const institucionData = institucion.rows[0];
+
+    const contraseñaValida = await bcrypt.compare(
+      contrase,
+      institucionData.contrase
+    );
+
+    if(!contraseñaValida){
+      return res
+        .status(401)
+        .json({
+          succes: false,
+          error: "Contraseña invalida"
+        });
+    }
+
+    const payload = {
+      id: institucionData.id,
+      nombre: institucionData.nombre,
+      estadoVerificacion: institucionData.estado_verificacion,
+      colorPrimario: institucionData.color_primario,
+      colorSecundario: institucionData.color_secundario,
+      direccion: institucionData.direccion,
+    };
+
+    const token = jwt.sign(payload, JWT_SECRET, {expiresIn: JWT_EXPIRATION});
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV == "production",
+        sameSite: "strict",
+        maxAge: 3600000,
+      })
+      .json({
+        success: true,
+        token,
+        institucion: payload,
+      });
+
+  }catch(error){
+    console.error("Error en login:", error);
+    res.status(500).json({success:false,error:"Error en el servidor"});
+  }
+})
 
 export default router;

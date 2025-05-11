@@ -9,7 +9,7 @@ function ColaboratorHomePage() {
     const navigate = useNavigate();
 
     const handleLoginSuccess = () => {
-        navigate('/colaborator/menu');
+        navigate('/Colaborador/Menu');
     };
     
     return (

@@ -36,14 +36,19 @@ export class Validar_datos {
   static tipo_documento(tipo_documento) {
     if (!typeof tipo_documento === "string")
       throw new Error("El tipo de documento debe de ser un string");
-    if (tipo_documento.trim() === "")
-      throw new Error("Tipo de documento nulo");
+    if (tipo_documento.trim() === "") throw new Error("Tipo de documento nulo");
   }
 
   static institucion(institucion) {
-    if (typeof institucion !== "string") 
+    if (typeof institucion !== "string")
       throw new Error("La institución debe de ser un string");
-    if (institucion.trim() === "") 
-      throw new Error("Institución nula");
-}
+    if (institucion.trim() === "") throw new Error("Institución nula");
+  }
+
+  static direccion(direccion){
+    if(typeof direccion !== "string")
+      throw new Error("La dirección debe de ser un string");
+    if(direccion.trim() === "") throw new Error("Direccion nula");
+  }
+  
 }
