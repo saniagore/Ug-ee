@@ -29,7 +29,6 @@ export default function Menu() {
 
 
             } catch (error) {
-                console.error("Error verificando autenticación:", error);
                 goToHomePage();
             }
         };
