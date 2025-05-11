@@ -1,7 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET } from "../config.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 import {
   existeConductor,

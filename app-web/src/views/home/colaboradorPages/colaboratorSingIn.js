@@ -52,7 +52,7 @@ export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
         <div className="form-group">
           <label>Nombre</label>
           <input
-            type="nombre"
+            type="name"
             value={formData.nombre}
             onChange={(e) =>
               setFormData({ ...formData, nombre: e.target.value })
@@ -64,7 +64,7 @@ export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
         <div className="form-group">
           <label>Contraseña</label>
           <input
-            type="contraseña"
+            type="password"
             value={formData.contraseña}
             onChange={(e) =>
               setFormData({ ...formData, contraseña: e.target.value })

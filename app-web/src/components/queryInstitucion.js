@@ -187,9 +187,8 @@ export class QueryInstitucion {
                 },
                 body: JSON.stringify({ nombre, contraseña }),
             });
-
             const data = await response.json();
-
+            
             if (!response.ok) {
                 throw new Error(data.message || "Error en autenticación");
             }

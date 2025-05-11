@@ -1,7 +1,7 @@
 import pg from "pg";
 const { Pool } = pg;
 import { DB_CONFIG, SALT_ROUNDS } from "../config.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 const pool = new Pool(DB_CONFIG);
 
 // Obtener institución por nombre
@@ -95,7 +95,7 @@ export const crearInstitucion = async (formData) => {
 
     const result = await client.query(
       `INSERT INTO institucion
-      (nombre, contraseña, color_primario, color_secundario, direccion, logo)
+      (nombre, contraseña, color_primario, color_secundario, direccion, estado_verificacion)
       VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING id, nombre, color_primario, color_secundario, direccion, estado_verificacion`,
       [
@@ -104,7 +104,7 @@ export const crearInstitucion = async (formData) => {
         formData.colorPrimario,
         formData.colorSecundario,
         formData.direccion,
-        formData.logo || null
+        false
       ]
     );
 

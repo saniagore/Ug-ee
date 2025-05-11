@@ -1,7 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET } from "../config.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 import {
   crearInstitucion,
@@ -119,6 +119,7 @@ router.delete("/:id", async (req, res) => {
 // Login de institución
 router.post("/login", async (req, res) => {
   try {
+
     const { nombre, contraseña } = req.body;
     const result = await verificarLoginInstitucion(nombre, contraseña);
 
