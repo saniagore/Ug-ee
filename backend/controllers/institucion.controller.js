@@ -44,25 +44,24 @@ export const obtenerInstitucionPorId = async (id) => {
 
 // Obtener todas las instituciones (con paginación)
 export const obtenerTodasInstituciones = async (pagina = 1, limite = 10, verificadas = null) => {
-  try {
-    let query = "SELECT id, nombre, color_primario, color_secundario, direccion, estado_verificacion FROM institucion";
-    const params = [];
-    
-    if (verificadas !== null) {
-      query += " WHERE estado_verificacion = $1";
-      params.push(verificadas);
-    }
-    
-    query += " ORDER BY nombre LIMIT $${params.length + 1} OFFSET $${params.length + 2}";
-    params.push(limite, (pagina - 1) * limite);
+  const offset = (pagina - 1) * limite;
+  const params = [];
+  let query = `
+    SELECT id, nombre, color_primario, color_secundario, direccion, estado_verificacion 
+    FROM institucion
+  `;
 
-    const result = await pool.query(query, params);
-    return result.rows;
-  } catch (err) {
-    console.error("Error en obtenerTodasInstituciones", err);
-    throw err;
+  if (verificadas !== null) {
+    query += ` WHERE estado_verificacion = $1`;
+    params.push(verificadas);
   }
-};
+
+  query += ` ORDER BY nombre LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+  params.push(limite, offset);
+
+  const { rows } = await pool.query(query, params);
+  return rows;
+}
 
 // Verificar existencia de institución
 export const existeInstitucion = async (nombre) => {

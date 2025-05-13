@@ -12,6 +12,7 @@ import {
   obtenerEstadoUsuario,
   crearUsuario,
   obtenerDatosUsuario,
+  obtenerUsuarios,
 } from "../controllers/usuario.controller.js";
 import { obtenerInstitucion } from "../controllers/institucion.controller.js";
 
@@ -194,6 +195,18 @@ router.post("/logout", (req, res) => {
       error: "Error en el servidor durante el logout",
     });
   }
+});
+
+router.get("/obtenerUsuarios", async (req, res) => {
+    try {
+        const token = req.cookies?.access_token || req.headers?.authorization?.split(" ")[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+        
+        const data = await obtenerUsuarios(decoded.id);
+        res.json(data);
+    } catch(error) {
+        res.status(500).json({ success: false, error: "Error en el servidor" });
+    }
 });
 
 export default router;

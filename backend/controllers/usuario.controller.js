@@ -140,3 +140,19 @@ export const crearUsuario = async (formData) => {
     };
   }
 };
+
+export const obtenerUsuarios = async(institucionId) => {
+    try {
+        const result = await pool.query(
+            `SELECT nombre, correo, tipo, celular, 
+             estado_verificacion, codigo_estudiante,
+             numero_identificacion, tipo_identificacion 
+             FROM usuario WHERE institucion_id = $1`, 
+            [institucionId]
+        );
+        return result.rows || [];
+    } catch(error) {
+        console.error("Error en obtenerUsuarios:", error);
+        throw error;
+    }
+}

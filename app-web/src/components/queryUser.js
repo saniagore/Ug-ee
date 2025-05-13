@@ -5,7 +5,7 @@ export class QueryUser {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/login`, {
         method: "POST",
-        credentials: 'include', // Importante para cookies
+        credentials: "include", // Importante para cookies
         headers: {
           "Content-Type": "application/json",
         },
@@ -13,7 +13,7 @@ export class QueryUser {
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.message || "Error en autenticación");
       }
@@ -22,9 +22,8 @@ export class QueryUser {
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }
-      
-      return data;
 
+      return data;
     } catch (error) {
       console.error("Error en verificarContraseña:", error);
       throw error;
@@ -120,15 +119,15 @@ export class QueryUser {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
         method: "GET",
-        credentials: 'include',
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+        },
       });
-  
+
       const data = await response.json();
-      
+
       if (!response.ok) {
         // Manejar diferentes tipos de errores
         if (response.status === 403) {
@@ -136,9 +135,8 @@ export class QueryUser {
         }
         throw new Error(data.error || "Error de autenticación");
       }
-      
+
       return data;
-  
     } catch (error) {
       console.error("Error en verifyAuth:", error);
       throw error;
@@ -149,23 +147,22 @@ export class QueryUser {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
         method: "GET",
-        credentials: 'include',
+        credentials: "include",
         headers: {
-          "Content-Type": "application/json"
-        }
+          "Content-Type": "application/json",
+        },
       });
 
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Error en verificación con cookies");
       }
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }
-      
-      return data;
 
+      return data;
     } catch (error) {
       console.error("Error en verifyAuthWithCookiesOnly:", error);
       throw error;
@@ -176,24 +173,46 @@ export class QueryUser {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
         method: "GET",
-        credentials: 'include',
+        credentials: "include",
       });
       const data = await response.json();
-      
+
       if (!response.ok) {
         throw new Error(data.error || "Error en verificación");
-      }      
+      }
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }
-      
-      return data;
 
+      return data;
     } catch (error) {
       console.error("Error en verifyAuthWithoutToken:", error);
       throw error;
     }
   }
+
+  async obtenerUsuarios(institucionId) {
+    try {
+      const response = await fetch(
+        `${QueryUser.BASE_URL}/obtenerUsuarios?institucionId=${institucionId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Error al obtener usuarios");
+      }
+
+      console.log(response);
+      return await response.json();
+    } catch (error) {
+      console.error("Error en obtenerUsuarios:", error);
+      throw error;
+    }
+  }
 }
-
-
