@@ -1,5 +1,5 @@
 import '../css/WaitForValid.css';
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 //import UwayLogo from '../resources/UwayLogo.png';
 import { useNavigation } from '../components/navigations';
 import { MapContainer, TileLayer } from 'react-leaflet';
@@ -10,7 +10,6 @@ import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 export default function Menu() {
     const { goToHomePage, goToWaitForValid } = useNavigation();
     const caliPosition = [3.375658, -76.529885];
-    const [estadoVerificacion,setEstadoVerificacion] = useState(false);
 
     useEffect(() => {
         const verifyAuth = async () => {
@@ -22,19 +21,17 @@ export default function Menu() {
                     goToHomePage();
                 }   
                 const data = await response.json();
-                setEstadoVerificacion(data.user.estado)
-                if(!estadoVerificacion){
-                    goToWaitForValid()
-                }
-
-
+                
+                if(!data.user.estado) goToWaitForValid();
             } catch (error) {
                 goToHomePage();
             }
         };
 
         verifyAuth();
-    }, [goToHomePage,goToWaitForValid,estadoVerificacion]); 
+    }, [goToHomePage,goToWaitForValid]); 
+
+
 
     const handleLogout = async () => {
         try {

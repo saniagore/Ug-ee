@@ -4,6 +4,7 @@ import { JWT_EXPIRATION, JWT_SECRET } from "../config.js";
 import bcrypt from "bcryptjs";
 
 import {
+  obtenerNombresInstituciones,
   crearInstitucion,
   obtenerInstitucion,
   obtenerTodasInstituciones,
@@ -13,7 +14,7 @@ import {
   verificarLoginInstitucion,
   obtenerEstadisticasInstitucion,
   actualizarLogoInstitucion,
-  existeInstitucion
+  existeInstitucion,
 } from "../controllers/institucion.controller.js";
 
 const router = Router();
@@ -21,12 +22,14 @@ const router = Router();
 // Obtener nombres de todas las instituciones
 router.get("/nombres", async (req, res) => {
   try {
-    const instituciones = await obtenerTodasInstituciones();
-    const nombres = instituciones.map((inst) => inst.nombre);
+    const nombres = await obtenerNombresInstituciones();
     res.json({ instituciones: nombres });
   } catch (err) {
-    console.error("Error obteniendo instituciones:", err);
-    res.status(500).json({ error: "Error al obtener instituciones" });
+    console.error("Error obteniendo nombres de instituciones:", err);
+    res.status(500).json({ 
+      error: "Error al obtener nombres de instituciones",
+      details: err.message 
+    });
   }
 });
 
@@ -301,5 +304,6 @@ router.get("/existe/:nombre", async (req, res) => {
     });
   }
 });
+
 
 export default router;

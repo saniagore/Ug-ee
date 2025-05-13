@@ -13,6 +13,7 @@ import {
   crearUsuario,
   obtenerDatosUsuario,
   obtenerUsuarios,
+  actualizarEstado,
 } from "../controllers/usuario.controller.js";
 import { obtenerInstitucion } from "../controllers/institucion.controller.js";
 
@@ -207,6 +208,16 @@ router.get("/obtenerUsuarios", async (req, res) => {
     } catch(error) {
         res.status(500).json({ success: false, error: "Error en el servidor" });
     }
+});
+
+router.post("/actualizar/estado", async(req,res)=> {
+  try{
+    const { celular, nuevoEstado } = req.body;
+    await actualizarEstado(celular);
+    res.json({ success: true, message: "Estado actualizado correctamente" });
+  }catch(error){
+    res.status(500).json({success:false, error: "Error en el servidor"});
+  }
 });
 
 export default router;

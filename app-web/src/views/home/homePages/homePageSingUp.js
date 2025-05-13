@@ -1,8 +1,8 @@
 import { FaArrowLeft } from "react-icons/fa";
 import { VscAccount } from "react-icons/vsc";
 import "../../../css/homePageSingUp.css";
-import { getInstituciones } from "../../../components/instituciones";
-import { useState, useEffect } from "react";
+import { QueryInstitucion } from "../../../components/queryInstitucion";
+import { useState, useEffect, useMemo } from "react";
 import { QueryUser } from "../../../components/queryUser";
 import { Validar_datos } from "../../../components/dataValid";
 
@@ -16,7 +16,7 @@ export default function Register({ onBack }) {
     tipoIdentificacion: "",
     institucion: "",
   });
-
+  const institucionQuery = useMemo(() => new QueryInstitucion(), []);
   const userQuery = new QueryUser();
   const [instituciones, setInstituciones] = useState([]);
   const [showAlert, setShowAlert] = useState(false);
@@ -25,6 +25,13 @@ export default function Register({ onBack }) {
   const [error, setError] = useState(null);
   const [alertType, setAlertType] = useState("error");
 
+  const handleAlertClose = () => {
+        setShowAlert(false);
+        if (alertType === "success") {
+            onBack(); // Solo llamamos onBack() cuando se cierra la alerta de éxito
+        }
+    };
+
   const handleChange = (field) => (e) => {
     setFormData((prev) => ({ ...prev, [field]: e.target.value }));
   };
@@ -32,8 +39,9 @@ export default function Register({ onBack }) {
   useEffect(() => {
     const loadInstitutions = async () => {
       try {
-        const data = await getInstituciones();
-        setInstituciones(Array.isArray(data) ? data : []);
+        const data = await institucionQuery.obtenerNombresInstituciones();
+        const institucionesArray = data.instituciones || [];
+        setInstituciones(institucionesArray);
       } catch (err) {
         setError(err.message);
         console.error("Error al cargar instituciones:", err);
@@ -43,7 +51,7 @@ export default function Register({ onBack }) {
     };
 
     loadInstitutions();
-  }, []);
+  }, [institucionQuery]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -232,7 +240,7 @@ export default function Register({ onBack }) {
           <div className="alert-content">
             <h3>{alertType === "success" ? "Éxito" : "Error"}</h3>
             <p>{alertMessage}</p>
-            <button onClick={() => setShowAlert(false)}>Cerrar</button>
+            <button onClick={handleAlertClose}>Cerrar</button>
           </div>
         </div>
       )}

@@ -207,11 +207,30 @@ export class QueryUser {
       if (!response.ok) {
         throw new Error("Error al obtener usuarios");
       }
-
-      console.log(response);
       return await response.json();
     } catch (error) {
       console.error("Error en obtenerUsuarios:", error);
+      throw error;
+    }
+  }
+
+  async actualizarEstado(celular) {
+    try {
+      const response = await fetch(`${QueryUser.BASE_URL}/actualizar/estado`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+        },
+        body: JSON.stringify({ celular }), // Envía el celular en el cuerpo
+      });
+
+      if (!response.ok) {
+        throw new Error("Error al actualizar estado del usuario");
+      }
+
+      return await response.json();
+    } catch (error) {
       throw error;
     }
   }

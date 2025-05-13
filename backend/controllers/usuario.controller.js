@@ -156,3 +156,12 @@ export const obtenerUsuarios = async(institucionId) => {
         throw error;
     }
 }
+
+export const actualizarEstado = async(celular) => {
+  try{
+    const result = pool.query(`UPDATE usuario SET estado_verificacion = true WHERE celular = $1`, [celular]);
+    return;
+  }catch(error){
+    throw error;
+  }
+}

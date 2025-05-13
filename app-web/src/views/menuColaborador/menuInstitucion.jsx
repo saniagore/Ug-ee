@@ -53,6 +53,24 @@ export default function MenuInstitucion({ onLogout }) {
     fetchUsuarios();
   }, [goToHomePage, goToWaitForValid, userQuery]);
 
+  const handleEstadoClick = async (celular, estadoActual) => {
+    if (estadoActual) return; // Si ya está verificado, no hacer nada
+
+    try {
+      // Actualizar el estado en el backend
+      await userQuery.actualizarEstado(celular);
+      
+      // Actualizar el estado en el frontend
+      setUsuarios(usuarios.map(usuario => 
+        usuario.celular === celular 
+          ? { ...usuario, estado_verificacion: true } 
+          : usuario
+      ));
+    } catch (error) {
+      console.error("Error al actualizar estado:", error);
+    }
+  };
+
   return (
     <div
       style={{
@@ -168,8 +186,36 @@ export default function MenuInstitucion({ onLogout }) {
                   <td style={{ textAlign: "center", padding: "0.5rem" }}>
                     {usuario.numero_identificacion || "Sin número"}
                   </td>
-                  <td style={{ textAlign: "center", padding: "0.5rem" }}>
-                    {usuario.estado_verificacion ? "Verificado" : "Pendiente"}
+                  <td 
+                    style={{ 
+                      textAlign: "center", 
+                      padding: "0.5rem",
+                      cursor: usuario.estado_verificacion ? "default" : "pointer"
+                    }}
+                    onClick={() => handleEstadoClick(usuario.celular, usuario.estado_verificacion)}
+                  >
+                    {usuario.estado_verificacion ? (
+                      "Verificado"
+                    ) : (
+                      <select
+                        style={{
+                          padding: "0.2rem",
+                          borderRadius: "4px",
+                          border: `1px solid ${colorPrimario}`,
+                          backgroundColor: colorSecundario,
+                          color: colorPrimario,
+                          cursor: "pointer"
+                        }}
+                        onChange={(e) => {
+                          if (e.target.value === "aceptado") {
+                            handleEstadoClick(usuario.celular, usuario.estado_verificacion);
+                          }
+                        }}
+                      >
+                        <option value="pendiente">Pendiente</option>
+                        <option value="aceptado">Aceptado</option>
+                      </select>
+                    )}
                   </td>
                 </tr>
               ))
@@ -201,14 +247,5 @@ function buttonStyle(bgColor, textColor) {
     borderRadius: "5px",
     cursor: "pointer",
     fontWeight: "bold",
-  };
-}
-
-function tableStyle(borderColor) {
-  return {
-    width: "100%",
-    borderCollapse: "collapse",
-    backgroundColor: "#fff",
-    boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
   };
 }

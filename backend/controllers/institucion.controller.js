@@ -297,3 +297,15 @@ export const actualizarLogoInstitucion = async (institucionId, logo) => {
     };
   }
 };
+
+export const obtenerNombresInstituciones = async () => {
+  try {
+    const result = await pool.query(
+      "SELECT nombre FROM institucion ORDER BY nombre"
+    );
+    return result.rows.map(row => row.nombre);
+  } catch (err) {
+    console.error("Error obteniendo nombres de instituciones:", err);
+    throw err;
+  }
+};

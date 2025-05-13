@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import "../../../css/colaboradorHome.css";
 import ColaboratorInstitucion from './singUp/singUpInstitucion';
+import ColaboratorConductor from './singUp/singUpConductor';
 
 export default function ColaboratorRegister({ onBack, onSuccess }) {
     const [currentView, setCurrentView] = useState('welcome');
@@ -44,9 +45,9 @@ export default function ColaboratorRegister({ onBack, onSuccess }) {
             )}
 
             {currentView === 'conductor' &&(
-                <div>
-                    <h2>Formulario de conductor</h2>
-                </div>
+                <ColaboratorConductor
+                    onBack={() => setCurrentView('welcome')}
+                />
             )}
         </div>
     );
