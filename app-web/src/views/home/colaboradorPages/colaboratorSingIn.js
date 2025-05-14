@@ -3,7 +3,7 @@ import "../../../css/colaboradorHome.css";
 import ConductorSingIn from './singIn/conductorSingIn';
 import InstitucionSingIn from './singIn/institucionSingIn';
 
-export default function ColaboratorRegister({ onBack, onSuccess }) {
+export default function ColaboratorLogin({ onBack, onSuccess }) {
     const [currentView, setCurrentView] = useState('welcome');
 
     const handleInstitutionClick = () => {
@@ -41,12 +41,14 @@ export default function ColaboratorRegister({ onBack, onSuccess }) {
             {currentView === 'institucion' && (
                 <InstitucionSingIn
                     onBack={() => setCurrentView('welcome')}
+                    onLoginSuccess={onSuccess}
                 />
             )}
 
             {currentView === 'conductor' &&(
                 <ConductorSingIn
                     onBack={() => setCurrentView('welcome')}
+                    onLoginSuccess={onSuccess}
                 />
             )}
         </div>

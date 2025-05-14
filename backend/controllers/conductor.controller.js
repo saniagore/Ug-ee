@@ -126,8 +126,6 @@ export const crearConductor = async (formData) => {
     const client = await pool.connect();
     
     try {
-      await client.query('BEGIN');
-
       const conductorResult = await client.query(
         `INSERT INTO conductor 
         (nombre, correo, contraseña, celular, numero_identificacion, 
@@ -145,7 +143,7 @@ export const crearConductor = async (formData) => {
           formData.direccion
         ]
       );
-      console.log(conductorResult);
+
       const conductor = conductorResult.rows[0];
 
       return { 

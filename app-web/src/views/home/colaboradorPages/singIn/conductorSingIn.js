@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { QueryConductor } from "../../../../components/queryConductor";
+import { useNavigate } from 'react-router-dom';
 
-export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
+export default function ColaboratorLogin({ onBack, onSuccess }) {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success"); // "success" or "error"
   const conductorQuery = new QueryConductor();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     celular: "",
     contraseña: "",
@@ -27,7 +29,7 @@ export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
       if (!verifyResponse.authenticated) {
         throw new Error(verifyResponse.error || "No autenticado");
       }
-      onLoginSuccess(verifyResponse.institucion);
+      navigate('/Colaborador/Menu');
     } catch (error) {
       setAlertType("error");
       let errorMessage = error.message;

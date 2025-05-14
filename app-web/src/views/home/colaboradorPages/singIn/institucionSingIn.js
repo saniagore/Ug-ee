@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { QueryInstitucion } from "../../../../components/queryInstitucion";
+import { useNavigate } from 'react-router-dom';
 
-export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
+export default function ColaboratorLogin({ onBack }) {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertType, setAlertType] = useState("success"); // "success" or "error"
+  const navigate = useNavigate();
 
   const institucionQuery = new QueryInstitucion();
   const [formData, setFormData] = useState({
@@ -27,7 +29,8 @@ export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
       if (!verifyResponse.authenticated) {
         throw new Error(verifyResponse.error || "No autenticado");
       }
-      onLoginSuccess(verifyResponse.institucion);
+
+      navigate('/Colaborador/Menu');
     } catch (error) {
       setAlertType("error");
       let errorMessage = error.message;
