@@ -1,14 +1,54 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { QueryConductor } from "../../../components/queryConductor";
-import { useNavigation } from "../../../components/navigations";
+import { useNavigation as useCustomNavigation } from "../../../components/navigations"; 
+import { useNavigate } from "react-router-dom"; 
 
+/**
+ * Driver Management Dashboard Component
+ * 
+ * @component
+ * @name AdministrarConductores
+ * @description Provides an administrative interface for managing drivers and their vehicles,
+ * including verification status updates and detailed vehicle information display.
+ * 
+ * @property {Object} conductorQuery - Instance of QueryConductor for driver-related API calls
+ * @property {string} colorPrimario - Primary color from institution's theme
+ * @property {string} colorSecundario - Secondary color from institution's theme
+ * @property {Array} conductores - List of drivers with their associated vehicles
+ * 
+ * @example
+ * // Usage in router configuration
+ * <Route path='/Colaborador/Gestion-conductores' element={<AdministrarConductores />} />
+ * 
+ * @returns {React.Element} Returns a management dashboard with:
+ * - Navigation controls for different management sections
+ * - Comprehensive table of drivers and their vehicles
+ * - Interactive status toggles for driver verification
+ * - Institution-branded color scheme
+ */
 export default function AdministrarConductores() {
   const conductorQuery = useMemo(() => new QueryConductor(), []);
-  const { goToHomePage, goToWaitForValid } = useNavigation();
+  const { goToHomePage, goToWaitForValid } = useCustomNavigation(); 
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
   const [conductores, setConductores] = useState([]);
+  const navigate = useNavigate(); 
 
+  /**
+   * Handles navigation to user management section
+   * @function handleGestionUsuarios
+   */
+  const handleGestionUsuarios = async () => {
+    navigate('/Colaborador/Menu'); 
+  }
+
+  /**
+   * Effect hook for authentication verification and data loading
+   * @effect
+   * @name verifyAndFetch
+   * @description Verifies JWT token, checks verification status,
+   * loads institution colors and driver list on component mount
+   */
   useEffect(() => {
     const verifyAndFetch = async () => {
       try {
@@ -34,6 +74,11 @@ export default function AdministrarConductores() {
       }
     };
 
+    /**
+     * Fetches drivers associated with the institution
+     * @async
+     * @function fetchConductores
+     */
     const fetchConductores = async () => {
       try {
         const token = localStorage.getItem("jwt_token");
@@ -50,6 +95,13 @@ export default function AdministrarConductores() {
     fetchConductores();
   }, [goToHomePage, goToWaitForValid, conductorQuery]);
 
+  /**
+   * Handles driver verification status updates
+   * @async
+   * @function handleEstadoClick
+   * @param {string} conductorId - Unique identifier for the driver
+   * @param {boolean} estadoActual - Current verification status
+   */
   const handleEstadoClick = async (conductorId, estadoActual) => {
     try {
       await conductorQuery.actualizarEstadoConductor(conductorId, !estadoActual);
@@ -63,31 +115,44 @@ export default function AdministrarConductores() {
     }
   };
 
+  /**
+   * Handles institution logout process
+   * @async
+   * @function handleLogout
+   */
   const handleLogout = async () => {
-        try {
-            const logoutEndpoint = 'http://localhost:5000/api/institucion/logout';
+    try {
+      const logoutEndpoint = 'http://localhost:5000/api/institucion/logout';
 
-            await fetch(logoutEndpoint, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem("jwt_token")}`
-                }
-            });
-            goToHomePage();
-            localStorage.removeItem("jwt_token");
-            localStorage.removeItem("user_type");
-        } catch (error) {
-            console.error("Error al cerrar sesión:", error);
+      await fetch(logoutEndpoint, {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem("jwt_token")}`
         }
-    };
+      });
+      goToHomePage();
+      localStorage.removeItem("jwt_token");
+      localStorage.removeItem("user_type");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
 
+  /**
+   * Renders a driver row with associated vehicles
+   * @function renderConductorRow
+   * @param {Object} conductor - Driver data object
+   * @param {number} index - Row index for alternating colors
+   * @returns {React.Element} Table rows for the driver and their vehicles
+   */
   const renderConductorRow = (conductor, index) => {
     const hasVehicles = conductor.vehiculos?.length > 0;
     const rowKey = conductor.id || `conductor-${index}`;
 
     return (
       <React.Fragment key={rowKey}>
+        {/* Main driver row */}
         <tr style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2" }}>
           <td style={{ textAlign: "center", padding: "0.5rem" }}>
             {conductor.nombre || "Sin nombre"}
@@ -119,6 +184,8 @@ export default function AdministrarConductores() {
             {conductor.vehiculos?.length || 0}
           </td>
         </tr>
+        
+        {/* Vehicle sub-rows */}
         {hasVehicles && conductor.vehiculos.map((vehiculo, vIndex) => (
           <tr 
             key={`${rowKey}-vehiculo-${vehiculo.id || vIndex}`}
@@ -152,9 +219,13 @@ export default function AdministrarConductores() {
         Administración de Conductores
       </h2>
 
+      {/* Management Navigation */}
       <div style={{ marginBottom: "2rem" }}>
+        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionUsuarios}>
+          Gestión de Usuarios
+        </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
-          Gestionar Usuarios
+          Gestión de Vehículos
         </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
           Reportes
@@ -167,28 +238,16 @@ export default function AdministrarConductores() {
         </button>
       </div>
 
+      {/* Drivers Table */}
       <div>
         <h3 style={{ color: colorPrimario }}>Conductores Registrados</h3>
-        <table style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          backgroundColor: "#fff",
-          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-        }}>
+        <table style={tableStyle}>
           <thead>
             <tr>
               {["Nombre", "Correo", "Celular", "Dirección", "Estado Conductor", "Vehículos"].map((header) => (
-                <th
-                  key={header}
-                  style={{
-                    textAlign: "center",
-                    padding: "0.5rem",
-                    backgroundColor: colorPrimario,
-                    color: "#fff",
-                  }}
-                >
+                <TableHeader key={header} colorPrimario={colorPrimario}>
                   {header}
-                </th>
+                </TableHeader>
               ))}
             </tr>
           </thead>
@@ -209,6 +268,13 @@ export default function AdministrarConductores() {
   );
 }
 
+/**
+ * Style generator for buttons
+ * @function buttonStyle
+ * @param {string} bgColor - Background color
+ * @param {string} textColor - Text color
+ * @returns {Object} Button style object
+ */
 function buttonStyle(bgColor, textColor) {
   return {
     backgroundColor: bgColor,
@@ -221,4 +287,38 @@ function buttonStyle(bgColor, textColor) {
     cursor: "pointer",
     fontWeight: "bold",
   };
+}
+
+/**
+ * Table style configuration
+ * @constant
+ * @name tableStyle
+ * @type {Object}
+ */
+const tableStyle = {
+  width: "100%",
+  borderCollapse: "collapse",
+  backgroundColor: "#fff",
+  boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+};
+
+/**
+ * Table header component
+ * @component
+ * @name TableHeader
+ * @param {Object} props - Component props
+ * @param {string} props.colorPrimario - Header background color
+ * @param {React.Node} props.children - Header content
+ */
+function TableHeader({ colorPrimario, children }) {
+  return (
+    <th style={{
+      textAlign: "center",
+      padding: "0.5rem",
+      backgroundColor: colorPrimario,
+      color: "#fff",
+    }}>
+      {children}
+    </th>
+  );
 }

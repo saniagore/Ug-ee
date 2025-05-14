@@ -1,11 +1,36 @@
+/**
+ * API Service Class for User Management
+ * 
+ * @class QueryUser
+ * @description Centralizes all user-related API calls including:
+ * - Authentication and authorization
+ * - User verification and state management
+ * - User creation and data retrieval
+ * 
+ * @property {string} BASE_URL - Base API endpoint URL
+ * 
+ * @example
+ * // Example usage:
+ * const userService = new QueryUser();
+ * const authResult = await userService.login('3101234567', 'password123');
+ */
 export class QueryUser {
   static BASE_URL = "http://localhost:5000/api/usuario";
 
+  /**
+   * Verifies user credentials
+   * @async
+   * @method verificarContraseña
+   * @param {string} celular - User's phone number
+   * @param {string} contraseña - User's password
+   * @returns {Promise<Object>} Authentication result with token
+   * @throws {Error} When authentication fails
+   */
   async verificarContraseña(celular, contraseña) {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/login`, {
         method: "POST",
-        credentials: "include", // Importante para cookies
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -18,7 +43,6 @@ export class QueryUser {
         throw new Error(data.message || "Error en autenticación");
       }
 
-      // Guardar token en localStorage por si acaso
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }
@@ -30,63 +54,72 @@ export class QueryUser {
     }
   }
 
+  /**
+   * Checks if user exists
+   * @async
+   * @method verificarExistencia
+   * @param {string} celular - Phone number to check
+   * @returns {Promise<boolean>} Whether user exists
+   */
   async verificarExistencia(celular) {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/existe/${celular}`);
-
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-
-      const existe = await response.json();
-      return existe;
+      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
+      return await response.json();
     } catch (error) {
       console.error("Error en verificar existencia:", error);
       return false;
     }
   }
 
+  /**
+   * Checks user verification status
+   * @async
+   * @method verificarEstado
+   * @param {string} celular - User's phone number
+   * @returns {Promise<boolean>} Verification status
+   */
   async verificarEstado(celular) {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/estado/${celular}`);
-
-      if (!response.ok) {
-        throw new Error(`Error HTTP: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Error HTTP: ${response.status}`);
       const { estado } = await response.json();
       return estado;
     } catch (err) {
-      console.error("Error en verificar el estado del usuario:", err);
+      console.error("Error en verificar estado:", err);
       return false;
     }
   }
 
+  /**
+   * Handles user login process
+   * @async
+   * @method login
+   * @param {string} celular - User's phone number
+   * @param {string} contraseña - User's password
+   * @returns {Promise<Object>} Login result with error status
+   */
   async login(celular, contraseña) {
     try {
       const token = await this.verificarContraseña(celular, contraseña);
-
       if (!token) {
-        return {
-          error: true,
-          message: "Credenciales incorrectas",
-        };
+        return { error: true, message: "Credenciales incorrectas" };
       }
       localStorage.setItem("jwt_token", token);
-
-      return {
-        error: false,
-        token,
-      };
+      return { error: false, token };
     } catch (error) {
       console.error("Error al hacer login:", error);
-      return {
-        error: true,
-        message: "Error de conexión al servidor",
-      };
+      return { error: true, message: "Error de conexión al servidor" };
     }
   }
 
+  /**
+   * Creates a new user
+   * @async
+   * @method crearUsuario
+   * @param {Object} formData - User registration data
+   * @returns {Promise<Object>} Creation result with error status
+   */
   async crearUsuario(formData) {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/crearusuario`, {
@@ -107,14 +140,18 @@ export class QueryUser {
 
       return result;
     } catch (err) {
-      console.error("Error al crear el usuario:", err);
-      return {
-        error: true,
-        message: "Error de conexión al servidor",
-      };
+      console.error("Error al crear usuario:", err);
+      return { error: true, message: "Error de conexión al servidor" };
     }
   }
 
+  /**
+   * Verifies authentication with JWT token
+   * @async
+   * @method verifyAuth
+   * @returns {Promise<Object>} Authentication verification result
+   * @throws {Error} When verification fails
+   */
   async verifyAuth() {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
@@ -129,9 +166,8 @@ export class QueryUser {
       const data = await response.json();
 
       if (!response.ok) {
-        // Manejar diferentes tipos de errores
         if (response.status === 403) {
-          localStorage.removeItem("jwt_token"); // Limpiar token inválido
+          localStorage.removeItem("jwt_token");
         }
         throw new Error(data.error || "Error de autenticación");
       }
@@ -143,54 +179,14 @@ export class QueryUser {
     }
   }
 
-  async verifyAuthWithCookiesOnly() {
-    try {
-      const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error en verificación con cookies");
-      }
-      if (data.token) {
-        localStorage.setItem("jwt_token", data.token);
-      }
-
-      return data;
-    } catch (error) {
-      console.error("Error en verifyAuthWithCookiesOnly:", error);
-      throw error;
-    }
-  }
-
-  async verifyAuthWithoutToken() {
-    try {
-      const response = await fetch(`${QueryUser.BASE_URL}/auth/verify`, {
-        method: "GET",
-        credentials: "include",
-      });
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error en verificación");
-      }
-      if (data.token) {
-        localStorage.setItem("jwt_token", data.token);
-      }
-
-      return data;
-    } catch (error) {
-      console.error("Error en verifyAuthWithoutToken:", error);
-      throw error;
-    }
-  }
-
+  /**
+   * Gets users by institution
+   * @async
+   * @method obtenerUsuarios
+   * @param {string} institucionId - Institution ID
+   * @returns {Promise<Array>} List of users
+   * @throws {Error} When request fails
+   */
   async obtenerUsuarios(institucionId) {
     try {
       const response = await fetch(
@@ -204,9 +200,7 @@ export class QueryUser {
         }
       );
 
-      if (!response.ok) {
-        throw new Error("Error al obtener usuarios");
-      }
+      if (!response.ok) throw new Error("Error al obtener usuarios");
       return await response.json();
     } catch (error) {
       console.error("Error en obtenerUsuarios:", error);
@@ -214,6 +208,14 @@ export class QueryUser {
     }
   }
 
+  /**
+   * Updates user verification status
+   * @async
+   * @method actualizarEstado
+   * @param {string} celular - User's phone number
+   * @returns {Promise<Object>} Update result
+   * @throws {Error} When update fails
+   */
   async actualizarEstado(celular) {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/actualizar/estado`, {
@@ -222,15 +224,13 @@ export class QueryUser {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
         },
-        body: JSON.stringify({ celular }), // Envía el celular en el cuerpo
+        body: JSON.stringify({ celular }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error al actualizar estado del usuario");
-      }
-
+      if (!response.ok) throw new Error("Error al actualizar estado");
       return await response.json();
     } catch (error) {
+      console.error("Error en actualizarEstado:", error);
       throw error;
     }
   }

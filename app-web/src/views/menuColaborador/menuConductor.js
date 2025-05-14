@@ -1,9 +1,35 @@
 import { useEffect } from "react";
 import { useNavigation } from "../../components/navigations";
 
+/**
+ * Driver Menu Dashboard Component
+ * 
+ * @component
+ * @name MenuConductor
+ * @description Provides a dashboard interface for drivers with navigation options
+ * and authentication verification. Handles driver-specific functionality and session management.
+ * 
+ * @param {Function} onLogout - Callback function triggered when logout is requested
+ * 
+ * @example
+ * // Usage with logout handler
+ * <MenuConductor onLogout={handleLogout} />
+ * 
+ * @returns {React.Element} Returns a driver dashboard with:
+ * - Navigation options for driver-specific features
+ * - Authentication verification system
+ * - Logout functionality
+ */
 export default function MenuConductor({ onLogout }) {
     const { goToHomePage, goToWaitForValid } = useNavigation();
 
+    /**
+     * Authentication verification effect
+     * @effect
+     * @name verifyAuth
+     * @description Verifies JWT token on component mount, checks verification status,
+     * and redirects appropriately if authentication fails or is pending.
+     */
     useEffect(() => {
         const verifyAuth = async () => {
           try {
@@ -27,7 +53,7 @@ export default function MenuConductor({ onLogout }) {
           }
         };
         verifyAuth();
-    }, [goToHomePage,goToWaitForValid]);
+    }, [goToHomePage, goToWaitForValid]);
 
     return (
         <div className="menu-conductor">
