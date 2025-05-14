@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { QueryUser } from "../../components/queryUser";
 import { useNavigation } from "../../components/navigations";
+import { useNavigate } from "react-router-dom";
 
 export default function MenuInstitucion({ onLogout }) {
+  const navigate = useNavigate();
   const userQuery = React.useMemo(() => new QueryUser(), []);
   const { goToHomePage, goToWaitForValid } = useNavigation();
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
@@ -54,13 +56,11 @@ export default function MenuInstitucion({ onLogout }) {
   }, [goToHomePage, goToWaitForValid, userQuery]);
 
   const handleEstadoClick = async (celular, estadoActual) => {
-    if (estadoActual) return; // Si ya está verificado, no hacer nada
+    if (estadoActual) return; 
 
     try {
-      // Actualizar el estado en el backend
       await userQuery.actualizarEstado(celular);
       
-      // Actualizar el estado en el frontend
       setUsuarios(usuarios.map(usuario => 
         usuario.celular === celular 
           ? { ...usuario, estado_verificacion: true } 
@@ -69,6 +69,10 @@ export default function MenuInstitucion({ onLogout }) {
     } catch (error) {
       console.error("Error al actualizar estado:", error);
     }
+  };
+
+  const handleGestionConductores = async() =>{
+    navigate("/Colaborador/Gestion-conductores");
   };
 
   return (
@@ -84,7 +88,7 @@ export default function MenuInstitucion({ onLogout }) {
       </h2>
 
       <div style={{ marginBottom: "2rem" }}>
-        <button style={buttonStyle(colorPrimario, colorSecundario)}>
+        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionConductores}>
           Gestión de Conductores
         </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>

@@ -252,3 +252,46 @@ export const actualizarUbicacionConductor = async (conductorId, ubicacion) => {
     throw err;
   }
 };
+
+
+export const obtenerConductoresInstitucion = async (institucionId) => {
+  try {
+    const result = await pool.query(
+      `SELECT id,nombre, correo, celular, estado_verificacion, codigo_estudiante, tipo_identificacion, direccion FROM conductor WHERE institucion_id = $1`,
+      [institucionId]
+    );
+    
+    return result.rows;
+  } catch (err) {
+    console.error("Error en obtenerConductoresInstitucion:", err);
+    throw err;
+  }
+};
+
+export const actualizarEstadoConductor = async (conductorId, estado) => {
+  try {
+    await pool.query(
+      "UPDATE conductor SET estado_verificacion = $1 WHERE id = $2",
+      [estado, conductorId]
+    );
+    
+    return { success: true };
+  } catch (err) {
+    console.error("Error en actualizarEstadoConductor:", err);
+    throw err;
+  }
+};
+
+export const actualizarEstadoVehiculo = async (vehiculoId, estado) => {
+  try {
+    await pool.query(
+      "UPDATE vehiculo SET estado_verificacion = $1 WHERE id = $2",
+      [estado, vehiculoId]
+    );
+    
+    return { success: true };
+  } catch (err) {
+    console.error("Error en actualizarEstadoVehiculo:", err);
+    throw err;
+  }
+};

@@ -11,7 +11,10 @@ import {
   obtenerDatosConductor,
   actualizarDocumentosConductor,
   obtenerVehiculosConductor,
-  actualizarUbicacionConductor
+  actualizarUbicacionConductor,
+  obtenerConductoresInstitucion,
+  actualizarEstadoConductor,
+  actualizarEstadoVehiculo
 } from "../controllers/conductor.controller.js";
 
 const router = Router();
@@ -246,5 +249,43 @@ router.post("/logout", (req, res) => {
     });
   }
 });
+
+router.get("/institucion/:institucionId", async (req, res) => {
+  try {
+    const { institucionId } = req.params;
+    const conductores = await obtenerConductoresInstitucion(institucionId);
+    res.json(conductores);
+  } catch (err) {
+    console.error("Error obteniendo conductores:", err);
+    res.status(500).json({ error: "Error al obtener conductores" });
+  }
+});
+
+// Actualizar estado de verificación del conductor
+router.put("/estado/:conductorId", async (req, res) => {
+  try {
+    const { conductorId } = req.params;
+    const { estado } = req.body;
+    const result = await actualizarEstadoConductor(conductorId, estado);
+    res.json(result);
+  } catch (err) {
+    console.error("Error actualizando estado de conductor:", err);
+    res.status(500).json({ error: "Error al actualizar estado" });
+  }
+});
+
+// Actualizar estado de verificación del vehículo
+router.put("/vehiculo/estado/:vehiculoId", async (req, res) => {
+  try {
+    const { vehiculoId } = req.params;
+    const { estado } = req.body;
+    const result = await actualizarEstadoVehiculo(vehiculoId, estado);
+    res.json(result);
+  } catch (err) {
+    console.error("Error actualizando estado de vehículo:", err);
+    res.status(500).json({ error: "Error al actualizar estado" });
+  }
+});
+
 
 export default router;

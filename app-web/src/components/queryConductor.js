@@ -282,4 +282,96 @@ export class QueryConductor {
             };
         }
     }
+
+    async obtenerTodosConductores(institucionId) {
+    try {
+      const response = await fetch(`${QueryConductor.BASE_URL}/institucion/${institucionId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+        }
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return {
+          error: true,
+          message: result.error || "Error al obtener conductores",
+          details: result.details
+        };
+      }
+
+      return result;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message
+      };
+    }
+  }
+
+  async actualizarEstadoConductor(conductorId, nuevoEstado) {
+    try {
+      const response = await fetch(`${QueryConductor.BASE_URL}/estado/${conductorId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+        },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return {
+          error: true,
+          message: result.message || "Error al actualizar estado",
+          details: result.details,
+        };
+      }
+
+      return result;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message
+      };
+    }
+  }
+
+  async actualizarEstadoVehiculo(vehiculoId, nuevoEstado) {
+    try {
+      const response = await fetch(`${QueryConductor.BASE_URL}/vehiculo/estado/${vehiculoId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
+        },
+        body: JSON.stringify({ estado: nuevoEstado })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return {
+          error: true,
+          message: result.message || "Error al actualizar estado del vehículo",
+          details: result.details,
+        };
+      }
+
+      return result;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message
+      };
+    }
+  }
 }

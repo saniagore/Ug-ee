@@ -30,6 +30,10 @@ CREATE TYPE estado_reserva AS ENUM(
     'pendiente', 'confirmada', 'cancelada'
 );
 
+CREATE TYPE categoria_viaje AS ENUM(
+    'viajes intermunicipales', 'metropolitanos', 'interior del campus'
+);
+
 -- CREACION DE TABLAS --
 
 CREATE TABLE institucion(
@@ -65,7 +69,8 @@ CREATE TABLE usuario() INHERITS(persona);
 CREATE TABLE conductor (
     direccion VARCHAR(255) NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    puntuacion_promedio DECIMAL(3, 2) DEFAULT 0.00
+    puntuacion_promedio DECIMAL(3, 2) DEFAULT 0.00,
+    categoria_viajes categoria_viaje
 ) INHERITS (persona);
 
 CREATE TABLE foto_documento (
