@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { QueryInstitucion } from "../../../../components/queryInstitucion";
 import { Validar_datos } from "../../../../components/dataValid";
+import { QueryConductor } from "../../../../components/queryConductor";
 
 export default function ColaboratorInstitucion({ onBack, onSuccess }) {
+  const conductorQuery = new QueryConductor();
   const institucionQuery = React.useMemo(() => new QueryInstitucion(), []);
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -31,9 +33,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
       Validar_datos.institucion(formData.institucion);
       Validar_datos.correo(formData.correo);
 
-
-      
-      //agregar queryconductor crear conductor
+      await conductorQuery.registrarConductor(formData);
       setAlertType("success");
       setAlertMessage(
         "Conductor registrado exitosamente, espere la validación de su institucion."
@@ -42,7 +42,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
     } catch (error) {
       setAlertType("error");
       setAlertMessage(
-        "Error al crear institución: " + (error.message || error)
+        "Error al intentar registrarse: " + (error.message || error)
       );
       setShowAlert(true);
     }
@@ -147,10 +147,10 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
             required
           >
             <option value="">Seleccione...</option>
-            <option value="NIT">NIT</option>
-            <option value="RUT">RUT</option>
-            <option value="Cédula">Cédula</option>
-            <option value="Pasaporte">Pasaporte</option>
+            <option value="CC">Cédula de Ciudadanía (CC)</option>
+            <option value="TI">Tarjeta de Identidad (TI)</option>
+            <option value="CE">Cédula de Extranjería (CE)</option>
+            <option value="PP">Pasaporte (PP)</option>
           </select>
         </div>
 
@@ -234,7 +234,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
                 }
                 
                 .submit-btn {
-                    background: #4CAF50;
+                    background: #7e46d2;
                     color: white;
                     padding: 8px 16px;
                     border: none;

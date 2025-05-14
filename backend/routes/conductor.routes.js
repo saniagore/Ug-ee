@@ -70,7 +70,7 @@ router.post("/login", async (req, res) => {
     const { celular, contraseña } = req.body;
 
     const conductor = await obtenerDatosConductor(celular);
-
+    
     if (!conductor) {
       return res.status(401).json({ 
         success: false, 

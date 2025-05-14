@@ -1,100 +1,54 @@
-import React, { useState } from "react";
-import { QueryInstitucion } from "../../../components/queryInstitucion";
+import React, { useState } from 'react';
+import "../../../css/colaboradorHome.css";
+import ConductorSingIn from './singIn/conductorSingIn';
+import InstitucionSingIn from './singIn/institucionSingIn';
 
-export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertType, setAlertType] = useState("success"); // "success" or "error"
+export default function ColaboratorRegister({ onBack, onSuccess }) {
+    const [currentView, setCurrentView] = useState('welcome');
 
-  const institucionQuery = new QueryInstitucion();
-  const [formData, setFormData] = useState({
-    nombre: "",
-    contraseña: "",
-  });
+    const handleInstitutionClick = () => {
+        setCurrentView('institucion');
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const handleDriverClick = () => {
+        setCurrentView('conductor');
+    };
 
-    try {
-      const loginResponse = await institucionQuery.verificarColaborador(
-        formData.nombre,
-        formData.contraseña
-      );
-      if (!loginResponse.success) {
-        throw new Error(loginResponse.message || "Credenciales incorrectas");
-      }
-      const verifyResponse = await institucionQuery.verifyAuth();
-      if (!verifyResponse.authenticated) {
-        throw new Error(verifyResponse.error || "No autenticado");
-      }
-      onLoginSuccess(verifyResponse.institucion);
-    } catch (error) {
-      setAlertType("error");
-      let errorMessage = error.message;
-      setAlertMessage(errorMessage);
+    return (
+        <div>
+            {currentView === 'welcome' && ( 
+                <div className="register-form">
+                    <h2 style={{textAlign: 'center'}}>Registro de Colaborador</h2>
+                    <div className="action-buttons">
+                        <button className="btn-primary" onClick={handleInstitutionClick}>
+                            Ingresar como Institución
+                        </button>
+                    </div>
+                    <div className="action-buttons" style={{marginTop: 10}}>
+                        <button className="btn-primary" onClick={handleDriverClick}>
+                            Ingresar como Conductor
+                        </button>
+                    </div>
 
-      if (error.message.includes("Token inválido")) {
-        errorMessage = "Sesión expirada, por favor inicia sesión nuevamente";
-        setAlertMessage(errorMessage);
-      }
+                    <div className="form-actions">
+                        <button type="button" className="back-btn" onClick={onBack}>
+                            Volver
+                        </button>
+                    </div>
+                </div>
+            )}
+            
+            {currentView === 'institucion' && (
+                <InstitucionSingIn
+                    onBack={() => setCurrentView('welcome')}
+                />
+            )}
 
-      if (error.message.includes("Credenciales incorrectas")) {
-        setAlertMessage("Nombre o contraseña invalidos");
-      }
-      setShowAlert(true);
-    }
-  };
-
-  return (
-    <div className="login-form">
-      <h2>Ingreso de Colaborador</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Nombre</label>
-          <input
-            type="name"
-            value={formData.nombre}
-            onChange={(e) =>
-              setFormData({ ...formData, nombre: e.target.value })
-            }
-            required
-          />
+            {currentView === 'conductor' &&(
+                <ConductorSingIn
+                    onBack={() => setCurrentView('welcome')}
+                />
+            )}
         </div>
-
-        <div className="form-group">
-          <label>Contraseña</label>
-          <input
-            type="password"
-            value={formData.contraseña}
-            onChange={(e) =>
-              setFormData({ ...formData, contraseña: e.target.value })
-            }
-            required
-          />
-        </div>
-
-        <div className="form-actions">
-          <button type="button" className="back-btn" onClick={onBack}>
-            Volver
-          </button>
-          <button type="submit" className="submit-btn">
-            Ingresar
-          </button>
-        </div>
-      </form>
-      {showAlert && (
-        <div
-          className={`custom-alert ${
-            alertType === "success" ? "alert-success" : "alert-error"
-          }`}
-        >
-          <div className="alert-content">
-            <h3>{alertType === "success" ? "Éxito" : "Error"}</h3>
-            <p>{alertMessage}</p>
-            <button onClick={() => setShowAlert(false)}>Aceptar</button>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
 }

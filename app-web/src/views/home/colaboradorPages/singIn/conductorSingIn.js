@@ -1,0 +1,99 @@
+import React, { useState } from "react";
+import { QueryConductor } from "../../../../components/queryConductor";
+
+export default function ColaboratorLogin({ onBack, onLoginSuccess }) {
+  const [showAlert, setShowAlert] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertType, setAlertType] = useState("success"); // "success" or "error"
+  const conductorQuery = new QueryConductor();
+  const [formData, setFormData] = useState({
+    celular: "",
+    contraseña: "",
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const loginResponse = await conductorQuery.loginConductor(
+        formData.celular,
+        formData.contraseña
+      );
+
+      if (!loginResponse.success) {
+        throw new Error(loginResponse.message || "Credenciales incorrectas");
+      }
+      const verifyResponse = await conductorQuery.verificarAutenticacion();
+      if (!verifyResponse.authenticated) {
+        throw new Error(verifyResponse.error || "No autenticado");
+      }
+      onLoginSuccess(verifyResponse.institucion);
+    } catch (error) {
+      setAlertType("error");
+      let errorMessage = error.message;
+      setAlertMessage(errorMessage);
+
+      if (error.message.includes("Token inválido")) {
+        errorMessage = "Sesión expirada, por favor inicia sesión nuevamente";
+        setAlertMessage(errorMessage);
+      }
+
+      if (error.message.includes("Credenciales incorrectas")) {
+        setAlertMessage("Nombre o contraseña invalidos");
+      }
+      setShowAlert(true);
+    }
+  };
+
+  return (
+    <div className="login-form">
+      <h2>Ingreso de Conductor</h2>
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Celular</label>
+          <input
+            value={formData.celular}
+            onChange={(e) =>
+              setFormData({ ...formData, celular: e.target.value })
+            }
+            required
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Contraseña</label>
+          <input
+            type="password"
+            value={formData.contraseña}
+            onChange={(e) =>
+              setFormData({ ...formData, contraseña: e.target.value })
+            }
+            required
+          />
+        </div>
+
+        <div className="form-actions">
+          <button type="button" className="back-btn" onClick={onBack}>
+            Volver
+          </button>
+          <button type="submit" className="submit-btn">
+            Ingresar
+          </button>
+        </div>
+      </form>
+      {showAlert && (
+        <div
+          className={`custom-alert ${
+            alertType === "success" ? "alert-success" : "alert-error"
+          }`}
+        >
+          <div className="alert-content">
+            <h3>{alertType === "success" ? "Éxito" : "Error"}</h3>
+            <p>{alertMessage}</p>
+            <button onClick={() => setShowAlert(false)}>Aceptar</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -1,5 +1,5 @@
 import pg from "pg";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { DB_CONFIG, SALT_ROUNDS } from "../config.js";
 import { obtenerInstitucion } from "./institucion.controller.js";
 const { Pool } = pg;
@@ -48,12 +48,10 @@ export const existenDatosConductor = async (telefono, nid, correo, placa = null)
       `SELECT 
         (SELECT 1 FROM conductor WHERE celular = $1 LIMIT 1) AS telefono_exists,
         (SELECT 1 FROM conductor WHERE numero_identificacion = $2 LIMIT 1) AS nid_exists,
-        (SELECT 1 FROM conductor WHERE correo = $3 LIMIT 1) AS correo_exists,
-        ${placa ? `(SELECT 1 FROM vehiculo WHERE placa = $4 LIMIT 1) AS placa_exists` : 'NULL AS placa_exists'}`,
-      placa ? [telefono, nid, correo, placa] : [telefono, nid, correo]
+        (SELECT 1 FROM conductor WHERE correo = $3 LIMIT 1) AS correo_exists`, [telefono, nid, correo]
     );
 
-    const { telefono_exists, nid_exists, correo_exists, placa_exists } =
+    const { telefono_exists, nid_exists, correo_exists } =
       validationResult.rows[0];
     const errors = {};
 
@@ -63,8 +61,6 @@ export const existenDatosConductor = async (telefono, nid, correo, placa = null)
       errors.nid = "Este número de identificación ya está registrado";
     if (correo_exists)
       errors.correo = "Este correo electrónico ya está registrado";
-    if (placa_exists)
-      errors.placa = "Esta placa ya está registrada";
 
     return Object.keys(errors).length === 0
       ? true
@@ -104,10 +100,9 @@ export const obtenerEstadoConductor = async (celular) => {
 export const crearConductor = async (formData) => {
   try {
     const validation = await existenDatosConductor(
-      formData.celular,
-      formData.numeroIdentificacion,
-      formData.correo,
-      formData.placa
+        formData.celular,
+        formData.numeroIdentificacion,
+        formData.correo,
     );
 
     if (validation.error) {
@@ -133,12 +128,11 @@ export const crearConductor = async (formData) => {
     try {
       await client.query('BEGIN');
 
-      // Insertar conductor
       const conductorResult = await client.query(
         `INSERT INTO conductor 
         (nombre, correo, contraseña, celular, numero_identificacion, 
-         tipo_identificacion, institucion_id, direccion, tipo) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'profesor'::tipo_cargo) 
+         tipo_identificacion, institucion_id, direccion) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
         RETURNING *`,
         [
           formData.nombre,
@@ -151,66 +145,12 @@ export const crearConductor = async (formData) => {
           formData.direccion
         ]
       );
-
+      console.log(conductorResult);
       const conductor = conductorResult.rows[0];
-
-      // Insertar vehículo
-      const vehiculoResult = await client.query(
-        `INSERT INTO vehiculo 
-        (categoria, vencimiento_soat, vencimiento_tecnomecanica, color, 
-         placa, marca, modelo, codigo_qr, conductor_id) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-        RETURNING *`,
-        [
-          formData.categoriaVehiculo,
-          formData.vencimientoSoat,
-          formData.vencimientoTecnomecanica,
-          formData.colorVehiculo,
-          formData.placa,
-          formData.marcaVehiculo,
-          formData.modeloVehiculo,
-          formData.codigoQR || '', // Asumiendo que el QR viene en los datos
-          conductor.id
-        ]
-      );
-
-      const vehiculo = vehiculoResult.rows[0];
-
-      // Insertar documentos del conductor (licencia)
-      if (formData.licencia) {
-        await client.query(
-          `INSERT INTO foto_documento 
-          (conductor_id, documento, tipo_documento) 
-          VALUES ($1, $2, 'licencia'::tipo_de_documento)`,
-          [conductor.id, formData.licencia]
-        );
-      }
-
-      // Insertar documentos del vehículo (soat y tecnomecanica)
-      if (formData.soat) {
-        await client.query(
-          `INSERT INTO foto_documento_vehiculo 
-          (vehiculo_id, documento, tipo_documento) 
-          VALUES ($1, $2, 'soat'::categoria_de_documento)`,
-          [vehiculo.id, formData.soat]
-        );
-      }
-
-      if (formData.tecnomecanica) {
-        await client.query(
-          `INSERT INTO foto_documento_vehiculo 
-          (vehiculo_id, documento, tipo_documento) 
-          VALUES ($1, $2, 'tecnomecanica'::categoria_de_documento)`,
-          [vehiculo.id, formData.tecnomecanica]
-        );
-      }
-
-      await client.query('COMMIT');
 
       return { 
         success: true, 
-        conductor: conductor,
-        vehiculo: vehiculo
+        conductor: conductor
       };
     } catch (err) {
       await client.query('ROLLBACK');
