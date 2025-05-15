@@ -5,22 +5,22 @@ import { useNavigate } from "react-router-dom";
 
 /**
  * Institution Menu Dashboard Component
- * 
+ *
  * @component
  * @name MenuInstitucion
  * @description Provides an administrative dashboard for institutions to manage their users,
  * with functionality for user verification status updates and navigation to management sections.
- * 
+ *
  * @param {Function} onLogout - Callback function for handling logout action
- * 
+ *
  * @property {string} colorPrimario - Primary color from institution's theme
  * @property {string} colorSecundario - Secondary color from institution's theme
  * @property {Array} usuarios - List of users associated with the institution
- * 
+ *
  * @example
  * // Usage with logout handler
  * <MenuInstitucion onLogout={handleLogout} />
- * 
+ *
  * @returns {React.Element} Returns an institution dashboard with:
  * - Navigation buttons for different management sections
  * - User verification table with interactive controls
@@ -98,16 +98,15 @@ export default function MenuInstitucion({ onLogout }) {
    * @param {boolean} estadoActual - Current verification status
    */
   const handleEstadoClick = async (celular, estadoActual) => {
-    if (estadoActual) return; 
-
     try {
-      await userQuery.actualizarEstado(celular);
-      
-      setUsuarios(usuarios.map(usuario => 
-        usuario.celular === celular 
-          ? { ...usuario, estado_verificacion: true } 
-          : usuario
-      ));
+      await userQuery.actualizarEstado(celular, !estadoActual);
+      setUsuarios(
+        usuarios.map((usuario) =>
+          usuario.celular === celular
+            ? { ...usuario, estado_verificacion: !estadoActual }
+            : usuario
+        )
+      );
     } catch (error) {
       console.error("Error al actualizar estado:", error);
     }
@@ -117,17 +116,28 @@ export default function MenuInstitucion({ onLogout }) {
    * Navigates to driver management section
    * @function handleGestionConductores
    */
-  const handleGestionConductores = async() => {
+  const handleGestionConductores = async () => {
     navigate("/Colaborador/Gestion-conductores");
   };
 
   return (
-    <div style={{ backgroundColor: colorSecundario, minHeight: "100vh", padding: "2rem" }}>
-      <h2 style={{ color: colorPrimario, marginBottom: "1rem" }}>Panel de la Institución</h2>
+    <div
+      style={{
+        backgroundColor: colorSecundario,
+        minHeight: "100vh",
+        padding: "2rem",
+      }}
+    >
+      <h2 style={{ color: colorPrimario, marginBottom: "1rem" }}>
+        Panel de la Institución
+      </h2>
 
       {/* Management Navigation Buttons */}
       <div style={{ marginBottom: "2rem" }}>
-        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionConductores}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={handleGestionConductores}
+        >
           Gestión de Conductores
         </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
@@ -136,7 +146,10 @@ export default function MenuInstitucion({ onLogout }) {
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
           Reportes
         </button>
-        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={onLogout}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={onLogout}
+        >
           Cerrar Sesión
         </button>
       </div>
@@ -150,14 +163,18 @@ export default function MenuInstitucion({ onLogout }) {
               <TableHeader colorPrimario={colorPrimario}>Nombre</TableHeader>
               <TableHeader colorPrimario={colorPrimario}>Correo</TableHeader>
               <TableHeader colorPrimario={colorPrimario}>Celular</TableHeader>
-              <TableHeader colorPrimario={colorPrimario}>N° Identificación</TableHeader>
-              <TableHeader colorPrimario={colorPrimario}>Estado Verificación</TableHeader>
+              <TableHeader colorPrimario={colorPrimario}>
+                N° Identificación
+              </TableHeader>
+              <TableHeader colorPrimario={colorPrimario}>
+                Estado Verificación
+              </TableHeader>
             </tr>
           </thead>
           <tbody>
             {usuarios.length > 0 ? (
               usuarios.map((usuario, index) => (
-                <UserRow 
+                <UserRow
                   key={index}
                   usuario={usuario}
                   index={index}
@@ -168,7 +185,10 @@ export default function MenuInstitucion({ onLogout }) {
               ))
             ) : (
               <tr>
-                <td colSpan="5" style={{ textAlign: "center", padding: "1rem" }}>
+                <td
+                  colSpan="5"
+                  style={{ textAlign: "center", padding: "1rem" }}
+                >
                   No hay usuarios registrados
                 </td>
               </tr>
@@ -213,7 +233,7 @@ function tableStyle(colorPrimario) {
     borderCollapse: "collapse",
     backgroundColor: "#fff",
     boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
-    border: `2px solid ${colorPrimario}`
+    border: `2px solid ${colorPrimario}`,
   };
 }
 
@@ -227,12 +247,14 @@ function tableStyle(colorPrimario) {
  */
 function TableHeader({ colorPrimario, children }) {
   return (
-    <th style={{
-      textAlign: "center",
-      padding: "0.5rem",
-      backgroundColor: colorPrimario,
-      color: "#fff",
-    }}>
+    <th
+      style={{
+        textAlign: "center",
+        padding: "0.5rem",
+        backgroundColor: colorPrimario,
+        color: "#fff",
+      }}
+    >
       {children}
     </th>
   );
@@ -249,7 +271,13 @@ function TableHeader({ colorPrimario, children }) {
  * @param {string} props.colorSecundario - Secondary color
  * @param {Function} props.handleEstadoClick - Verification handler
  */
-function UserRow({ usuario, index, colorPrimario, colorSecundario, handleEstadoClick }) {
+function UserRow({
+  usuario,
+  index,
+  colorPrimario,
+  colorSecundario,
+  handleEstadoClick,
+}) {
   return (
     <tr style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2" }}>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
@@ -264,7 +292,7 @@ function UserRow({ usuario, index, colorPrimario, colorSecundario, handleEstadoC
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
         {usuario.numero_identificacion || "Sin número"}
       </td>
-      <VerificationCell 
+      <VerificationCell
         usuario={usuario}
         colorPrimario={colorPrimario}
         colorSecundario={colorSecundario}
@@ -286,29 +314,18 @@ function UserRow({ usuario, index, colorPrimario, colorSecundario, handleEstadoC
  */
 function VerificationCell({ usuario, colorPrimario, colorSecundario, handleEstadoClick }) {
   return (
-    <td style={{ 
-      textAlign: "center", 
-      padding: "0.5rem",
-      cursor: usuario.estado_verificacion ? "default" : "pointer"
-    }}>
+    <td 
+      style={{ 
+        textAlign: "center", 
+        padding: "0.5rem",
+        cursor: "pointer"
+      }}
+      onClick={() => handleEstadoClick(usuario.celular, usuario.estado_verificacion)}
+    >
       {usuario.estado_verificacion ? (
-        "Verificado"
+        <span style={{ color: "green" }}>Verificado</span>
       ) : (
-        <select
-          style={{
-            padding: "0.2rem",
-            borderRadius: "4px",
-            border: `1px solid ${colorPrimario}`,
-            backgroundColor: colorSecundario,
-            color: colorPrimario,
-            cursor: "pointer"
-          }}
-          onChange={(e) => e.target.value === "aceptado" && 
-            handleEstadoClick(usuario.celular, usuario.estado_verificacion)}
-        >
-          <option value="pendiente">Pendiente</option>
-          <option value="aceptado">Aceptado</option>
-        </select>
+        <span style={{ color: "orange" }}>Pendiente</span>
       )}
     </td>
   );

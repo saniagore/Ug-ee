@@ -216,7 +216,7 @@ export class QueryUser {
    * @returns {Promise<Object>} Update result
    * @throws {Error} When update fails
    */
-  async actualizarEstado(celular) {
+  async actualizarEstado(celular, estado) {
     try {
       const response = await fetch(`${QueryUser.BASE_URL}/actualizar/estado`, {
         method: "POST",
@@ -224,7 +224,7 @@ export class QueryUser {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
         },
-        body: JSON.stringify({ celular }),
+        body: JSON.stringify({ celular, estado }),
       });
 
       if (!response.ok) throw new Error("Error al actualizar estado");

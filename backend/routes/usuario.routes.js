@@ -212,8 +212,8 @@ router.get("/obtenerUsuarios", async (req, res) => {
 
 router.post("/actualizar/estado", async(req,res)=> {
   try{
-    const { celular, nuevoEstado } = req.body;
-    await actualizarEstado(celular);
+    const { celular, estado } = req.body;
+    await actualizarEstado(celular, estado);
     res.json({ success: true, message: "Estado actualizado correctamente" });
   }catch(error){
     res.status(500).json({success:false, error: "Error en el servidor"});
