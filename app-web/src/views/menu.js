@@ -1,111 +1,222 @@
-import '../css/WaitForValid.css';
-import React, { useEffect } from "react";
-import { useNavigation } from '../components/navigations';
-import { MapContainer, TileLayer } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-defaulticon-compatibility';
-import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import React, { useEffect, useState } from "react";
+import { useNavigation } from "../components/navigations";
+import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import "leaflet-defaulticon-compatibility";
+import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
+import "../css/WaitForValid.css";
+import "../css/Menu.css";
 
-/**
- * Main Menu component featuring an interactive map and user authentication controls.
- * 
- * @component
- * @name Menu
- * @description The primary navigation interface that displays a map view and handles
- * user authentication state. Verifies user credentials on mount and provides logout functionality.
- * 
- * @property {Function} handleLogout - Handles user logout process
- * @property {Array} caliPosition - Default map coordinates [latitude, longitude] for Cali, Colombia
- * 
- * @example
- * // Usage in router configuration
- * <Route path='/Menu' element={<Menu />} />
- * 
- * @returns {React.Element} Returns a layout with:
- * - A control panel container (currently with logout button)
- * - An interactive map component centered on Cali, Colombia
- */
+const customIcon = new L.Icon({
+  iconUrl: "https://cdn-icons-png.flaticon.com/512/2776/2776067.png",
+  iconSize: [38, 38],
+  iconAnchor: [19, 38],
+  popupAnchor: [0, -38],
+});
+
+function MapViewUpdater({ center, zoom }) {
+  const map = useMap();
+  useEffect(() => {
+    map.setView(center, zoom);
+  }, [center, zoom, map]);
+  return null;
+}
+
 export default function Menu() {
-    const { goToHomePage, goToWaitForValid } = useNavigation();
-    const caliPosition = [3.375658, -76.529885]; // Coordinates for Cali, Colombia
+  const { goToHomePage, goToWaitForValid } = useNavigation();
+  const caliPosition = [3.375658, -76.529885];
 
-    /**
-     * Effect hook that verifies user authentication on component mount.
-     * @effect
-     * @name verifyAuth
-     * @description Checks the user's authentication status with the backend API.
-     * Redirects to home page if not authenticated or to validation page if account is pending.
-     */
-    useEffect(() => {
-        const verifyAuth = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/usuario/auth/verify', {
-                    credentials: 'include'
-                });
-                
-                if (!response.ok) {
-                    goToHomePage();
-                    return;
-                }   
-                
-                const data = await response.json();
-                if (!data.user.estado) {
-                    goToWaitForValid();
-                }
-            } catch (error) {
-                goToHomePage();
-            }
-        };
+  const [address, setAddress] = useState("");
+  const [markerPosition, setMarkerPosition] = useState(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [searchError, setSearchError] = useState(null);
 
-        verifyAuth();
-    }, [goToHomePage, goToWaitForValid]); 
-
-    /**
-     * Handles the user logout process.
-     * @async
-     * @function handleLogout
-     * @description Makes a POST request to the logout endpoint and redirects to home page.
-     * Logs any errors to the console.
-     */
-    const handleLogout = async () => {
-        try {
-            await fetch('http://localhost:5000/api/usuario/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });
-            goToHomePage();
-        } catch (error) {
-            console.error("Error al cerrar sesión:", error);
-        }
+  useEffect(() => {
+    const verifyAuth = async () => {
+      try {
+        const response = await fetch(
+          "http://localhost:5000/api/usuario/auth/verify",
+          {
+            credentials: "include",
+          }
+        );
+        if (!response.ok) goToHomePage();
+        const data = await response.json();
+        if (!data.user.estado) goToWaitForValid();
+      } catch (error) {
+        goToHomePage();
+      }
     };
+    verifyAuth();
+  }, [goToHomePage, goToWaitForValid]);
 
-    return (
-        <div className="App" style={{ display: 'flex', padding: '20px' }}>
-            {/* Control panel container */}
-            <div className="container" style={{ width: '100%', maxWidth: '400px' }}>
-                <button onClick={handleLogout}>Logout</button>
+  const handleLogout = async () => {
+    try {
+      await fetch("http://localhost:5000/api/usuario/logout", {
+        method: "POST",
+        credentials: "include",
+      });
+      goToHomePage();
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
+  const fetchAddressResults = async (query) => {
+    if (!query.trim() || query.length < 3) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError(null);
+
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          query + ", Cali, Colombia"
+        )}&addressdetails=1&limit=5&countrycodes=co`
+      );
+
+      const data = await response.json();
+
+      if (data.length === 0) {
+        setSuggestions([]);
+        setSearchError("No se encontraron coincidencias.");
+        return;
+      }
+
+      const parsedResults = data.map((item) => ({
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon),
+        display: formatDisplayAddress(item),
+      }));
+
+      setSuggestions(parsedResults);
+    } catch (error) {
+      console.error("Error en búsqueda:", error);
+      setSearchError("Error al conectar con el servicio de mapas.");
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const formatDisplayAddress = (item) => {
+    const addr = item.address;
+    return [
+      addr.road,
+      addr.house_number,
+      addr.neighbourhood,
+      addr.suburb,
+      addr.city || addr.town,
+      addr.state,
+      addr.country,
+    ]
+      .filter(Boolean)
+      .join(", ");
+  };
+
+  const handleAddressChange = (e) => {
+    const value = e.target.value;
+    setAddress(value);
+    setSelectedAddress(null);
+    if (value.length >= 3) fetchAddressResults(value);
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    setAddress(suggestion.display);
+    setMarkerPosition([suggestion.lat, suggestion.lng]);
+    setSelectedAddress(suggestion);
+    setSuggestions([]);
+    setSearchError(null);
+  };
+
+  const handleSearch = async () => {
+    if (!address.trim()) return;
+    await fetchAddressResults(address);
+  };
+
+  return (
+    <div className="app-container">
+      <div className="control-panel">
+        <h2 className="panel-title">Servicio DiDi</h2>
+
+        <div className="search-container">
+          <label className="search-label">Ingresa tu dirección:</label>
+          <input
+            type="text"
+            value={address}
+            onChange={handleAddressChange}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+            placeholder="Ej: Carrera 100 #15-20"
+            className="search-input"
+          />
+          {isSearching && (
+            <div className="search-spinner">
+              <i className="fas fa-spinner fa-spin"></i>
             </div>
+          )}
 
-            {/* Map container */}
-            <div style={{ 
-                width: '2000px',
-                height: '900px', 
-                marginLeft: '20px', 
-                borderRadius: '15px', 
-                overflow: 'hidden',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
-            }}>
-                <MapContainer 
-                    center={caliPosition} 
-                    zoom={220} 
-                    style={{ height: '100%', width: '100%' }}
+          {searchError && <div className="search-error">{searchError}</div>}
+
+          {showSuggestions && suggestions.length > 0 && (
+            <ul className="suggestions-list">
+              {suggestions.map((suggestion, index) => (
+                <li
+                  key={index}
+                  className="suggestion-item"
+                  onClick={() => handleSuggestionClick(suggestion)}
                 >
-                    <TileLayer
-                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    />
-                </MapContainer>
-            </div>
+                  {suggestion.display}
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <button
+            onClick={handleSearch}
+            disabled={isSearching}
+            className={`search-button ${isSearching ? "searching" : ""}`}
+          >
+            {isSearching ? "Buscando..." : "Buscar Dirección"}
+          </button>
         </div>
-    );
+
+        <button className="reserve-button">Reservar Servicio</button>
+
+        <button onClick={handleLogout} className="logout-button">
+          Cerrar Sesión
+        </button>
+      </div>
+
+      <div className="map-container">
+        <MapContainer
+          center={markerPosition || caliPosition}
+          zoom={markerPosition ? 16 : 13}
+          className="leaflet-map"
+        >
+          <MapViewUpdater
+            center={markerPosition || caliPosition}
+            zoom={markerPosition ? 16 : 13}
+          />
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          {markerPosition && (
+            <Marker position={markerPosition} icon={customIcon}>
+              <Popup>
+                {selectedAddress?.display || "Ubicación seleccionada"}
+              </Popup>
+            </Marker>
+          )}
+        </MapContainer>
+      </div>
+    </div>
+  );
 }
