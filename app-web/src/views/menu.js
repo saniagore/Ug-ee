@@ -7,6 +7,7 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "../css/WaitForValid.css";
 import "../css/Menu.css";
+import Servicio from "./user/pedirVehiculo";
 
 const customIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/2776/2776067.png",
@@ -34,6 +35,7 @@ export default function Menu() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
   const [searchError, setSearchError] = useState(null);
+  const [currentView, setCurrentView] = useState("menu");
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -143,55 +145,87 @@ export default function Menu() {
   return (
     <div className="app-container">
       <div className="control-panel">
-        <h2 className="panel-title">Servicio DiDi</h2>
+        {currentView === "menu" && (
+          <>
+            <h2 className="panel-title">Servicio DiDi</h2>
+            <div className="search-container">
+              <label className="search-label">Ingresa tu dirección:</label>
+              <input
+                type="text"
+                value={address}
+                onChange={handleAddressChange}
+                onFocus={() => setShowSuggestions(true)}
+                onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                placeholder="Ej: Carrera 100 #15-20"
+                className="search-input"
+              />
+              {isSearching && (
+                <div className="search-spinner">
+                  <i className="fas fa-spinner fa-spin"></i>
+                </div>
+              )}
 
-        <div className="search-container">
-          <label className="search-label">Ingresa tu dirección:</label>
-          <input
-            type="text"
-            value={address}
-            onChange={handleAddressChange}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
-            placeholder="Ej: Carrera 100 #15-20"
-            className="search-input"
-          />
-          {isSearching && (
-            <div className="search-spinner">
-              <i className="fas fa-spinner fa-spin"></i>
+              {searchError && <div className="search-error">{searchError}</div>}
+
+              {showSuggestions && suggestions.length > 0 && (
+                <ul className="suggestions-list">
+                  {suggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      className="suggestion-item"
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion.display}
+                    </li>
+                  ))}
+                </ul>
+              )}
+
+              <button
+                onClick={handleSearch}
+                disabled={isSearching}
+                className={`search-button ${isSearching ? "searching" : ""}`}
+              >
+                {isSearching ? "Buscando..." : "Buscar Dirección"}
+              </button>
             </div>
-          )}
 
-          {searchError && <div className="search-error">{searchError}</div>}
+            <button
+              onClick={() => setCurrentView("servicio")}
+              className="reserve-button"
+            >
+              Pedir Servicio
+            </button>
 
-          {showSuggestions && suggestions.length > 0 && (
-            <ul className="suggestions-list">
-              {suggestions.map((suggestion, index) => (
-                <li
-                  key={index}
-                  className="suggestion-item"
-                  onClick={() => handleSuggestionClick(suggestion)}
-                >
-                  {suggestion.display}
-                </li>
-              ))}
-            </ul>
-          )}
+            <button
+              onClick={() => setCurrentView("reserva")}
+              className="reserve-button"
+            >
+              Reservar Servicio
+            </button>
 
-          <button
-            onClick={handleSearch}
-            disabled={isSearching}
-            className={`search-button ${isSearching ? "searching" : ""}`}
-          >
-            {isSearching ? "Buscando..." : "Buscar Dirección"}
-          </button>
-        </div>
+            <button onClick={handleLogout} className="logout-button">
+              Cerrar Sesión
+            </button>
+          </>
+        )}
 
-        <button className="reserve-button">Reservar Servicio</button>
+        {currentView === "servicio" && (
+          <Servicio onBack={() => setCurrentView('menu')} />
+        )}
 
-        <button onClick={handleLogout} className="logout-button">
-          Cerrar Sesión
-        </button>
+        {currentView === "reserva" && (
+          <>
+            <h2 className="panel-title">Reserva Confirmada</h2>
+            <p>Tu servicio ha sido reservado exitosamente.</p>
+            <button
+              onClick={() => setCurrentView("menu")}
+              className="back-button"
+            >
+              Volver al Menú
+            </button>
+          </>
+        )}
       </div>
 
       <div className="map-container">
