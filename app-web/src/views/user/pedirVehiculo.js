@@ -5,7 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import "../../css/WaitForValid.css";
+import "../../css/Menu.css";
 
 const customIcon = new L.Icon({
   iconUrl: "https://cdn-icons-png.flaticon.com/512/2776/2776067.png",
@@ -80,7 +80,10 @@ const Servicio = ({ onBack, originAddress }) => {
         <p>
           <strong>Destino:</strong> {destinationAddress}
         </p>
-        <button onClick={onBack} className="back-button">
+        <p>
+            <strong>Servicio:</strong> su conductor se comunicara con usted mediante llamada telefonica
+        </p>
+        <button onClick={onBack} className="search-button">
           Volver al Menú
         </button>
       </div>
@@ -135,7 +138,7 @@ const Servicio = ({ onBack, originAddress }) => {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !destinationAddress.trim()}
-          className="submit-button"
+          className="search-button"
         >
           {isSubmitting ? "Solicitando..." : "Solicitar Servicio"}
         </button>
