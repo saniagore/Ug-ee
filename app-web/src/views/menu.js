@@ -100,7 +100,6 @@ export default function Menu() {
 
       setSuggestions(parsedResults);
     } catch (error) {
-      console.error("Error en búsqueda:", error);
       setSearchError("Error al conectar con el servicio de mapas.");
     } finally {
       setIsSearching(false);
@@ -211,7 +210,14 @@ export default function Menu() {
         )}
 
         {currentView === "servicio" && (
-          <Servicio onBack={() => setCurrentView('menu')} />
+          <Servicio
+            onBack={() => setCurrentView("menu")}
+            originAddress={{
+              address: address,
+              markerPosition: markerPosition,
+              selectedAddress: selectedAddress,
+            }}
+          />
         )}
 
         {currentView === "reserva" && (
