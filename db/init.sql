@@ -31,7 +31,7 @@ CREATE TYPE estado_reserva AS ENUM(
 );
 
 CREATE TYPE categoria_viaje AS ENUM(
-    'viajes intermunicipales', 'metropolitanos', 'interior del campus'
+    'campus', 'metropolitano', 'intermunicipal'
 );
 
 -- CREACION DE TABLAS --
@@ -113,7 +113,8 @@ CREATE TABLE viaje(
     punto_destino GEOGRAPHY(POINT, 4326) NOT NULL,
     ubicacion_actual GEOGRAPHY(POINT, 4326) NOT NULL,
     usuario_id INTEGER NOT NULL,
-    vehiculo_id INTEGER NOT NULL,
+    tipo_viaje categoria_viaje NOT NULL,
+    vehiculo_id INTEGER,
     FOREIGN KEY (usuario_id) REFERENCES persona(id) ON DELETE CASCADE,
     FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id) ON DELETE CASCADE
 );

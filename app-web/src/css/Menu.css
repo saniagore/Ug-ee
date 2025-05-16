@@ -107,6 +107,7 @@
 .reserve-button {
     width: 100%;
     padding: 12px;
+    margin-top: 10px;
     background-color: #9e9e9e;
     color: white;
     border: none;
@@ -124,7 +125,7 @@
     border-radius: 8px;
     font-size: 16px;
     cursor: pointer;
-    margin-top: auto;
+    margin-top: 550px;
     transition: background-color 0.3s;
 }
 
@@ -143,4 +144,18 @@
 .leaflet-map {
     height: 100%;
     width: 100%;
+}
+
+.service-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.service-select:focus {
+  outline: none;
+  border-color: #4CAF50;
 }
