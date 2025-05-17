@@ -203,7 +203,6 @@ export class QueryUser {
       if (!response.ok) throw new Error("Error al obtener usuarios");
       return await response.json();
     } catch (error) {
-      console.error("Error en obtenerUsuarios:", error);
       throw error;
     }
   }

@@ -64,9 +64,12 @@ CREATE TABLE persona (
     FOREIGN KEY (institucion_id) REFERENCES institucion(id) ON DELETE CASCADE
 );
 
-CREATE TABLE usuario() INHERITS(persona);
+CREATE TABLE usuario(
+    UsId SERIAL NOT NULL UNIQUE
+) INHERITS(persona);
 
 CREATE TABLE conductor (
+    CId SERIAL NOT NULL UNIQUE,
     direccion VARCHAR(255) NOT NULL,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     puntuacion_promedio DECIMAL(3, 2) DEFAULT 0.00,
@@ -77,7 +80,7 @@ CREATE TABLE foto_documento (
     conductor_id INTEGER NOT NULL,
     documento BYTEA NOT NULL,
     tipo_documento tipo_de_documento NOT NULL,
-    FOREIGN KEY (conductor_id) REFERENCES persona(id) ON DELETE CASCADE,
+    FOREIGN KEY (conductor_id) REFERENCES conductor(CId) ON DELETE CASCADE,
     PRIMARY KEY (conductor_id, tipo_documento) 
 );
 
@@ -93,7 +96,7 @@ CREATE TABLE vehiculo(
     codigo_qr BYTEA NOT NULL,
     modelo VARCHAR(50) NOT NULL,
     conductor_id INTEGER NOT NULL,
-    FOREIGN KEY (conductor_id) REFERENCES persona(id) ON DELETE CASCADE
+    FOREIGN KEY (conductor_id) REFERENCES conductor(CId) ON DELETE CASCADE
 );
 
 CREATE TABLE foto_documento_vehiculo (
@@ -106,16 +109,16 @@ CREATE TABLE foto_documento_vehiculo (
 
 CREATE TABLE viaje(
     id SERIAL PRIMARY KEY,
-    estado categorias_estado_viaje NOT NULL,
-    punto_partida GEOGRAPHY(POINT, 4326) NOT NULL,
-    ruta_planificada GEOGRAPHY(LINESTRING, 4326) NOT NULL,
-    hora_salida TIMESTAMP NOT NULL,
-    punto_destino GEOGRAPHY(POINT, 4326) NOT NULL,
-    ubicacion_actual GEOGRAPHY(POINT, 4326) NOT NULL,
+    estado categorias_estado_viaje NOT NULL DEFAULT 'pendiente',
+    punto_partida VARCHAR(50) NOT NULL,
+    ruta_planificada GEOGRAPHY(LINESTRING, 4326),
+    hora_salida TIMESTAMP,
+    punto_destino VARCHAR(50) NOT NULL,
+    ubicacion_actual GEOGRAPHY(POINT, 4326),
     usuario_id INTEGER NOT NULL,
     tipo_viaje categoria_viaje NOT NULL,
     vehiculo_id INTEGER,
-    FOREIGN KEY (usuario_id) REFERENCES persona(id) ON DELETE CASCADE,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(UsId) ON DELETE CASCADE,
     FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id) ON DELETE CASCADE
 );
 

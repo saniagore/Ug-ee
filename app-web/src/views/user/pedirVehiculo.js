@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft } from "react-icons/fa";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { QueryViaje } from "../../components/queryViaje";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
@@ -23,6 +24,7 @@ function MapViewUpdater({ center, zoom }) {
 }
 
 const Servicio = ({ onBack, originAddress, serviceType }) => {
+  const viajeQuery = new QueryViaje();
   const caliPosition = [3.375658, -76.529885];
   const [destinationAddress, setDestinationAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,14 +55,15 @@ const Servicio = ({ onBack, originAddress, serviceType }) => {
     }
 
     try {
-
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-      //implementar funcion de llamar a la bbdd
-
-      console.log(originAddress);
-      console.log(serviceType);
-      console.log(destinationAddress)
-
+      const response = await fetch(
+          "http://localhost:5000/api/usuario/auth/verify",
+          {
+            credentials: "include",
+          }
+        );
+      const data = await response.json();
+      viajeQuery.registrarViaje(originAddress.address,destinationAddress,serviceType,data.user.id);
+      console.log(originAddress.address,destinationAddress,serviceType,data.user.id);
       setSubmitSuccess(true);
     } catch (error) {
       console.error("Error al solicitar servicio:", error);
