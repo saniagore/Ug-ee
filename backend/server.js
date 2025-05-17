@@ -5,6 +5,7 @@ import usuarioRoutes from "./routes/usuario.routes.js";
 import cookieParser from "cookie-parser";
 import institucionRoutes from "./routes/institucion.routes.js";
 import conductorRoutes from "./routes/conductor.routes.js";
+import viajeRoutes from "./routes/viaje.routes.js";
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use("/api/usuario", usuarioRoutes);
 app.use("/api/institucion", institucionRoutes);
 app.use("/api/conductor", conductorRoutes);
+app.use("/api/viaje", viajeRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

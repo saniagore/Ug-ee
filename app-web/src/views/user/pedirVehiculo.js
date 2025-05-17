@@ -22,7 +22,7 @@ function MapViewUpdater({ center, zoom }) {
   return null;
 }
 
-const Servicio = ({ onBack, originAddress }) => {
+const Servicio = ({ onBack, originAddress, serviceType }) => {
   const caliPosition = [3.375658, -76.529885];
   const [destinationAddress, setDestinationAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -53,11 +53,14 @@ const Servicio = ({ onBack, originAddress }) => {
     }
 
     try {
-      // Aquí iría la llamada a tu API para solicitar el servicio
-      // Simulamos un retraso de red
-      await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      // Si todo sale bien
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      //implementar funcion de llamar a la bbdd
+
+      console.log(originAddress);
+      console.log(serviceType);
+      console.log(destinationAddress)
+
       setSubmitSuccess(true);
     } catch (error) {
       console.error("Error al solicitar servicio:", error);

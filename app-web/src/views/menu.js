@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { useNavigation } from "../components/navigations";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "../css/Menu.css";
 import Servicio from "./user/pedirVehiculo";
+import { useAuthVerification } from "../components/useAuth";
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
@@ -16,43 +16,11 @@ function MapViewUpdater({ center, zoom }) {
 }
 
 export default function Menu() {
-  const { goToHomePage, goToWaitForValid } = useNavigation();
   const caliPosition = [3.375658, -76.529885];
-
+  const { handleLogout } = useAuthVerification();
   const [address, setAddress] = useState("");
   const [serviceType, setServiceType] = useState("campus");
   const [currentView, setCurrentView] = useState("menu");
-
-  useEffect(() => {
-    const verifyAuth = async () => {
-      try {
-        const response = await fetch(
-          "http://localhost:5000/api/usuario/auth/verify",
-          {
-            credentials: "include",
-          }
-        );
-        if (!response.ok) goToHomePage();
-        const data = await response.json();
-        if (!data.user.estado) goToWaitForValid();
-      } catch (error) {
-        goToHomePage();
-      }
-    };
-    verifyAuth();
-  }, [goToHomePage, goToWaitForValid]);
-
-  const handleLogout = async () => {
-    try {
-      await fetch("http://localhost:5000/api/usuario/logout", {
-        method: "POST",
-        credentials: "include",
-      });
-      goToHomePage();
-    } catch (error) {
-      console.error("Error al cerrar sesión:", error);
-    }
-  };
 
   const handleAddressChange = (e) => {
     setAddress(e.target.value);
