@@ -11,7 +11,7 @@ function usePhoneInput() {
   return { phone, setPhone };
 }
 
-function PhoneInput({ onRegister, onLogin }) {
+function PhoneInput({ onRegister, onLogin, setCelular }) {
   const { goToColaborador } = useNavigation();
   const userQuery = new QueryUser();
   const { phone, setPhone } = usePhoneInput();
@@ -36,6 +36,7 @@ function PhoneInput({ onRegister, onLogin }) {
     try {
       const exists = await userQuery.verificarExistencia(phone);
       if (exists.existe) {
+        setCelular(phone);
         onLogin();
       } else {
         onRegister();

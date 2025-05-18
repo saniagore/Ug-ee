@@ -3,8 +3,9 @@ import "../../../css/homePageSingIn.css";
 import { useNavigation } from "../../../components/navigations";
 import { useState } from "react";
 import { QueryUser } from "../../../components/queryUser";
+import { useEffect } from "react";
 
-export default function Login({ onBack, onLoginSuccess }) {
+export default function Login({ onBack, onLoginSuccess, celular }) {
   const userQuery = new QueryUser();
   const { goToMenu } = useNavigation();
   const [formData, setFormData] = useState({
@@ -49,6 +50,15 @@ export default function Login({ onBack, onLoginSuccess }) {
       console.error("Error en login:", error);
     }
   };
+
+  // Set initial celular if provided as prop
+  // Only run once on mount
+
+  useEffect(() => {
+    if (celular) {
+      setFormData((prev) => ({ ...prev, celular }));
+    }
+  }, [celular]);
 
   return (
     <>

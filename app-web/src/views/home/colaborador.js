@@ -40,7 +40,7 @@ function ColaboratorHomePage() {
     const handleLoginSuccess = () => {
         navigate('/Colaborador/Menu');
     };
-    
+
     return (
         <div className="colaborator-app">
             <div className="colaborator-container">

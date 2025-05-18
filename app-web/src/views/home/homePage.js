@@ -34,6 +34,7 @@ function HomePage() {
     const [currentView, setCurrentView] = useState('phoneInput');
     const caliPosition = [3.375658, -76.529885];
     const { goToMenu } = useNavigation();
+    const [celular,setCelular] = useState('');
 
     /**
      * Effect hook for session verification
@@ -76,14 +77,14 @@ function HomePage() {
         <div className="App" style={{ display: 'flex', padding: '20px' }}>
             {/* Authentication Panel */}
             <div className="container" style={{width: '100%', maxWidth: '400px'}}>
-                {/* Phone Input View */}
                 {currentView === 'phoneInput' && (
                     <PhoneInput 
                         onRegister={() => setCurrentView('register')}
                         onLogin={() => setCurrentView('login')}
+                        setCelular={setCelular}
                     />
                 )}
-                
+                                
                 {/* Registration View */}
                 {currentView === 'register' && (
                     <Register onBack={() => setCurrentView('phoneInput')} />
@@ -94,6 +95,7 @@ function HomePage() {
                     <Login 
                         onBack={() => setCurrentView('phoneInput')}
                         onLoginSuccess={handleLoginSuccess}
+                        celular={celular}
                     />
                 )}
             </div>
