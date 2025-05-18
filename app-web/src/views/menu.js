@@ -6,6 +6,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "../css/Menu.css";
 import Servicio from "./user/pedirVehiculo";
 import { useAuthVerification } from "../components/useAuth";
+import HistorialViajes from "./user/historialViajes";
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
@@ -72,6 +73,13 @@ export default function Menu() {
                 Reservar Servicio
               </button>
 
+              <button
+                onClick={() => setCurrentView("historial")}
+                className="reserve-button"
+              >
+                Ver Historial de Viajes
+              </button>
+
               <button onClick={handleLogout} className="logout-button">
                 Cerrar Sesión
               </button>
@@ -89,6 +97,10 @@ export default function Menu() {
             }}
             serviceType={serviceType} 
           />
+        )}
+
+        {currentView === "historial" && (
+          <HistorialViajes onBack={() => setCurrentView("menu")} />
         )}
 
         {currentView === "reserva" && (

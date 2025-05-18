@@ -63,7 +63,6 @@ const Servicio = ({ onBack, originAddress, serviceType }) => {
         );
       const data = await response.json();
       viajeQuery.registrarViaje(originAddress.address,destinationAddress,serviceType,data.user.id);
-      console.log(originAddress.address,destinationAddress,serviceType,data.user.id);
       setSubmitSuccess(true);
     } catch (error) {
       console.error("Error al solicitar servicio:", error);
