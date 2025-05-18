@@ -22,6 +22,8 @@ const HistorialViajes = ({ onBack }) => {
         
         const viajeQuery = new QueryViaje();
         const result = await viajeQuery.obtenerHistorialViajes(data.user.id);
+
+        //AGREGAR LAS PLACAS Y MARCA DEL CARRO COMO TIPO
         console.log(result);
         
         if (result.error) {
@@ -56,7 +58,7 @@ const HistorialViajes = ({ onBack }) => {
       };
       return new Date(fechaString).toLocaleDateString('es-ES', options);
     } catch {
-      return fechaString; // Si falla el parseo, devolver el string original
+      return fechaString; 
     }
   };
 
@@ -136,11 +138,9 @@ const HistorialViajes = ({ onBack }) => {
                   <span className="detalle-item">
                     <strong>Tipo:</strong> {viaje.tipo_viaje || 'No especificado'}
                   </span>
-                  {viaje.conductor && (
-                    <span className="detalle-item">
-                      <strong>Conductor:</strong> {viaje.conductor.nombre || 'Conductor no disponible'}
-                    </span>
-                  )}
+                  <span className="detalle-item">
+                    <strong>Vehiculo:</strong> {viaje.vehiculo || 'No asignado'}
+                  </span>
                 </div>
               </div>
             </div>

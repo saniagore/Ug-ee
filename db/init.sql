@@ -113,7 +113,6 @@ CREATE TABLE viaje(
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     punto_partida VARCHAR(50) NOT NULL,
     ruta_planificada GEOGRAPHY(LINESTRING, 4326),
-    hora_salida TIMESTAMP,
     punto_destino VARCHAR(50) NOT NULL,
     ubicacion_actual GEOGRAPHY(POINT, 4326),
     usuario_id INTEGER NOT NULL,

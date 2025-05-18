@@ -129,8 +129,8 @@ export const crearConductor = async (formData) => {
       const conductorResult = await client.query(
         `INSERT INTO conductor 
         (nombre, correo, contraseña, celular, numero_identificacion, 
-         tipo_identificacion, institucion_id, direccion) 
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+         tipo_identificacion, institucion_id, direccion, categoria_viajes) 
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
         RETURNING *`,
         [
           formData.nombre,
@@ -140,7 +140,8 @@ export const crearConductor = async (formData) => {
           formData.numeroIdentificacion,
           formData.tipoIdentificacion,
           datosInstitucion.id,
-          formData.direccion
+          formData.direccion,
+          formData.tipo
         ]
       );
 

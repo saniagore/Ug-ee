@@ -19,6 +19,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
     tipoIdentificacion: "",
     institucion: "",
     direccion: "",
+    tipo: "",
   });
 
   const handleSubmit = async (e) => {
@@ -32,6 +33,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
       Validar_datos.celular(formData.celular);
       Validar_datos.institucion(formData.institucion);
       Validar_datos.correo(formData.correo);
+      if(formData.tipo==="") throw new Error("Escoja un tipo de categoria de viaje.")
 
       await conductorQuery.registrarConductor(formData);
       setAlertType("success");
@@ -154,7 +156,23 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
           </select>
         </div>
 
-        {/* Institución ID */}
+        <div className="form-group">
+          <label>Categoria de Viaje</label>
+          <select
+            value={formData.tipo}
+            onChange={(e) =>
+              setFormData({ ...formData, tipo: e.target.value })
+            }
+            required
+          >
+            <option value="">Seleccione...</option>
+            <option value="campus">Campus</option>
+            <option value="metropolitano">Metropolitano</option>
+            <option value="intermunicipal">Intermunicipal</option>
+          </select>
+        </div>
+
+        {/* Direccion */}
         <div className="form-group">
           <label>Dirección</label>
           <input
@@ -165,7 +183,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
           />
         </div>
 
-        {/* Dirección */}
+        {/* Institucion ID */}
         <div className="form-group">
           <label>Institución</label>
           <select

@@ -98,7 +98,7 @@ router.post("/login", async (req, res) => {
       numeroIdentificacion: conductor.numero_identificacion,
       tipoIdentificacion: conductor.tipo_identificacion,
       institucionId: conductor.institucion_id,
-      tipo: conductor.tipo,
+      tipo: conductor.categoria_viajes,
       esConductor: true
     };
 
