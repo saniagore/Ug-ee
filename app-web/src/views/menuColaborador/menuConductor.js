@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigation } from "../../components/navigations";
-
+import { useNavigate } from "react-router-dom";
 /**
  * Driver Menu Dashboard Component
  * 
@@ -22,7 +22,11 @@ import { useNavigation } from "../../components/navigations";
  */
 export default function MenuConductor({ onLogout }) {
     const { goToHomePage, goToWaitForValid } = useNavigation();
+  const navigate = useNavigate();
 
+    const handleRegistrarVehiculo = () => {
+      navigate("/Colaborador/Registrar-vehiculo");
+    };
     /**
      * Authentication verification effect
      * @effect
@@ -60,6 +64,7 @@ export default function MenuConductor({ onLogout }) {
             <h2>Panel del Conductor</h2>
             <div className="menu-options">
                 <button>Mis Viajes</button>
+                <button onClick={handleRegistrarVehiculo}>Registrar Vehiculo</button>
                 <button>Mi Vehículo</button>
                 <button>Documentos</button>
                 <button onClick={onLogout}>Cerrar Sesión</button>
