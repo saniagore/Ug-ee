@@ -29,7 +29,6 @@ const HistorialViajes = ({ onBack }) => {
         if (result.error) {
           setError(result.message);
         } else {
-          // Asegurarnos de que siempre sea un array
           const viajesArray = Array.isArray(result) ? result : 
                              result.data ? result.data : 
                              result.viajes ? result.viajes : [];
