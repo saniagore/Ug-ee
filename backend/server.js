@@ -6,6 +6,7 @@ import cookieParser from "cookie-parser";
 import institucionRoutes from "./routes/institucion.routes.js";
 import conductorRoutes from "./routes/conductor.routes.js";
 import viajeRoutes from "./routes/viaje.routes.js";
+import vehiculoRoutes from "./routes/vehiculo.routes.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use("/api/usuario", usuarioRoutes);
 app.use("/api/institucion", institucionRoutes);
 app.use("/api/conductor", conductorRoutes);
 app.use("/api/viaje", viajeRoutes);
+app.use("/api/vehiculo", vehiculoRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
