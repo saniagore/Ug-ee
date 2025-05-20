@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { QueryVehicle } from "../../../components/queryVehiculo";
 import { QueryConductor } from "../../../components/queryConductor";
-import { useNavigation as useCustomNavigation } from "../../../components/navigations"; 
-import { useNavigate } from "react-router-dom"; 
+import { useNavigation as useCustomNavigation } from "../../../components/navigations";
+import { useNavigate } from "react-router-dom";
 
 export default function GestionVehiculos() {
   const vehiculoQuery = useMemo(() => new QueryVehicle(), []);
   const conductorQuery = useMemo(() => new QueryConductor(), []);
-  const { goToHomePage } = useCustomNavigation(); 
+  const { goToHomePage } = useCustomNavigation();
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
   const [vehiculos, setVehiculos] = useState([]);
@@ -18,23 +18,23 @@ export default function GestionVehiculos() {
 
   // Funciones de navegación
   const handleGestionUsuarios = async () => {
-    navigate('/Colaborador/Menu'); 
+    navigate("/Colaborador/Menu");
   };
 
   const handleGestionConductores = async () => {
-    navigate('/Colaborador/Gestion-conductores'); 
+    navigate("/Colaborador/Gestion-conductores");
   };
 
   const handleLogout = async () => {
     try {
-      const logoutEndpoint = 'http://localhost:5000/api/institucion/logout';
+      const logoutEndpoint = "http://localhost:5000/api/institucion/logout";
 
       await fetch(logoutEndpoint, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem("jwt_token")}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+        },
       });
       goToHomePage();
       localStorage.removeItem("jwt_token");
@@ -60,22 +60,25 @@ export default function GestionVehiculos() {
         const vehiculosData = await vehiculoQuery.obtenerVehiculos();
         const docsVehiculos = {};
         const conductoresMap = {};
-        
+
         for (const vehiculo of vehiculosData) {
           try {
-            const docsVehiculo  = vehiculo.documentos_vehiculo;
+            const docsVehiculo = vehiculo.documentos_vehiculo;
             docsVehiculos[vehiculo.id] = docsVehiculo;
             const conductor = {
               nombre: vehiculo.conductor_nombre,
               correo: vehiculo.conductor_correo,
-              celular: vehiculo.conductor_celular
+              celular: vehiculo.conductor_celular,
             };
             conductoresMap[vehiculo.id] = conductor;
           } catch (error) {
-            console.error(`Error obteniendo datos para vehículo ${vehiculo.id}:`, error);
+            console.error(
+              `Error obteniendo datos para vehículo ${vehiculo.id}:`,
+              error
+            );
           }
         }
-        
+
         setVehiculos(vehiculosData || []);
         setDocumentosVehiculos(docsVehiculos);
         setConductores(conductoresMap);
@@ -95,11 +98,13 @@ export default function GestionVehiculos() {
     e.stopPropagation();
     try {
       await vehiculoQuery.cambiarEstadoVerificacion(vehiculoId, !estadoActual);
-      setVehiculos(vehiculos.map(vehiculo =>
-        vehiculo.id === vehiculoId
-          ? { ...vehiculo, estado_verificacion: !estadoActual }
-          : vehiculo
-      ));
+      setVehiculos(
+        vehiculos.map((vehiculo) =>
+          vehiculo.id === vehiculoId
+            ? { ...vehiculo, estado_verificacion: !estadoActual }
+            : vehiculo
+        )
+      );
     } catch (error) {
       console.error("Error al actualizar estado:", error);
     }
@@ -108,17 +113,28 @@ export default function GestionVehiculos() {
   // Función para descargar documentos
   const descargarDocumento = async (documento, nombreArchivo) => {
     try {
-      const blob = new Blob([documento], { type: 'application/pdf' });
+      // Verificar si el documento es un buffer de Node.js (en caso de SSR)
+      const docData = documento.data
+        ? new Uint8Array(documento.data)
+        : documento;
+
+      // Crear el Blob con el tipo MIME correcto
+      const blob = new Blob([docData], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+
+      // Crear enlace para descarga
+      const a = document.createElement("a");
       a.href = url;
-      a.download = nombreArchivo;
+      a.download = nombreArchivo || `documento_${Date.now()}.pdf`;
       document.body.appendChild(a);
       a.click();
+
+      // Limpiar
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (error) {
       console.error("Error al descargar documento:", error);
+      alert("Error al descargar el documento. Por favor intente nuevamente.");
     }
   };
 
@@ -131,10 +147,10 @@ export default function GestionVehiculos() {
     return (
       <React.Fragment key={vehiculo.id || `vehiculo-${index}`}>
         {/* Fila principal - clickable */}
-        <tr 
-          style={{ 
+        <tr
+          style={{
             backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2",
-            cursor: "pointer"
+            cursor: "pointer",
           }}
           onClick={() => setVehiculoExpandido(isExpanded ? null : vehiculo.id)}
         >
@@ -153,9 +169,15 @@ export default function GestionVehiculos() {
           <td style={{ textAlign: "center", padding: "0.5rem" }}>
             {conductor?.nombre || "Sin conductor"}
           </td>
-          <td 
-            style={{ textAlign: "center", padding: "0.5rem", cursor: "pointer" }}
-            onClick={(e) => handleEstadoClick(vehiculo.id, vehiculo.estado_verificacion, e)}
+          <td
+            style={{
+              textAlign: "center",
+              padding: "0.5rem",
+              cursor: "pointer",
+            }}
+            onClick={(e) =>
+              handleEstadoClick(vehiculo.id, vehiculo.estado_verificacion, e)
+            }
           >
             {vehiculo.estado_verificacion ? (
               <span style={{ color: "green" }}>Verificado</span>
@@ -164,33 +186,60 @@ export default function GestionVehiculos() {
             )}
           </td>
         </tr>
-        
+
         {/* Fila expandida con detalles */}
         {isExpanded && (
           <tr>
-            <td colSpan="6" style={{ padding: "1rem", backgroundColor: "#f8f9fa" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+            <td
+              colSpan="6"
+              style={{ padding: "1rem", backgroundColor: "#f8f9fa" }}
+            >
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "1.5rem",
+                }}
+              >
                 {/* Sección de información del vehículo */}
                 <div>
                   <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
                     Detalles del Vehículo
                   </h4>
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
-                    <div><strong>Color:</strong> {vehiculo.color}</div>
-                    <div><strong>Vencimiento SOAT:</strong> {new Date(vehiculo.vencimiento_soat).toLocaleDateString()}</div>
-                    <div><strong>Vencimiento Tecnomecánica:</strong> {new Date(vehiculo.vencimiento_tecnomecanica).toLocaleDateString()}</div>
+                  <div
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "repeat(2, 1fr)",
+                      gap: "1rem",
+                    }}
+                  >
+                    <div>
+                      <strong>Color:</strong> {vehiculo.color}
+                    </div>
+                    <div>
+                      <strong>Vencimiento SOAT:</strong>{" "}
+                      {new Date(vehiculo.vencimiento_soat).toLocaleDateString()}
+                    </div>
+                    <div>
+                      <strong>Vencimiento Tecnomecánica:</strong>{" "}
+                      {new Date(
+                        vehiculo.vencimiento_tecnomecanica
+                      ).toLocaleDateString()}
+                    </div>
                   </div>
                 </div>
-                
+
                 {/* Sección de documentos */}
                 <div>
                   <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
                     Documentos del Vehículo
                   </h4>
-                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                  <div
+                    style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}
+                  >
                     {documentos.length > 0 ? (
                       documentos.map((doc, docIndex) => (
-                        <div 
+                        <div
                           key={`doc-${docIndex}`}
                           style={{
                             border: "1px solid #ddd",
@@ -198,7 +247,7 @@ export default function GestionVehiculos() {
                             borderRadius: "4px",
                             display: "flex",
                             flexDirection: "column",
-                            alignItems: "center"
+                            alignItems: "center",
                           }}
                         >
                           <span>{doc.tipo_documento}</span>
@@ -210,11 +259,14 @@ export default function GestionVehiculos() {
                               color: "white",
                               border: "none",
                               borderRadius: "4px",
-                              cursor: "pointer"
+                              cursor: "pointer",
                             }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              descargarDocumento(doc.documento, `${doc.tipo_documento}_${vehiculo.id}.pdf`);
+                              descargarDocumento(
+                                doc.documento,
+                                `${doc.tipo_documento}_${vehiculo.id}.pdf`
+                              );
                             }}
                           >
                             Descargar
@@ -226,19 +278,33 @@ export default function GestionVehiculos() {
                     )}
                   </div>
                 </div>
-                
+
                 {/* Sección del conductor */}
                 {conductor && (
                   <div>
-                    <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
+                    <h4
+                      style={{ color: colorPrimario, marginBottom: "0.5rem" }}
+                    >
                       Información del Conductor
                     </h4>
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
-                      <div><strong>Nombre:</strong> {conductor.nombre}</div>
-                      <div><strong>Correo:</strong> {conductor.correo}</div>
-                      <div><strong>Celular:</strong> {conductor.celular}</div>
+                    <div
+                      style={{
+                        display: "grid",
+                        gridTemplateColumns: "repeat(2, 1fr)",
+                        gap: "1rem",
+                      }}
+                    >
                       <div>
-                        <strong>Estado:</strong> 
+                        <strong>Nombre:</strong> {conductor.nombre}
+                      </div>
+                      <div>
+                        <strong>Correo:</strong> {conductor.correo}
+                      </div>
+                      <div>
+                        <strong>Celular:</strong> {conductor.celular}
+                      </div>
+                      <div>
+                        <strong>Estado:</strong>
                         <span style={{ color: "green", marginLeft: "0.5rem" }}>
                           Verificado
                         </span>
@@ -257,17 +323,29 @@ export default function GestionVehiculos() {
   // ... (mantener las funciones buttonStyle, tableStyle, TableHeader y handleLogout iguales)
 
   return (
-    <div style={{ backgroundColor: colorSecundario, minHeight: "100vh", padding: "2rem" }}>
+    <div
+      style={{
+        backgroundColor: colorSecundario,
+        minHeight: "100vh",
+        padding: "2rem",
+      }}
+    >
       <h2 style={{ color: colorPrimario, marginBottom: "1rem" }}>
         Administración de Vehículos
       </h2>
 
       {/* Navigation */}
       <div style={{ marginBottom: "2rem" }}>
-        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionUsuarios}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={handleGestionUsuarios}
+        >
           Gestión de Usuarios
         </button>
-        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionConductores}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={handleGestionConductores}
+        >
           Gestión de Conductores
         </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
@@ -287,7 +365,14 @@ export default function GestionVehiculos() {
         <table style={tableStyle}>
           <thead>
             <tr>
-              {["Marca", "Modelo", "Placa", "Categoría", "Conductor", "Estado"].map((header) => (
+              {[
+                "Marca",
+                "Modelo",
+                "Placa",
+                "Categoría",
+                "Conductor",
+                "Estado",
+              ].map((header) => (
                 <TableHeader key={header} colorPrimario={colorPrimario}>
                   {header}
                 </TableHeader>
@@ -299,7 +384,10 @@ export default function GestionVehiculos() {
               vehiculos.map(renderVehiculoRow)
             ) : (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
+                <td
+                  colSpan="6"
+                  style={{ textAlign: "center", padding: "1rem" }}
+                >
                   No hay vehículos registrados
                 </td>
               </tr>
@@ -355,12 +443,14 @@ const tableStyle = {
  */
 function TableHeader({ colorPrimario, children }) {
   return (
-    <th style={{
-      textAlign: "center",
-      padding: "0.5rem",
-      backgroundColor: colorPrimario,
-      color: "#fff",
-    }}>
+    <th
+      style={{
+        textAlign: "center",
+        padding: "0.5rem",
+        backgroundColor: colorPrimario,
+        color: "#fff",
+      }}
+    >
       {children}
     </th>
   );
