@@ -1,132 +1,30 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { QueryVehicle } from "../../../components/queryVehiculo";
+import { QueryConductor } from "../../../components/queryConductor";
 import { useNavigation as useCustomNavigation } from "../../../components/navigations"; 
 import { useNavigate } from "react-router-dom"; 
 
-/**
- * Vehicle Management Dashboard Component
- * 
- * @component
- * @name GestionVehiculos
- * @description Provides an administrative interface for managing vehicles,
- * including verification status updates and detailed vehicle information display.
- * 
- * @property {Object} vehiculoQuery - Instance of QueryVehicle for vehicle-related API calls
- * @property {string} colorPrimario - Primary color from institution's theme
- * @property {string} colorSecundario - Secondary color from institution's theme
- * @property {Array} vehiculos - List of vehicles with their associated drivers
- * 
- * @example
- * // Usage in router configuration
- * <Route path='/Colaborador/Gestion-vehiculos' element={<GestionVehiculos />} />
- * 
- * @returns {React.Element} Returns a management dashboard with:
- * - Navigation controls for different management sections
- * - Comprehensive table of vehicles and their details
- * - Interactive status toggles for vehicle verification
- * - Institution-branded color scheme
- */
 export default function GestionVehiculos() {
   const vehiculoQuery = useMemo(() => new QueryVehicle(), []);
-  const { goToHomePage, goToWaitForValid } = useCustomNavigation(); 
+  const conductorQuery = useMemo(() => new QueryConductor(), []);
+  const { goToHomePage } = useCustomNavigation(); 
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
   const [vehiculos, setVehiculos] = useState([]);
-  const navigate = useNavigate(); 
+  const [vehiculoExpandido, setVehiculoExpandido] = useState(null);
+  const [documentosVehiculos, setDocumentosVehiculos] = useState({});
+  const [conductores, setConductores] = useState({});
+  const navigate = useNavigate();
 
-  /**
-   * Handles navigation to user management section
-   * @function handleGestionUsuarios
-   */
+  // Funciones de navegación
   const handleGestionUsuarios = async () => {
     navigate('/Colaborador/Menu'); 
-  }
-
-  /**
-   * Handles navigation to driver management section
-   * @function handleGestionConductores
-   */
-  const handleGestionConductores = async () => {
-    navigate('/Colaborador/Gestion-conductores'); 
-  }
-
-  /**
-   * Effect hook for authentication verification and data loading
-   * @effect
-   * @name verifyAndFetch
-   * @description Verifies JWT token, checks verification status,
-   * loads institution colors and vehicle list on component mount
-   */
-  useEffect(() => {
-    const verifyAndFetch = async () => {
-      try {
-        const token = localStorage.getItem("jwt_token");
-        if (!token) {
-          goToHomePage();
-          return;
-        }
-
-        const decodedToken = JSON.parse(atob(token.split(".")[1]));
-
-        if (!decodedToken.estadoVerificacion) {
-          goToWaitForValid();
-          return;
-        }
-
-        setColorPrimario(decodedToken.colorPrimario || "#2c3e50");
-        setColorSecundario(decodedToken.colorSecundario || "#ecf0f1");
-      } catch (error) {
-        console.error("Error al verificar o cargar datos:", error);
-        localStorage.removeItem("jwt_token");
-        goToHomePage();
-      }
-    };
-
-    /**
-     * Fetches vehicles associated with the institution
-     * @async
-     * @function fetchVehiculos
-     */
-    const fetchVehiculos = async () => {
-      try {
-        const data = await vehiculoQuery.obtenerVehiculos();
-
-        setVehiculos(data || []);
-      } catch (error) {
-        console.error("Error al obtener vehículos:", error);
-        setVehiculos([]);
-      }
-    };
-
-    verifyAndFetch();
-    fetchVehiculos();
-  }, [goToHomePage, goToWaitForValid, vehiculoQuery]);
-
-  /**
-   * Handles vehicle verification status updates
-   * @async
-   * @function handleEstadoClick
-   * @param {string} vehiculoId - Unique identifier for the vehicle
-   * @param {boolean} estadoActual - Current verification status
-   */
-  const handleEstadoClick = async (vehiculoId, estadoActual) => {
-    try {
-      await vehiculoQuery.cambiarEstadoVerificacion(vehiculoId, !estadoActual);
-      setVehiculos(vehiculos.map(vehiculo =>
-        vehiculo.id === vehiculoId
-          ? { ...vehiculo, estado_verificacion: !estadoActual }
-          : vehiculo
-      ));
-    } catch (error) {
-      console.error("Error al actualizar estado:", error);
-    }
   };
 
-  /**
-   * Handles institution logout process
-   * @async
-   * @function handleLogout
-   */
+  const handleGestionConductores = async () => {
+    navigate('/Colaborador/Gestion-conductores'); 
+  };
+
   const handleLogout = async () => {
     try {
       const logoutEndpoint = 'http://localhost:5000/api/institucion/logout';
@@ -145,49 +43,218 @@ export default function GestionVehiculos() {
       console.error("Error al cerrar sesión:", error);
     }
   };
+  // Efecto para cargar datos
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("jwt_token");
+        if (!token) {
+          goToHomePage();
+          return;
+        }
 
-  /**
-   * Renders a vehicle row with associated driver information
-   * @function renderVehiculoRow
-   * @param {Object} vehiculo - Vehicle data object
-   * @param {number} index - Row index for alternating colors
-   * @returns {React.Element} Table row for the vehicle
-   */
+        const decodedToken = JSON.parse(atob(token.split(".")[1]));
+        setColorPrimario(decodedToken.colorPrimario || "#2c3e50");
+        setColorSecundario(decodedToken.colorSecundario || "#ecf0f1");
+
+        const vehiculosData = await vehiculoQuery.obtenerVehiculos();
+        const docsVehiculos = {};
+        const conductoresMap = {};
+        
+        for (const vehiculo of vehiculosData) {
+          try {
+            const docsVehiculo  = vehiculo.documentos_vehiculo;
+            docsVehiculos[vehiculo.id] = docsVehiculo;
+            const conductor = {
+              nombre: vehiculo.conductor_nombre,
+              correo: vehiculo.conductor_correo,
+              celular: vehiculo.conductor_celular
+            };
+            conductoresMap[vehiculo.id] = conductor;
+          } catch (error) {
+            console.error(`Error obteniendo datos para vehículo ${vehiculo.id}:`, error);
+          }
+        }
+        
+        setVehiculos(vehiculosData || []);
+        setDocumentosVehiculos(docsVehiculos);
+        setConductores(conductoresMap);
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+        setVehiculos([]);
+        setDocumentosVehiculos({});
+        setConductores({});
+      }
+    };
+
+    fetchData();
+  }, [goToHomePage, vehiculoQuery, conductorQuery]);
+
+  // Función para cambiar estado de verificación
+  const handleEstadoClick = async (vehiculoId, estadoActual, e) => {
+    e.stopPropagation();
+    try {
+      await vehiculoQuery.cambiarEstadoVerificacion(vehiculoId, !estadoActual);
+      setVehiculos(vehiculos.map(vehiculo =>
+        vehiculo.id === vehiculoId
+          ? { ...vehiculo, estado_verificacion: !estadoActual }
+          : vehiculo
+      ));
+    } catch (error) {
+      console.error("Error al actualizar estado:", error);
+    }
+  };
+
+  // Función para descargar documentos
+  const descargarDocumento = async (documento, nombreArchivo) => {
+    try {
+      const blob = new Blob([documento], { type: 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error("Error al descargar documento:", error);
+    }
+  };
+
+  // Función para renderizar filas expandibles
   const renderVehiculoRow = (vehiculo, index) => {
+    const isExpanded = vehiculoExpandido === vehiculo.id;
+    const documentos = documentosVehiculos[vehiculo.id] || [];
+    const conductor = conductores[vehiculo.id] || null;
+
     return (
-      <tr key={vehiculo.id || `vehiculo-${index}`} style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2" }}>
-        <td style={{ textAlign: "center", padding: "0.5rem" }}>
-          {vehiculo.marca || "Sin marca"}
-        </td>
-        <td style={{ textAlign: "center", padding: "0.5rem" }}>
-          {vehiculo.modelo || "Sin modelo"}
-        </td>
-        <td style={{ textAlign: "center", padding: "0.5rem" }}>
-          {vehiculo.placa || "Sin placa"}
-        </td>
-        <td style={{ textAlign: "center", padding: "0.5rem" }}>
-          {vehiculo.categoria || "Sin categoría"}
-        </td>
-        <td style={{ textAlign: "center", padding: "0.5rem" }}>
-          {vehiculo.conductor_nombre ? vehiculo.conductor_nombre : "Sin conductor asignado"}
-        </td>
-        <td
+      <React.Fragment key={vehiculo.id || `vehiculo-${index}`}>
+        {/* Fila principal - clickable */}
+        <tr 
           style={{ 
-            textAlign: "center", 
-            padding: "0.5rem",
+            backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2",
             cursor: "pointer"
           }}
-          onClick={() => handleEstadoClick(vehiculo.id, vehiculo.estado_verificacion)}
+          onClick={() => setVehiculoExpandido(isExpanded ? null : vehiculo.id)}
         >
-          {vehiculo.estado_verificacion ? (
-            <span style={{ color: "green" }}>Verificado</span>
-          ) : (
-            <span style={{ color: "orange" }}>Pendiente</span>
-          )}
-        </td>
-      </tr>
+          <td style={{ textAlign: "center", padding: "0.5rem" }}>
+            {vehiculo.marca || "Sin marca"}
+          </td>
+          <td style={{ textAlign: "center", padding: "0.5rem" }}>
+            {vehiculo.modelo || "Sin modelo"}
+          </td>
+          <td style={{ textAlign: "center", padding: "0.5rem" }}>
+            {vehiculo.placa || "Sin placa"}
+          </td>
+          <td style={{ textAlign: "center", padding: "0.5rem" }}>
+            {vehiculo.categoria || "Sin categoría"}
+          </td>
+          <td style={{ textAlign: "center", padding: "0.5rem" }}>
+            {conductor?.nombre || "Sin conductor"}
+          </td>
+          <td 
+            style={{ textAlign: "center", padding: "0.5rem", cursor: "pointer" }}
+            onClick={(e) => handleEstadoClick(vehiculo.id, vehiculo.estado_verificacion, e)}
+          >
+            {vehiculo.estado_verificacion ? (
+              <span style={{ color: "green" }}>Verificado</span>
+            ) : (
+              <span style={{ color: "orange" }}>Pendiente</span>
+            )}
+          </td>
+        </tr>
+        
+        {/* Fila expandida con detalles */}
+        {isExpanded && (
+          <tr>
+            <td colSpan="6" style={{ padding: "1rem", backgroundColor: "#f8f9fa" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                {/* Sección de información del vehículo */}
+                <div>
+                  <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
+                    Detalles del Vehículo
+                  </h4>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
+                    <div><strong>Color:</strong> {vehiculo.color}</div>
+                    <div><strong>Vencimiento SOAT:</strong> {new Date(vehiculo.vencimiento_soat).toLocaleDateString()}</div>
+                    <div><strong>Vencimiento Tecnomecánica:</strong> {new Date(vehiculo.vencimiento_tecnomecanica).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                
+                {/* Sección de documentos */}
+                <div>
+                  <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
+                    Documentos del Vehículo
+                  </h4>
+                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                    {documentos.length > 0 ? (
+                      documentos.map((doc, docIndex) => (
+                        <div 
+                          key={`doc-${docIndex}`}
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "0.5rem",
+                            borderRadius: "4px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center"
+                          }}
+                        >
+                          <span>{doc.tipo_documento}</span>
+                          <button
+                            style={{
+                              marginTop: "0.5rem",
+                              padding: "0.3rem 0.6rem",
+                              backgroundColor: colorPrimario,
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer"
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              descargarDocumento(doc.documento, `${doc.tipo_documento}_${vehiculo.id}.pdf`);
+                            }}
+                          >
+                            Descargar
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No hay documentos disponibles</p>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Sección del conductor */}
+                {conductor && (
+                  <div>
+                    <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
+                      Información del Conductor
+                    </h4>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "1rem" }}>
+                      <div><strong>Nombre:</strong> {conductor.nombre}</div>
+                      <div><strong>Correo:</strong> {conductor.correo}</div>
+                      <div><strong>Celular:</strong> {conductor.celular}</div>
+                      <div>
+                        <strong>Estado:</strong> 
+                        <span style={{ color: "green", marginLeft: "0.5rem" }}>
+                          Verificado
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </td>
+          </tr>
+        )}
+      </React.Fragment>
     );
   };
+
+  // ... (mantener las funciones buttonStyle, tableStyle, TableHeader y handleLogout iguales)
 
   return (
     <div style={{ backgroundColor: colorSecundario, minHeight: "100vh", padding: "2rem" }}>
@@ -195,7 +262,7 @@ export default function GestionVehiculos() {
         Administración de Vehículos
       </h2>
 
-      {/* Management Navigation */}
+      {/* Navigation */}
       <div style={{ marginBottom: "2rem" }}>
         <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionUsuarios}>
           Gestión de Usuarios

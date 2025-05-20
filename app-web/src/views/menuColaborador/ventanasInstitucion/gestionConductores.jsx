@@ -1,25 +1,25 @@
 import React, { useEffect, useState, useMemo } from "react";
 import { QueryConductor } from "../../../components/queryConductor";
-import { useNavigation as useCustomNavigation } from "../../../components/navigations"; 
-import { useNavigate } from "react-router-dom"; 
+import { useNavigation as useCustomNavigation } from "../../../components/navigations";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Driver Management Dashboard Component
- * 
+ *
  * @component
  * @name AdministrarConductores
  * @description Provides an administrative interface for managing drivers and their vehicles,
  * including verification status updates and detailed vehicle information display.
- * 
+ *
  * @property {Object} conductorQuery - Instance of QueryConductor for driver-related API calls
  * @property {string} colorPrimario - Primary color from institution's theme
  * @property {string} colorSecundario - Secondary color from institution's theme
  * @property {Array} conductores - List of drivers with their associated vehicles
- * 
+ *
  * @example
  * // Usage in router configuration
  * <Route path='/Colaborador/Gestion-conductores' element={<AdministrarConductores />} />
- * 
+ *
  * @returns {React.Element} Returns a management dashboard with:
  * - Navigation controls for different management sections
  * - Comprehensive table of drivers and their vehicles
@@ -28,19 +28,23 @@ import { useNavigate } from "react-router-dom";
  */
 export default function AdministrarConductores() {
   const conductorQuery = useMemo(() => new QueryConductor(), []);
-  const { goToHomePage, goToWaitForValid } = useCustomNavigation(); 
+  const { goToHomePage, goToWaitForValid } = useCustomNavigation();
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
   const [conductores, setConductores] = useState([]);
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
 
   /**
    * Handles navigation to user management section
    * @function handleGestionUsuarios
    */
+
+  const handleGestionVehiculos = async () => {
+    navigate("/Colaborador/Gestion-vehiculos");
+  };
   const handleGestionUsuarios = async () => {
-    navigate('/Colaborador/Menu'); 
-  }
+    navigate("/Colaborador/Menu");
+  };
 
   /**
    * Effect hook for authentication verification and data loading
@@ -83,7 +87,9 @@ export default function AdministrarConductores() {
       try {
         const token = localStorage.getItem("jwt_token");
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
-        const data = await conductorQuery.obtenerTodosConductores(decodedToken.id);
+        const data = await conductorQuery.obtenerTodosConductores(
+          decodedToken.id
+        );
         setConductores(data || []);
       } catch (error) {
         console.error("Error al obtener conductores:", error);
@@ -104,12 +110,17 @@ export default function AdministrarConductores() {
    */
   const handleEstadoClick = async (conductorId, estadoActual) => {
     try {
-      await conductorQuery.actualizarEstadoConductor(conductorId, !estadoActual);
-      setConductores(conductores.map(conductor =>
-        conductor.id === conductorId
-          ? { ...conductor, estado_verificacion: !estadoActual }
-          : conductor
-      ));
+      await conductorQuery.actualizarEstadoConductor(
+        conductorId,
+        !estadoActual
+      );
+      setConductores(
+        conductores.map((conductor) =>
+          conductor.id === conductorId
+            ? { ...conductor, estado_verificacion: !estadoActual }
+            : conductor
+        )
+      );
     } catch (error) {
       console.error("Error al actualizar estado:", error);
     }
@@ -122,14 +133,14 @@ export default function AdministrarConductores() {
    */
   const handleLogout = async () => {
     try {
-      const logoutEndpoint = 'http://localhost:5000/api/institucion/logout';
+      const logoutEndpoint = "http://localhost:5000/api/institucion/logout";
 
       await fetch(logoutEndpoint, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem("jwt_token")}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+        },
       });
       goToHomePage();
       localStorage.removeItem("jwt_token");
@@ -167,12 +178,14 @@ export default function AdministrarConductores() {
             {conductor.direccion || "Sin dirección"}
           </td>
           <td
-            style={{ 
-              textAlign: "center", 
+            style={{
+              textAlign: "center",
               padding: "0.5rem",
-              cursor: "pointer"
+              cursor: "pointer",
             }}
-            onClick={() => handleEstadoClick(conductor.id, conductor.estado_verificacion)}
+            onClick={() =>
+              handleEstadoClick(conductor.id, conductor.estado_verificacion)
+            }
           >
             {conductor.estado_verificacion ? (
               <span style={{ color: "green" }}>Verificado</span>
@@ -184,47 +197,61 @@ export default function AdministrarConductores() {
             {conductor.vehiculos?.length || 0}
           </td>
         </tr>
-        
+
         {/* Vehicle sub-rows */}
-        {hasVehicles && conductor.vehiculos.map((vehiculo, vIndex) => (
-          <tr 
-            key={`${rowKey}-vehiculo-${vehiculo.id || vIndex}`}
-            style={{ 
-              backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#e9e9e9",
-              borderTop: "1px solid #ddd"
-            }}
-          >
-            <td colSpan="4" style={{ textAlign: "right", padding: "0.5rem" }}>
-              Vehículo {vIndex + 1}: {vehiculo.marca} {vehiculo.modelo} ({vehiculo.placa})
-            </td>
-            <td style={{ textAlign: "center", padding: "0.5rem" }}>
-              Categoría: {vehiculo.categoria}
-            </td>
-            <td style={{ textAlign: "center", padding: "0.5rem" }}>
-              {vehiculo.estado_verificacion ? (
-                <span style={{ color: "green" }}>Vehículo Verificado</span>
-              ) : (
-                <span style={{ color: "orange" }}>Vehículo Pendiente</span>
-              )}
-            </td>
-          </tr>
-        ))}
+        {hasVehicles &&
+          conductor.vehiculos.map((vehiculo, vIndex) => (
+            <tr
+              key={`${rowKey}-vehiculo-${vehiculo.id || vIndex}`}
+              style={{
+                backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#e9e9e9",
+                borderTop: "1px solid #ddd",
+              }}
+            >
+              <td colSpan="4" style={{ textAlign: "right", padding: "0.5rem" }}>
+                Vehículo {vIndex + 1}: {vehiculo.marca} {vehiculo.modelo} (
+                {vehiculo.placa})
+              </td>
+              <td style={{ textAlign: "center", padding: "0.5rem" }}>
+                Categoría: {vehiculo.categoria}
+              </td>
+              <td style={{ textAlign: "center", padding: "0.5rem" }}>
+                {vehiculo.estado_verificacion ? (
+                  <span style={{ color: "green" }}>Vehículo Verificado</span>
+                ) : (
+                  <span style={{ color: "orange" }}>Vehículo Pendiente</span>
+                )}
+              </td>
+            </tr>
+          ))}
       </React.Fragment>
     );
   };
 
   return (
-    <div style={{ backgroundColor: colorSecundario, minHeight: "100vh", padding: "2rem" }}>
+    <div
+      style={{
+        backgroundColor: colorSecundario,
+        minHeight: "100vh",
+        padding: "2rem",
+      }}
+    >
       <h2 style={{ color: colorPrimario, marginBottom: "1rem" }}>
         Administración de Conductores
       </h2>
 
       {/* Management Navigation */}
       <div style={{ marginBottom: "2rem" }}>
-        <button style={buttonStyle(colorPrimario, colorSecundario)} onClick={handleGestionUsuarios}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={handleGestionUsuarios}
+        >
           Gestión de Usuarios
         </button>
-        <button style={buttonStyle(colorPrimario, colorSecundario)}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={handleGestionVehiculos}
+        >
           Gestión de Vehículos
         </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
@@ -244,7 +271,14 @@ export default function AdministrarConductores() {
         <table style={tableStyle}>
           <thead>
             <tr>
-              {["Nombre", "Correo", "Celular", "Dirección", "Estado Conductor", "Vehículos"].map((header) => (
+              {[
+                "Nombre",
+                "Correo",
+                "Celular",
+                "Dirección",
+                "Estado Conductor",
+                "Vehículos",
+              ].map((header) => (
                 <TableHeader key={header} colorPrimario={colorPrimario}>
                   {header}
                 </TableHeader>
@@ -256,7 +290,10 @@ export default function AdministrarConductores() {
               conductores.map(renderConductorRow)
             ) : (
               <tr>
-                <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
+                <td
+                  colSpan="6"
+                  style={{ textAlign: "center", padding: "1rem" }}
+                >
                   No hay conductores registrados
                 </td>
               </tr>
@@ -312,12 +349,14 @@ const tableStyle = {
  */
 function TableHeader({ colorPrimario, children }) {
   return (
-    <th style={{
-      textAlign: "center",
-      padding: "0.5rem",
-      backgroundColor: colorPrimario,
-      color: "#fff",
-    }}>
+    <th
+      style={{
+        textAlign: "center",
+        padding: "0.5rem",
+        backgroundColor: colorPrimario,
+        color: "#fff",
+      }}
+    >
       {children}
     </th>
   );
