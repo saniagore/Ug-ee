@@ -28,8 +28,7 @@ export class QueryConductor {
         try {
             const response = await fetch(`${QueryConductor.BASE_URL}/registro`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: formData,
             });
 
             const result = await response.json();

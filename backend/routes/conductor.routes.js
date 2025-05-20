@@ -2,6 +2,8 @@ import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET } from "../config.js";
 import bcrypt from "bcryptjs";
+import multer from "multer";
+import path from "path";
 
 import {
   existeConductor,
@@ -17,7 +19,28 @@ import {
   actualizarEstadoVehiculo
 } from "../controllers/conductor.controller.js";
 
+
+const storage = multer.memoryStorage();
 const router = Router();
+
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png|pdf/;
+  const mimetype = filetypes.test(file.mimetype);
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  }
+  cb(new Error("Solo se permiten archivos PDF, JPEG, JPG o PNG"));
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+});
 
 // Verificar si existe un conductor
 router.get("/existe/:celular", async (req, res) => {
@@ -53,9 +76,20 @@ router.get("/estado/:celular", async (req, res) => {
 });
 
 // Registrar nuevo conductor
-router.post("/registro", async (req, res) => {
+router.post("/registro", upload.single('documentoIdentificacion'), async (req, res) => {
   try {
-    const formData = req.body;
+    const formData = {
+      nombre: req.body.nombre,
+      contraseña: req.body.contrasena,
+      correo: req.body.correo,
+      celular: req.body.celular,
+      numeroIdentificacion: req.body.numeroIdentificacion,
+      tipoIdentificacion: req.body.tipoIdentificacion,
+      institucion: req.body.institucion,
+      direccion: req.body.direccion,
+      tipo: req.body.tipo,
+      documentoIdentificacion: req.file,
+    };
     const result = await crearConductor(formData);
     res.json(result);
   } catch (err) {

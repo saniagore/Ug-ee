@@ -12,7 +12,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
   const [instituciones, setInstituciones] = useState([]);
   const [formData, setFormData] = useState({
     nombre: "",
-    contraseña: "",
+    contrasena: "",
     correo: "",
     celular: "",
     numeroIdentificacion: "",
@@ -20,22 +20,31 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
     institucion: "",
     direccion: "",
     tipo: "",
+    documentoIdentificacion: null,
   });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       Validar_datos.nombre(formData.nombre);
-      Validar_datos.contraseña(formData.contraseña);
+      Validar_datos.contraseña(formData.contrasena);
       Validar_datos.direccion(formData.direccion);
       Validar_datos.Identificacion(formData.numeroIdentificacion);
       Validar_datos.tipo_documento(formData.tipoIdentificacion);
       Validar_datos.celular(formData.celular);
       Validar_datos.institucion(formData.institucion);
       Validar_datos.correo(formData.correo);
-      if(formData.tipo==="") throw new Error("Escoja un tipo de categoria de viaje.")
+      if (!formData.documentoIdentificacion)
+        throw new Error("Suba un documento para identificarse");
+      if (formData.tipo === "")
+        throw new Error("Escoja un tipo de categoria de viaje.");
 
-      await conductorQuery.registrarConductor(formData);
+      const formDataToSend = new FormData();
+      Object.keys(formData).forEach(key =>{
+        formDataToSend.append(key, formData[key]);
+      });
+
+      await conductorQuery.registrarConductor(formDataToSend); // Asegúrate que tu QueryConductor pueda manejar FormData
       setAlertType("success");
       setAlertMessage(
         "Conductor registrado exitosamente, espere la validación de su institucion."
@@ -48,6 +57,14 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
       );
       setShowAlert(true);
     }
+  };
+
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setFormData({
+      ...formData,
+      [name]: files[0],
+    });
   };
 
   const handleAlertClose = () => {
@@ -92,9 +109,9 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
           <label>Contraseña</label>
           <input
             type="password"
-            value={formData.contraseña}
+            value={formData.contrasena}
             onChange={(e) =>
-              setFormData({ ...formData, contraseña: e.target.value })
+              setFormData({ ...formData, contrasena: e.target.value })
             }
             required
           />
@@ -160,9 +177,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
           <label>Categoria de Viaje</label>
           <select
             value={formData.tipo}
-            onChange={(e) =>
-              setFormData({ ...formData, tipo: e.target.value })
-            }
+            onChange={(e) => setFormData({ ...formData, tipo: e.target.value })}
             required
           >
             <option value="">Seleccione...</option>
@@ -203,6 +218,20 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
             ))}
           </select>
         </div>
+        <div className="form-group">
+          <label>Documento de Identificación</label>
+          <input
+            type="file"
+            name="documentoIdentificacion"
+            onChange={handleFileChange}
+            accept=".pdf,.jpg,.jpeg,.png"
+            style={{
+              width: "100%",
+              padding: "0.5rem",
+              borderRadius: "4px",
+            }}
+          />
+        </div>
 
         <div className="form-actions">
           <button type="button" className="back-btn" onClick={onBack}>
@@ -219,6 +248,8 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
                     max-width: 600px;
                     margin: 0 auto;
                     padding: 20px;
+                    max-height: 90vh;
+                    overflow-y: auto;
                 }
                 
                 .form-group {

@@ -141,16 +141,16 @@ export class QueryViaje {
    */
   async obtenerHistorialViajes(usuarioId) {
     try {
-    const response = await fetch(
-      `${QueryViaje.BASE_URL}/historial/${usuarioId}`,
-      {
-        method: "GET",
-        headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
-        },
-      }
-    );
+      const response = await fetch(
+        `${QueryViaje.BASE_URL}/historial/${usuarioId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+          },
+        }
+      );
 
       const result = await response.json();
 
@@ -169,6 +169,33 @@ export class QueryViaje {
         message: "Error de conexión al servidor",
         details: error.message,
       };
+    }
+  }
+
+  async ObtenerViajeConductor(conductorId, categoriaViaje) {
+    try {
+      const response = await fetch(
+        `${QueryViaje.BASE_URL}/viajes-disponibles`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+          },
+          body: JSON.stringify({ conductorId, categoriaViaje }),
+        }
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        return {
+          error: true,
+          message: result.message || "Error al obtener viajes disponibles",
+          details: result.details,
+        };
+      }
+      return result;
+    } catch (error) {
+      throw error;
     }
   }
 }

@@ -100,9 +100,9 @@ export const obtenerEstadoConductor = async (celular) => {
 export const crearConductor = async (formData) => {
   try {
     const validation = await existenDatosConductor(
-        formData.celular,
-        formData.numeroIdentificacion,
-        formData.correo,
+      formData.celular,
+      formData.numeroIdentificacion,
+      formData.correo,
     );
 
     if (validation.error) {
@@ -126,12 +126,15 @@ export const crearConductor = async (formData) => {
     const client = await pool.connect();
     
     try {
+      await client.query('BEGIN');
+
+      // Insertar conductor
       const conductorResult = await client.query(
         `INSERT INTO conductor 
         (nombre, correo, contraseña, celular, numero_identificacion, 
          tipo_identificacion, institucion_id, direccion, categoria_viajes) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-        RETURNING *`,
+        RETURNING cid`,  // Cambiado para retornar específicamente el CId
         [
           formData.nombre,
           formData.correo,
@@ -145,14 +148,25 @@ export const crearConductor = async (formData) => {
         ]
       );
 
-      const conductor = conductorResult.rows[0];
+      const conductorId = conductorResult.rows[0].cid;
 
+      if (formData.documentoIdentificacion) {
+        await client.query(
+          `INSERT INTO foto_documento 
+          (conductor_id, documento) 
+          VALUES ($1, $2)`,
+          [conductorId, formData.documentoIdentificacion.buffer]
+        );
+      }
+
+      await client.query('COMMIT');
       return { 
         success: true, 
-        conductor: conductor
+        conductor: conductorResult.rows[0]
       };
     } catch (err) {
       await client.query('ROLLBACK');
+      console.error("Error en transacción:", err);
       throw err;
     } finally {
       client.release();
@@ -257,12 +271,31 @@ export const actualizarUbicacionConductor = async (conductorId, ubicacion) => {
 
 export const obtenerConductoresInstitucion = async (institucionId) => {
   try {
-    const result = await pool.query(
-      `SELECT id,nombre, correo, celular, estado_verificacion, codigo_estudiante, tipo_identificacion, direccion FROM conductor WHERE institucion_id = $1`,
+    // Primero obtenemos los conductores básicos
+    const conductoresResult = await pool.query(
+      `SELECT id,cid, nombre, correo, celular, estado_verificacion, 
+       codigo_estudiante, tipo_identificacion, direccion 
+       FROM conductor WHERE institucion_id = $1`,
       [institucionId]
     );
-    
-    return result.rows;
+
+    // Luego obtenemos los documentos para cada conductor
+    const conductoresConDocumentos = await Promise.all(
+      conductoresResult.rows.map(async (conductor) => {
+        const documentosResult = await pool.query(
+          `SELECT documento, tipo_documento 
+           FROM foto_documento 
+           WHERE conductor_id = $1`,
+          [conductor.cid]
+        );
+        return {
+          ...conductor,
+          documentos: documentosResult.rows
+        };
+      })
+    );
+
+    return conductoresConDocumentos;
   } catch (err) {
     console.error("Error en obtenerConductoresInstitucion:", err);
     throw err;

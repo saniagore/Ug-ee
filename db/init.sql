@@ -79,7 +79,7 @@ CREATE TABLE conductor (
 CREATE TABLE foto_documento (
     conductor_id INTEGER NOT NULL,
     documento BYTEA NOT NULL,
-    tipo_documento tipo_de_documento NOT NULL,
+    tipo_documento tipo_de_documento NOT NULL DEFAULT 'identificacion',
     FOREIGN KEY (conductor_id) REFERENCES conductor(CId) ON DELETE CASCADE,
     PRIMARY KEY (conductor_id, tipo_documento) 
 );

@@ -3,41 +3,15 @@ import { QueryConductor } from "../../../components/queryConductor";
 import { useNavigation as useCustomNavigation } from "../../../components/navigations";
 import { useNavigate } from "react-router-dom";
 
-/**
- * Driver Management Dashboard Component
- *
- * @component
- * @name AdministrarConductores
- * @description Provides an administrative interface for managing drivers and their vehicles,
- * including verification status updates and detailed vehicle information display.
- *
- * @property {Object} conductorQuery - Instance of QueryConductor for driver-related API calls
- * @property {string} colorPrimario - Primary color from institution's theme
- * @property {string} colorSecundario - Secondary color from institution's theme
- * @property {Array} conductores - List of drivers with their associated vehicles
- *
- * @example
- * // Usage in router configuration
- * <Route path='/Colaborador/Gestion-conductores' element={<AdministrarConductores />} />
- *
- * @returns {React.Element} Returns a management dashboard with:
- * - Navigation controls for different management sections
- * - Comprehensive table of drivers and their vehicles
- * - Interactive status toggles for driver verification
- * - Institution-branded color scheme
- */
 export default function AdministrarConductores() {
   const conductorQuery = useMemo(() => new QueryConductor(), []);
   const { goToHomePage, goToWaitForValid } = useCustomNavigation();
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
   const [conductores, setConductores] = useState([]);
+  const [conductorExpandido, setConductorExpandido] = useState(null);
+  const [documentosConductores, setDocumentosConductores] = useState({});
   const navigate = useNavigate();
-
-  /**
-   * Handles navigation to user management section
-   * @function handleGestionUsuarios
-   */
 
   const handleGestionVehiculos = async () => {
     navigate("/Colaborador/Gestion-vehiculos");
@@ -46,13 +20,6 @@ export default function AdministrarConductores() {
     navigate("/Colaborador/Menu");
   };
 
-  /**
-   * Effect hook for authentication verification and data loading
-   * @effect
-   * @name verifyAndFetch
-   * @description Verifies JWT token, checks verification status,
-   * loads institution colors and driver list on component mount
-   */
   useEffect(() => {
     const verifyAndFetch = async () => {
       try {
@@ -78,11 +45,6 @@ export default function AdministrarConductores() {
       }
     };
 
-    /**
-     * Fetches drivers associated with the institution
-     * @async
-     * @function fetchConductores
-     */
     const fetchConductores = async () => {
       try {
         const token = localStorage.getItem("jwt_token");
@@ -90,10 +52,20 @@ export default function AdministrarConductores() {
         const data = await conductorQuery.obtenerTodosConductores(
           decodedToken.id
         );
+        
+        const docsConductores = {};
+        for (const conductor of data) {
+          if (conductor.documentos) {
+            docsConductores[conductor.id] = conductor.documentos;
+          }
+        }
+        
         setConductores(data || []);
+        setDocumentosConductores(docsConductores);
       } catch (error) {
         console.error("Error al obtener conductores:", error);
         setConductores([]);
+        setDocumentosConductores({});
       }
     };
 
@@ -101,14 +73,8 @@ export default function AdministrarConductores() {
     fetchConductores();
   }, [goToHomePage, goToWaitForValid, conductorQuery]);
 
-  /**
-   * Handles driver verification status updates
-   * @async
-   * @function handleEstadoClick
-   * @param {string} conductorId - Unique identifier for the driver
-   * @param {boolean} estadoActual - Current verification status
-   */
-  const handleEstadoClick = async (conductorId, estadoActual) => {
+  const handleEstadoClick = async (conductorId, estadoActual, e) => {
+    e.stopPropagation();
     try {
       await conductorQuery.actualizarEstadoConductor(
         conductorId,
@@ -126,11 +92,6 @@ export default function AdministrarConductores() {
     }
   };
 
-  /**
-   * Handles institution logout process
-   * @async
-   * @function handleLogout
-   */
   const handleLogout = async () => {
     try {
       const logoutEndpoint = "http://localhost:5000/api/institucion/logout";
@@ -150,21 +111,44 @@ export default function AdministrarConductores() {
     }
   };
 
-  /**
-   * Renders a driver row with associated vehicles
-   * @function renderConductorRow
-   * @param {Object} conductor - Driver data object
-   * @param {number} index - Row index for alternating colors
-   * @returns {React.Element} Table rows for the driver and their vehicles
-   */
+  const descargarDocumento = async (documento, nombreArchivo) => {
+    try {
+      const docData = documento.data 
+        ? new Uint8Array(documento.data) 
+        : documento;
+
+      const blob = new Blob([docData], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = nombreArchivo || `documento_${Date.now()}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+      a.remove();
+    } catch (error) {
+      console.error("Error al descargar documento:", error);
+      alert("Error al descargar el documento. Por favor intente nuevamente.");
+    }
+  };
+
   const renderConductorRow = (conductor, index) => {
+    const isExpanded = conductorExpandido === conductor.id;
+    const documentos = documentosConductores[conductor.id] || [];
     const hasVehicles = conductor.vehiculos?.length > 0;
-    const rowKey = conductor.id || `conductor-${index}`;
 
     return (
-      <React.Fragment key={rowKey}>
-        {/* Main driver row */}
-        <tr style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2" }}>
+      <React.Fragment key={conductor.id || `conductor-${index}`}>
+        {/* Main driver row - clickable */}
+        <tr
+          style={{
+            backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2",
+            cursor: "pointer",
+          }}
+          onClick={() => setConductorExpandido(isExpanded ? null : conductor.id)}
+        >
           <td style={{ textAlign: "center", padding: "0.5rem" }}>
             {conductor.nombre || "Sin nombre"}
           </td>
@@ -183,9 +167,7 @@ export default function AdministrarConductores() {
               padding: "0.5rem",
               cursor: "pointer",
             }}
-            onClick={() =>
-              handleEstadoClick(conductor.id, conductor.estado_verificacion)
-            }
+            onClick={(e) => handleEstadoClick(conductor.id, conductor.estado_verificacion, e)}
           >
             {conductor.estado_verificacion ? (
               <span style={{ color: "green" }}>Verificado</span>
@@ -198,32 +180,98 @@ export default function AdministrarConductores() {
           </td>
         </tr>
 
-        {/* Vehicle sub-rows */}
-        {hasVehicles &&
-          conductor.vehiculos.map((vehiculo, vIndex) => (
-            <tr
-              key={`${rowKey}-vehiculo-${vehiculo.id || vIndex}`}
-              style={{
-                backgroundColor: index % 2 === 0 ? "#f9f9f9" : "#e9e9e9",
-                borderTop: "1px solid #ddd",
-              }}
-            >
-              <td colSpan="4" style={{ textAlign: "right", padding: "0.5rem" }}>
-                Vehículo {vIndex + 1}: {vehiculo.marca} {vehiculo.modelo} (
-                {vehiculo.placa})
-              </td>
-              <td style={{ textAlign: "center", padding: "0.5rem" }}>
-                Categoría: {vehiculo.categoria}
-              </td>
-              <td style={{ textAlign: "center", padding: "0.5rem" }}>
-                {vehiculo.estado_verificacion ? (
-                  <span style={{ color: "green" }}>Vehículo Verificado</span>
-                ) : (
-                  <span style={{ color: "orange" }}>Vehículo Pendiente</span>
+        {/* Expanded row with details */}
+        {isExpanded && (
+          <tr>
+            <td colSpan="6" style={{ padding: "1rem", backgroundColor: "#f8f9fa" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+                {/* Documentos section */}
+                <div>
+                  <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
+                    Documentos del Conductor
+                  </h4>
+                  <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                    {documentos.length > 0 ? (
+                      documentos.map((doc, docIndex) => (
+                        <div
+                          key={`doc-${docIndex}`}
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "0.5rem",
+                            borderRadius: "4px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span>{doc.tipo_documento}</span>
+                          <button
+                            style={{
+                              marginTop: "0.5rem",
+                              padding: "0.3rem 0.6rem",
+                              backgroundColor: colorPrimario,
+                              color: "white",
+                              border: "none",
+                              borderRadius: "4px",
+                              cursor: "pointer",
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              descargarDocumento(
+                                doc.documento,
+                                `${doc.tipo_documento}_${conductor.id}.pdf`
+                              );
+                            }}
+                          >
+                            Descargar
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No hay documentos disponibles</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Vehicles section */}
+                {hasVehicles && (
+                  <div>
+                    <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
+                      Vehículos del Conductor
+                    </h4>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                      {conductor.vehiculos.map((vehiculo, vIndex) => (
+                        <div 
+                          key={`vehiculo-${vIndex}`}
+                          style={{
+                            border: "1px solid #ddd",
+                            padding: "0.5rem",
+                            borderRadius: "4px",
+                          }}
+                        >
+                          <div>
+                            <strong>Vehículo {vIndex + 1}:</strong> {vehiculo.marca} {vehiculo.modelo} ({vehiculo.placa})
+                          </div>
+                          <div>
+                            <strong>Categoría:</strong> {vehiculo.categoria}
+                          </div>
+                          <div>
+                            <strong>Estado:</strong>{" "}
+                            {vehiculo.estado_verificacion ? (
+                              <span style={{ color: "green" }}>Verificado</span>
+                            ) : (
+                              <span style={{ color: "orange" }}>Pendiente</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 )}
-              </td>
-            </tr>
-          ))}
+              </div>
+            </td>
+          </tr>
+        )}
       </React.Fragment>
     );
   };
@@ -290,10 +338,7 @@ export default function AdministrarConductores() {
               conductores.map(renderConductorRow)
             ) : (
               <tr>
-                <td
-                  colSpan="6"
-                  style={{ textAlign: "center", padding: "1rem" }}
-                >
+                <td colSpan="6" style={{ textAlign: "center", padding: "1rem" }}>
                   No hay conductores registrados
                 </td>
               </tr>
@@ -305,13 +350,6 @@ export default function AdministrarConductores() {
   );
 }
 
-/**
- * Style generator for buttons
- * @function buttonStyle
- * @param {string} bgColor - Background color
- * @param {string} textColor - Text color
- * @returns {Object} Button style object
- */
 function buttonStyle(bgColor, textColor) {
   return {
     backgroundColor: bgColor,
@@ -326,12 +364,6 @@ function buttonStyle(bgColor, textColor) {
   };
 }
 
-/**
- * Table style configuration
- * @constant
- * @name tableStyle
- * @type {Object}
- */
 const tableStyle = {
   width: "100%",
   borderCollapse: "collapse",
@@ -339,14 +371,6 @@ const tableStyle = {
   boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
 };
 
-/**
- * Table header component
- * @component
- * @name TableHeader
- * @param {Object} props - Component props
- * @param {string} props.colorPrimario - Header background color
- * @param {React.Node} props.children - Header content
- */
 function TableHeader({ colorPrimario, children }) {
   return (
     <th
