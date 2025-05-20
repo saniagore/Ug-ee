@@ -119,6 +119,9 @@ export default function MenuInstitucion({ onLogout }) {
   const handleGestionConductores = async () => {
     navigate("/Colaborador/Gestion-conductores");
   };
+  const handleGestionVehiculos = async () => {
+    navigate("/Colaborador/Gestion-vehiculos");
+  };
 
   return (
     <div
@@ -140,7 +143,10 @@ export default function MenuInstitucion({ onLogout }) {
         >
           Gestión de Conductores
         </button>
-        <button style={buttonStyle(colorPrimario, colorSecundario)}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={handleGestionVehiculos}
+        >
           Gestión de Vehiculos
         </button>
         <button style={buttonStyle(colorPrimario, colorSecundario)}>
@@ -312,15 +318,22 @@ function UserRow({
  * @param {string} props.colorSecundario - Secondary color
  * @param {Function} props.handleEstadoClick - Verification handler
  */
-function VerificationCell({ usuario, colorPrimario, colorSecundario, handleEstadoClick }) {
+function VerificationCell({
+  usuario,
+  colorPrimario,
+  colorSecundario,
+  handleEstadoClick,
+}) {
   return (
-    <td 
-      style={{ 
-        textAlign: "center", 
+    <td
+      style={{
+        textAlign: "center",
         padding: "0.5rem",
-        cursor: "pointer"
+        cursor: "pointer",
       }}
-      onClick={() => handleEstadoClick(usuario.celular, usuario.estado_verificacion)}
+      onClick={() =>
+        handleEstadoClick(usuario.celular, usuario.estado_verificacion)
+      }
     >
       {usuario.estado_verificacion ? (
         <span style={{ color: "green" }}>Verificado</span>

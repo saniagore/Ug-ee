@@ -6,6 +6,7 @@ import Colaborador from './views/home/colaborador.js';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MenuColaborador from './views/menuColaborador.js';
 import GestionConductores from './views/menuColaborador/ventanasInstitucion/gestionConductores.jsx';
+import GestionVehiculos from './views/menuColaborador/ventanasInstitucion/gestionVehiculos.jsx';
 import RegistroVehiculo from './views/menuColaborador/ventanasConductor/registrarVehiculo.js';
 /**
  * Main application component that handles routing and navigation.
@@ -91,6 +92,10 @@ function App() {
         <Route 
           path='/Colaborador/Gestion-conductores' 
           element={<GestionConductores />} 
+        />
+        <Route
+          path='/Colaborador/Gestion-vehiculos'
+          element={<GestionVehiculos/>}
         />
         <Route 
           path='/Colaborador/Registrar-vehiculo'
