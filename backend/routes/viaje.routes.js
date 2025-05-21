@@ -1,10 +1,11 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET, DB_CONFIG } from "../config.js";
+import { viajesDisponibles } from "../controllers/viaje.controller.js";
 import pg from "pg";
+
 const { Pool } = pg;
 const pool = new Pool(DB_CONFIG);
-
 const router = Router();
 
 router.post("/solicitar-viaje", async (req, res) => {
@@ -63,9 +64,20 @@ router.get("/historial/:usuarioId", async (req, res) => {
 
         res.status(200).json({ viajes });
     } catch(error) {
-        console.error(error);
         res.status(500).json({ error: "Error al obtener el historial de viajes" });
     }
 });
+
+router.post("/viajes-disponibles", async(req,res) => {
+    try{
+        const {conductorId, categoriaViaje} = req.body;
+        const result = await viajesDisponibles(conductorId,categoriaViaje);
+        res.status(200).json({result});
+    }catch(error){
+        res.status(500).json({ error: "Error al obtener los viajes disponibles" });
+    }
+});
+
+
 
 export default router;

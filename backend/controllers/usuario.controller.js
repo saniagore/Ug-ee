@@ -13,7 +13,6 @@ export const obtenerDatosUsuario = async (celular) => {
     );
     return result.rows[0] || null;
   } catch (err) {
-    console.error("Error en obtener_datos:", err);
     throw err;
   }
 };
