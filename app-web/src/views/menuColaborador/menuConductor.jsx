@@ -60,8 +60,8 @@ export default function MenuConductor({ onLogout }) {
           return;
         }
 
-        setColorPrimario(decodedToken.colorPrimario || "#2c3e50");
-        setColorSecundario(decodedToken.colorSecundario || "#ecf0f1");
+        setColorPrimario(decodedToken.colorPrimario || "#7e46d2");
+        setColorSecundario(decodedToken.colorSecundario || "#f7ebff");
       } catch (error) {
         localStorage.removeItem("jwt_token");
         goToHomePage();
@@ -82,12 +82,11 @@ export default function MenuConductor({ onLogout }) {
         }
 
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
-
         const data = await viajeQuery.ObtenerViajeConductor(
           decodedToken.id,
           decodedToken.tipo
         );
-        setViajes(data || []);
+        setViajes(data.result || []);
       } catch (error) {
         console.error("Error al cargar viajes disponibles:", error);
       }
@@ -102,7 +101,7 @@ export default function MenuConductor({ onLogout }) {
   };
 
   const handleMisViajes = () => {
-    navigate("/Colaborador/Mis-viajes");
+    console.log(viajes);
   };
 
   return (
@@ -149,10 +148,10 @@ export default function MenuConductor({ onLogout }) {
               <TableHeader colorPrimario={colorPrimario}>Destino</TableHeader>
               <TableHeader colorPrimario={colorPrimario}>Tipo</TableHeader>
               <TableHeader colorPrimario={colorPrimario}>
-                Distancia (km)
+                Nombre
               </TableHeader>
               <TableHeader colorPrimario={colorPrimario}>
-                Tiempo Estimado
+                Número Contacto
               </TableHeader>
               <TableHeader colorPrimario={colorPrimario}>Acciones</TableHeader>
             </tr>
@@ -261,27 +260,27 @@ function TripRow({ viaje, index, colorPrimario, colorSecundario }) {
    * @function handleAcceptTrip
    */
   const handleAcceptTrip = () => {
-    // Implement trip acceptance logic here
     console.log("Trip accepted:", viaje._id);
-    // You would typically call an API endpoint here to accept the trip
+    //funcion de aceptar viaje
   };
 
   return (
+
     <tr style={{ backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2" }}>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
-        {viaje.puntoPartida || "Ubicación no especificada"}
+        {viaje.punto_partida || "Ubicación no especificada"}
       </td>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
-        {viaje.puntoDestino || "Ubicación no especificada"}
+        {viaje.punto_destino || "Ubicación no especificada"}
       </td>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
-        {viaje.tipoViaje || "Sin tipo"}
+        {viaje.tipo_viaje || "Sin tipo"}
       </td>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
-        {viaje.distancia ? `${viaje.distancia} km` : "N/A"}
+        {viaje.nombre_usuario ? `${viaje.nombre_usuario}` : "N/A"}
       </td>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
-        {viaje.tiempoEstimado || "N/A"}
+        {viaje.contacto_usuario || "N/A"}
       </td>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
         <button
