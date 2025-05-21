@@ -94,8 +94,8 @@ export const crearInstitucion = async (formData) => {
 
     const result = await client.query(
       `INSERT INTO institucion
-      (nombre, contraseña, color_primario, color_secundario, direccion, estado_verificacion)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      (nombre, contraseña, color_primario, color_secundario, direccion, estado_verificacion,logo)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING id, nombre, color_primario, color_secundario, direccion, estado_verificacion`,
       [
         formData.nombre,
@@ -103,7 +103,8 @@ export const crearInstitucion = async (formData) => {
         formData.colorPrimario,
         formData.colorSecundario,
         formData.direccion,
-        false
+        false,
+        formData.logo,
       ]
     );
 

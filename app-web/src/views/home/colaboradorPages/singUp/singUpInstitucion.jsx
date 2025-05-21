@@ -6,22 +6,39 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
     const queryInstitucion = new QueryInstitucion();
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
-    const [alertType, setAlertType] = useState("success"); // "success" or "error"
+    const [alertType, setAlertType] = useState("success");
     const [formData, setFormData] = useState({
         nombre: '',
-        contraseña: '',
+        contrasena: '',
         colorPrimario: '#ffffff',
         colorSecundario: '#000000',
         direccion: '',
+        logo: null
     });
+    const [logoPreview, setLogoPreview] = useState(null);
+
+    const handleLogoChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setFormData({...formData, logo: file});
+            setLogoPreview(URL.createObjectURL(file));
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             Validar_datos.nombre(formData.nombre);
-            Validar_datos.contraseña(formData.contraseña);
+            Validar_datos.contraseña(formData.contrasena);
             Validar_datos.direccion(formData.direccion);
+            if(!formData.logo) throw new Error('Introduzca el logo de la institución.');
 
-            await queryInstitucion.crearInstitucion(formData);
+            const formDataToSend = new FormData();
+            Object.keys(formData).forEach(key => {
+                formDataToSend.append(key, formData[key]);
+            });
+
+            await queryInstitucion.crearInstitucion(formDataToSend);
             setAlertType("success");
             setAlertMessage("Institución creada exitosamente, espere la validación de la plataforma.");
             setShowAlert(true);
@@ -29,13 +46,13 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
             setAlertType("error");
             setAlertMessage("Error al crear institución: " + (error.message || error));
             setShowAlert(true);
-    }
+        }
     };
 
     const handleAlertClose = () => {
         setShowAlert(false);
         if (alertType === "success") {
-            onBack(); // Solo llamamos onBack() cuando se cierra la alerta de éxito
+            onBack();
         }
     };
 
@@ -61,16 +78,20 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
                     />
                 </div>
                 
-                <div className="form-group color-picker-group">
-                    <label>Color primario</label>
-                    <div className="color-picker-container">
+                <div className="form-group">
+                    <label>Logo de la Institución</label>
+                    <div className="logo-upload-container">
                         <input 
-                            type="color" 
-                            value={formData.colorPrimario}
-                            onChange={(e) => setFormData({...formData, colorPrimario: e.target.value})}
+                            type="file" 
+                            accept="image/*"
+                            onChange={handleLogoChange}
                             required
                         />
-                        <span>{formData.colorPrimario}</span>
+                        {logoPreview && (
+                            <div className="logo-preview">
+                                <img src={logoPreview} alt="Vista previa del logo" />
+                            </div>
+                        )}
                     </div>
                 </div>
                 
@@ -78,22 +99,37 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
                     <label>Contraseña</label>
                     <input 
                         type="password" 
-                        value={formData.contraseña}
-                        onChange={(e) => setFormData({...formData, contraseña: e.target.value})}
+                        value={formData.contrasena}
+                        onChange={(e) => setFormData({...formData, contrasena: e.target.value})}
                         required
                     />
                 </div>
                 
-                <div className="form-group color-picker-group">
-                    <label>Color Secundario</label>
-                    <div className="color-picker-container">
-                        <input 
-                            type="color" 
-                            value={formData.colorSecundario}
-                            onChange={(e) => setFormData({...formData, colorSecundario: e.target.value})}
-                            required
-                        />
-                        <span>{formData.colorSecundario}</span>
+                <div className="color-pickers-container">
+                    <div className="color-picker-group">
+                        <label>Color Primario</label>
+                        <div className="color-picker">
+                            <input 
+                                type="color" 
+                                value={formData.colorPrimario}
+                                onChange={(e) => setFormData({...formData, colorPrimario: e.target.value})}
+                                required
+                            />
+                            <span>{formData.colorPrimario}</span>
+                        </div>
+                    </div>
+                    
+                    <div className="color-picker-group">
+                        <label>Color Secundario</label>
+                        <div className="color-picker">
+                            <input 
+                                type="color" 
+                                value={formData.colorSecundario}
+                                onChange={(e) => setFormData({...formData, colorSecundario: e.target.value})}
+                                required
+                            />
+                            <span>{formData.colorSecundario}</span>
+                        </div>
                     </div>
                 </div>
                 
@@ -108,12 +144,62 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
             </form>
             
             <style>{`
-                .color-picker-group {
-                    display: flex;
-                    flex-direction: column;
+                .register-form {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    padding: 20px;
                 }
                 
-                .color-picker-container {
+                .form-group {
+                    margin-bottom: 20px;
+                }
+                
+                label {
+                    display: block;
+                    margin-bottom: 8px;
+                    font-weight: bold;
+                }
+                
+                input[type="text"],
+                input[type="password"] {
+                    width: 100%;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                }
+                
+                .logo-upload-container {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                
+                .logo-preview {
+                    width: 100px;
+                    height: 100px;
+                    border: 1px dashed #ccc;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                
+                .logo-preview img {
+                    max-width: 100%;
+                    max-height: 100%;
+                }
+                
+                .color-pickers-container {
+                    display: flex;
+                    justify-content: space-between;
+                    gap: 20px;
+                    margin-bottom: 20px;
+                }
+                
+                .color-picker-group {
+                    flex: 1;
+                }
+                
+                .color-picker {
                     display: flex;
                     align-items: center;
                     gap: 10px;
@@ -127,45 +213,69 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
                     border-radius: 4px;
                     cursor: pointer;
                 }
-
+                
+                .form-actions {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-top: 20px;
+                }
+                
+                .back-btn, .submit-btn {
+                    padding: 10px 20px;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    backgrond-color: 
+                }
+                
+                .back-btn {
+                    background-color: #f0f0f0;
+                }
+                
+                .submit-btn {
+                    background-color: #7e46d2;
+                    color: white;
+                }
+                
                 .custom-alert {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 1000;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    z-index: 1000;
                 }
-
+                
                 .alert-content {
-                background: white;
-                padding: 20px;
-                border-radius: 8px;
-                text-align: center;
-                max-width: 300px;
+                    background: white;
+                    padding: 20px;
+                    border-radius: 8px;
+                    text-align: center;
+                    max-width: 300px;
                 }
-
+                
                 .alert-content h3 {
-                margin-top: 0;
-                color: #ff0000;
+                    margin-top: 0;
+                    color: ${alertType === "success" ? "#4CAF50" : "#ff0000"};
                 }
-
+                
                 .alert-content button {
-                margin-top: 15px;
-                padding: 8px 16px;
-                background: #007bff;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
+                    margin-top: 15px;
+                    padding: 8px 16px;
+                    background: #007bff;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
                 }
             `}</style>
+            
             {showAlert && (
-                <div className={`custom-alert ${alertType === "success" ? "alert-success" : "alert-error"}`}>
+                <div className="custom-alert">
                     <div className="alert-content">
                         <h3>{alertType === "success" ? "Éxito" : "Error"}</h3>
                         <p>{alertMessage}</p>

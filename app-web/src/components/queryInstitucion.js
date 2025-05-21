@@ -27,7 +27,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/nombres`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" }
             });
 
             const result = await response.json();
@@ -68,7 +67,6 @@ export class QueryInstitucion {
 
             const response = await fetch(url, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" }
             });
 
             const result = await response.json();
@@ -102,7 +100,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/${id}`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" }
             });
 
             const result = await response.json();
@@ -136,8 +133,7 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData),
+                body: formData,
             });
 
             const result = await response.json();
@@ -172,7 +168,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/${id}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(formData),
             });
 
@@ -207,7 +202,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/${id}`, {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" }
             });
 
             const result = await response.json();
@@ -245,7 +239,6 @@ export class QueryInstitucion {
                 method: "POST",
                 credentials: 'include',
                 headers: {
-                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify({ nombre, contraseña }),
             });
@@ -278,7 +271,6 @@ export class QueryInstitucion {
                 method: "GET",
                 credentials: 'include',
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
                 }
             });
@@ -309,7 +301,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/${id}/estadisticas`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" }
             });
 
             const result = await response.json();
@@ -344,7 +335,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/${id}/logo`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ logo }),
             });
 
@@ -379,7 +369,6 @@ export class QueryInstitucion {
         try {
             const response = await fetch(`${QueryInstitucion.BASE_URL}/existe/${encodeURIComponent(nombre)}`, {
                 method: "GET",
-                headers: { "Content-Type": "application/json" }
             });
 
             const result = await response.json();
@@ -414,7 +403,6 @@ export class QueryInstitucion {
                 method: "POST",
                 credentials: 'include',
                 headers: {
-                    "Content-Type": "application/json",
                     "Authorization": `Bearer ${localStorage.getItem("jwt_token")}`
                 }
             });

@@ -1,7 +1,8 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET } from "../config.js";
-import bcrypt from "bcryptjs";
+import multer from "multer";
+import path from "path";
 
 import {
   obtenerNombresInstituciones,
@@ -17,7 +18,27 @@ import {
   existeInstitucion,
 } from "../controllers/institucion.controller.js";
 
+const storage = multer.memoryStorage();
 const router = Router();
+
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png|pdf/;
+  const mimetype = filetypes.test(file.mimetype);
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
+  if (mimetype && extname) {
+    return cb(null, true);
+  }
+  cb(new Error("Solo se permiten archivos PDF, JPEG, JPG o PNG"));
+};
+
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024,
+  },
+});
 
 // Obtener nombres de todas las instituciones
 router.get("/nombres", async (req, res) => {
@@ -64,9 +85,18 @@ router.get("/:id", async (req, res) => {
 });
 
 // Crear nueva institución
-router.post("/", async (req, res) => {
+router.post("/", upload.single('logo'), async (req, res) => {
   try {
-    const result = await crearInstitucion(req.body);
+    const formData = {
+      nombre: req.body.nombre,
+      contraseña: req.body.contrasena,
+      colorPrimario: req.body.colorPrimario,
+      colorSecundario: req.body.colorSecundario,
+      direccion: req.body.direccion,
+      logo: req.file,
+    };
+
+    const result = await crearInstitucion(formData);
     if (result.error) {
       return res.status(400).json(result);
     }
