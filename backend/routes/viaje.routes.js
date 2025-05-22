@@ -1,7 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET, DB_CONFIG } from "../config.js";
-import { viajesDisponibles } from "../controllers/viaje.controller.js";
+import { viajesDisponibles, aceptarViaje } from "../controllers/viaje.controller.js";
 import pg from "pg";
 
 const { Pool } = pg;
@@ -78,6 +78,14 @@ router.post("/viajes-disponibles", async(req,res) => {
     }
 });
 
-
+router.post("/aceptar-viaje", async(req,res) => {
+    try{
+        const {vehiculoId,viajeId} = req.body;
+        const result = await aceptarViaje(vehiculoId,viajeId);
+        res.status(200).json({result});
+    }catch(error){
+        res.status(500).json({ error: "Error al aceptar el viaje" });
+    }
+});
 
 export default router;

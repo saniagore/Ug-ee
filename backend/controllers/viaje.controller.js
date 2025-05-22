@@ -37,3 +37,12 @@ export const viajesDisponibles = async (conductorId, categoria) => {
     throw error;
   }
 };
+
+export const aceptarViaje = async(vehiculoId,viajeId) => {
+  try{
+    const result = await pool.query(`UPDATE viaje SET vehiculo_id = $1, estado = 'en curso' WHERE id = $2`, [vehiculoId,viajeId]);
+    return result.rows;
+  }catch(error){
+    throw error;
+  }
+};

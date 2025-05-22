@@ -23,7 +23,7 @@ export default function MenuConductor({ onLogout }) {
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
       if (!decoded.estadoVerificacion) {
-        navigate("/espera-verificacion");
+        navigate("/WaitForValid");
         return;
       }
       setUserData(decoded);
@@ -48,12 +48,8 @@ export default function MenuConductor({ onLogout }) {
       setViajes(viajesRes?.result || []);
       setVehiculos(vehiculosRes || []);
 
-      const savedVehicle = localStorage.getItem("vehiculoActivo");
-      const initialVehicle = savedVehicle
-        ? JSON.parse(savedVehicle)
-        : vehiculosRes?.[0] || null;
-
       setVehiculoActivo('');
+
     } catch (error) {
       console.error("Error al cargar datos:", error);
     } finally {
@@ -80,7 +76,6 @@ export default function MenuConductor({ onLogout }) {
     if (selected) {
       setVehiculoActivo(selected);
       localStorage.setItem("vehiculoActivo", JSON.stringify(selected));
-      console.log("Vehículo cambiado a:", selected); 
     } else {
       console.warn(
         "Vehículo no encontrado con ID:",
@@ -96,21 +91,15 @@ export default function MenuConductor({ onLogout }) {
       alert("Selecciona un vehículo primero");
       return;
     }
-    console.log("viaje aceptado");
-    //IMPLEMENTAR ACEPTAR VIAJE
+    const  viajeQuery = new QueryViaje();
+
+    viajeQuery.aceptarViaje(viajeId,vehiculoActivo.id);
   };
 
   const handleRegistrarVehiculo = () => {
     navigate("/Colaborador/Registrar-vehiculo");
   };
 
-  const buttonHover = {
-    ...styles.button,
-    ...styles.primaryButton,
-    "&:hover": {
-      backgroundColor: "#2980b9",
-    },
-  };
 
   return (
     <div style={styles.container}>
@@ -146,11 +135,14 @@ export default function MenuConductor({ onLogout }) {
         <div
           style={{
             ...styles.tab,
-            ...(activeTab === "vehiculos" ? styles.activeTab : {}),
+            ...(activeTab === "Registrar" ? styles.activeTab : {}),
           }}
-          onClick={() => navigate('/Colaborador/Registrar-vehiculo')}
+          onClick={() => {
+            navigate('/Colaborador/Registrar-vehiculo');
+            setActiveTab("Registrar");
+          }}
         >
-          Registra Vehiculo
+          Registrar Vehiculo
         </div>
       </div>
 
@@ -292,7 +284,7 @@ export default function MenuConductor({ onLogout }) {
                     <td style={styles.tableCell}>
                       <button
                         style={{ ...styles.button, ...styles.primaryButton }}
-                        onClick={() => handleAceptarViaje(viaje.id)}
+                        onClick={() => handleAceptarViaje(viaje.viaje_id)}
                       >
                         Aceptar Viaje
                       </button>
