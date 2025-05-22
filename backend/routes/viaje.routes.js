@@ -91,7 +91,7 @@ router.post("/aceptar-viaje", async(req,res) => {
 router.get("/viajes-activos/:conductorId", async (req, res) => {
     try {
         const { conductorId } = req.params;
-        const result = viajesActivos(conductorId);
+        const result = await viajesActivos(conductorId);
         res.status(200).json({result});
     } catch (error) {
         res.status(500).json({ error: "Error al obtener los viajes activos" });

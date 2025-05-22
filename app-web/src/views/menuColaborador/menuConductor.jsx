@@ -49,7 +49,7 @@ export default function MenuConductor({ onLogout }) {
       
       setViajes(viajesRes?.result || []);
       setVehiculos(vehiculosRes || []);
-      setViajesAct(viajesActRes || []);
+      setViajesAct(viajesActRes?.result || []);
 
       setVehiculoActivo('');
 
@@ -94,14 +94,17 @@ export default function MenuConductor({ onLogout }) {
       alert("Selecciona un vehículo primero");
       return;
     }
+    if(viajesAct.length==1){
+      alert("Ya tienes un viaje en curso");
+      return;
+    }
+
     const  viajeQuery = new QueryViaje();
     viajeQuery.aceptarViaje(viajeId,vehiculoActivo.id);
   };
 
-  const handleRegistrarVehiculo = () => {
-
-    //DEBUG
-    //navigate("/Colaborador/Registrar-vehiculo");
+  const handleRegistrarVehiculo = async() => {
+    navigate("/Colaborador/Registrar-vehiculo");
   };
 
 
@@ -130,15 +133,6 @@ export default function MenuConductor({ onLogout }) {
         <div
           style={{
             ...styles.tab,
-            ...(activeTab === "vehiculos" ? styles.activeTab : {}),
-          }}
-          onClick={() => setActiveTab("vehiculos")}
-        >
-          Mis Vehículos
-        </div>
-        <div
-          style={{
-            ...styles.tab,
             ...(activeTab === "viajes Activos" ? styles.activeTab : {}),
           }}
           onClick={() => setActiveTab("viajes Activos")}
@@ -148,10 +142,19 @@ export default function MenuConductor({ onLogout }) {
         <div
           style={{
             ...styles.tab,
+            ...(activeTab === "vehiculos" ? styles.activeTab : {}),
+          }}
+          onClick={() => setActiveTab("vehiculos")}
+        >
+          Mis Vehículos
+        </div>
+        <div
+          style={{
+            ...styles.tab,
             ...(activeTab === "Registrar" ? styles.activeTab : {}),
           }}
           onClick={() => {
-            navigate('/Colaborador/Registrar-vehiculo');
+            handleRegistrarVehiculo();
             setActiveTab("Registrar");
           }}
         >
@@ -301,6 +304,76 @@ export default function MenuConductor({ onLogout }) {
                       >
                         Aceptar Viaje
                       </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+      {activeTab === "viajes Activos" && (
+        <div style={styles.card}>
+          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Viajes Activos</h2>
+          {loading ? (
+            <div style={styles.loading}>Cargando viajes activos...</div>
+          ) : viajesAct.length === 0 ? (
+            <div style={styles.emptyState}>
+              <p>No tienes viajes activos actualmente</p>
+            </div>
+          ) : (
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  <th style={styles.tableHeader}>Origen</th>
+                  <th style={styles.tableHeader}>Destino</th>
+                  <th style={styles.tableHeader}>Tipo</th>
+                  <th style={styles.tableHeader}>Pasajero</th>
+                  <th style={styles.tableHeader}>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                {viajesAct.map((viaje) => (
+                  <tr
+                    key={viaje.viaje_id}
+                    style={{
+                      backgroundColor:
+                        viajesAct.indexOf(viaje) % 2 === 0 ? "#fff" : "#f8f9fa",
+                    }}
+                  >
+                    <td style={styles.tableCell}>
+                      {viaje.punto_partida || "No especificado"}
+                    </td>
+                    <td style={styles.tableCell}>
+                      {viaje.punto_destino || "No especificado"}
+                    </td>
+                    <td style={styles.tableCell}>
+                      <span
+                        style={{
+                          display: "inline-block",
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          background: "#7e46d2",
+                          color: "white",
+                          fontSize: "12px",
+                          fontWeight: "500",
+                        }}
+                      >
+                        {viaje.tipo_viaje || "Regular"}
+                      </span>
+                    </td>
+                    <td style={styles.tableCell}>
+                      <div>
+                        <div style={{ fontWeight: "500" }}>
+                          {viaje.nombre || "N/A"}
+                        </div>
+                        <div style={{ fontSize: "12px", color: "#7f8c8d" }}>
+                          {viaje.celular || "Sin contacto"}
+                        </div>
+                      </div>
+                    </td>
+                    <td style={styles.tableCell}>
+                      {viaje.estado || "En curso"}
                     </td>
                   </tr>
                 ))}

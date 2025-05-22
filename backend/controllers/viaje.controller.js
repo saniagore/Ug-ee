@@ -52,16 +52,8 @@ export const aceptarViaje = async (vehiculoId, viajeId) => {
 
 export const viajesActivos = async (conductorId) => {
   try {
-    /*
-    const CId = await pool.query(
-      `SELECT v.id 
-      FROM vehiculo v 
-      JOIN conductor c ON v.conductor_id = c.CId
-      WHERE
-        c.id = $1`, [conductorId]);
-    */
     const viajesEnCurso = await pool.query(
-      `SELECT v.punto_partida, v.punto_destino, v.usuario_id, u.nombre, u.celular
+      `SELECT v.id  AS viaje_id, v.punto_partida, v.punto_destino, v.usuario_id, v.tipo_viaje, u.nombre, u.celular
         FROM viaje v
         JOIN usuario u ON v.usuario_id = u.UsId
         JOIN vehiculo b ON v.vehiculo_id = b.id
