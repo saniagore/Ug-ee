@@ -23,7 +23,6 @@ const HistorialViajes = ({ onBack }) => {
         const viajeQuery = new QueryViaje();
         const result = await viajeQuery.obtenerHistorialViajes(data.user.id);
 
-        //AGREGAR LAS PLACAS Y MARCA DEL CARRO COMO TIPO
         console.log(result);
         
         if (result.error) {
@@ -138,7 +137,7 @@ const HistorialViajes = ({ onBack }) => {
                     <strong>Tipo:</strong> {viaje.tipo_viaje || 'No especificado'}
                   </span>
                   <span className="detalle-item">
-                    <strong>Vehiculo:</strong> {viaje.vehiculo || 'No asignado'}
+                    <strong>Vehiculo:</strong> {viaje.placa || 'No asignado'}
                   </span>
                 </div>
               </div>
