@@ -143,6 +143,15 @@ export default function MenuConductor({ onLogout }) {
         >
           Mis Vehículos
         </div>
+        <div
+          style={{
+            ...styles.tab,
+            ...(activeTab === "vehiculos" ? styles.activeTab : {}),
+          }}
+          onClick={() => navigate('/Colaborador/Registrar-vehiculo')}
+        >
+          Registra Vehiculo
+        </div>
       </div>
 
       {activeTab === "vehiculos" && (
