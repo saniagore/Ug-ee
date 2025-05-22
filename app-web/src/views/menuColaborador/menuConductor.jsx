@@ -133,7 +133,7 @@ export default function MenuConductor({ onLogout }) {
       transition: "all 0.3s ease"
     },
     primaryButton: {
-      background: "#3498db",
+      background: "#7e46d2",
       color: "white",
       "&:hover": {
         background: "#2980b9"
@@ -159,7 +159,7 @@ export default function MenuConductor({ onLogout }) {
       marginTop: "16px"
     },
     tableHeader: {
-      background: "#3498db",
+      background: "#7e46d2",
       color: "white",
       padding: "12px",
       textAlign: "left",
@@ -192,8 +192,8 @@ export default function MenuConductor({ onLogout }) {
       transition: "all 0.3s ease"
     },
     activeTab: {
-      color: "#3498db",
-      borderBottom: "3px solid #3498db"
+      color: "#7e46d2",
+      borderBottom: "3px solid #7e46d2"
     },
     loading: {
       textAlign: "center",
@@ -356,7 +356,7 @@ export default function MenuConductor({ onLogout }) {
                         display: 'inline-block',
                         padding: '4px 8px',
                         borderRadius: '4px',
-                        background: viaje.tipo_viaje === 'Urgente' ? '#e74c3c' : '#3498db',
+                        background: viaje.tipo_viaje === 'Urgente' ? '#e74c3c' : '#7e46d2',
                         color: 'white',
                         fontSize: '12px',
                         fontWeight: '500'
