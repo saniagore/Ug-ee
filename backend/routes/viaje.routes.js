@@ -1,7 +1,7 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
 import { JWT_EXPIRATION, JWT_SECRET, DB_CONFIG } from "../config.js";
-import { viajesDisponibles, aceptarViaje } from "../controllers/viaje.controller.js";
+import { viajesDisponibles, aceptarViaje, viajesActivos } from "../controllers/viaje.controller.js";
 import pg from "pg";
 
 const { Pool } = pg;
@@ -88,4 +88,13 @@ router.post("/aceptar-viaje", async(req,res) => {
     }
 });
 
+router.get("/viajes-activos/:conductorId", async (req, res) => {
+    try {
+        const { conductorId } = req.params;
+        const result = viajesActivos(conductorId);
+        res.status(200).json({result});
+    } catch (error) {
+        res.status(500).json({ error: "Error al obtener los viajes activos" });
+    }
+});
 export default router;

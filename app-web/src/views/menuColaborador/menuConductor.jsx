@@ -9,6 +9,7 @@ export default function MenuConductor({ onLogout }) {
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
   const [viajes, setViajes] = useState([]);
+  const [viajesAct, setViajesAct] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [vehiculoActivo, setVehiculoActivo] = useState(null);
   const [activeTab, setActiveTab] = useState("viajes");
@@ -19,7 +20,6 @@ export default function MenuConductor({ onLogout }) {
       navigate("/");
       return;
     }
-
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
       if (!decoded.estadoVerificacion) {
@@ -41,12 +41,15 @@ export default function MenuConductor({ onLogout }) {
       const viajeQuery = new QueryViaje();
       const vehiculoQuery = new QueryVehicle();
 
-      const [viajesRes, vehiculosRes] = await Promise.all([
+      const [viajesRes, vehiculosRes, viajesActRes ] = await Promise.all([
         viajeQuery.ObtenerViajeConductor(userData.id, userData.tipo),
         vehiculoQuery.obtenerVehiculosPorConductor(userData.id),
+        viajeQuery.viajesActivos(userData.id),
       ]);
+      
       setViajes(viajesRes?.result || []);
       setVehiculos(vehiculosRes || []);
+      setViajesAct(viajesActRes || []);
 
       setVehiculoActivo('');
 
@@ -92,12 +95,13 @@ export default function MenuConductor({ onLogout }) {
       return;
     }
     const  viajeQuery = new QueryViaje();
-
     viajeQuery.aceptarViaje(viajeId,vehiculoActivo.id);
   };
 
   const handleRegistrarVehiculo = () => {
-    navigate("/Colaborador/Registrar-vehiculo");
+
+    //DEBUG
+    //navigate("/Colaborador/Registrar-vehiculo");
   };
 
 
@@ -131,6 +135,15 @@ export default function MenuConductor({ onLogout }) {
           onClick={() => setActiveTab("vehiculos")}
         >
           Mis Vehículos
+        </div>
+        <div
+          style={{
+            ...styles.tab,
+            ...(activeTab === "viajes Activos" ? styles.activeTab : {}),
+          }}
+          onClick={() => setActiveTab("viajes Activos")}
+        >
+          Viajes Activos
         </div>
         <div
           style={{
