@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigation } from "../../components/navigations";
 import { useNavigate } from "react-router-dom";
 import { QueryViaje } from "../../components/queryViaje";
+import { QueryVehicle } from "../../components/queryVehiculo";
 
 /**
  * Driver Menu Dashboard Component
@@ -32,6 +33,7 @@ import { QueryViaje } from "../../components/queryViaje";
 export default function MenuConductor({ onLogout }) {
   const { goToHomePage, goToWaitForValid } = useNavigation();
   const navigate = useNavigate();
+  const vehiculoQuery = React.useMemo(() => new QueryVehicle(), []);
   const viajeQuery = React.useMemo(() => new QueryViaje(), []);
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
@@ -100,8 +102,11 @@ export default function MenuConductor({ onLogout }) {
     navigate("/Colaborador/Registrar-vehiculo");
   };
 
-  const handleMisViajes = () => {
-    console.log(viajes);
+  const handleMisViajes = async () => {
+    const token = localStorage.getItem("jwt_token");
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
+    const vehiculos = await vehiculoQuery.obtenerVehiculosPorConductor(decodedToken.id);
+    console.log(vehiculos);
   };
 
   return (

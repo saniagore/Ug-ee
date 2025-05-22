@@ -183,6 +183,7 @@ router.get("/vehiculos", async (req, res) => {
 router.get("/vehiculos/conductor/:conductorId", async (req, res) => {
     try {
         const { conductorId } = req.params;
+        const CId = await pool.query(`SELECT CId FROM conductor WHERE id = $1`, [conductorId]);
 
         const result = await pool.query(
             `SELECT 
@@ -198,7 +199,7 @@ router.get("/vehiculos/conductor/:conductorId", async (req, res) => {
              FROM vehiculo v
              WHERE v.conductor_id = $1
              ORDER BY v.id`,
-            [conductorId]
+            [CId.rows[0].cid]
         );
 
         if (result.rows.length === 0) {
