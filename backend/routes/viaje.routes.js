@@ -6,6 +6,7 @@ import {
   aceptarViaje,
   viajesActivos,
   terminarViaje,
+  cancelarViaje,
 } from "../controllers/viaje.controller.js";
 import pg from "pg";
 
@@ -113,6 +114,17 @@ router.post("/terminar-viaje", async(req,res) =>{
     res.status(200).json({ result });
   }catch(error){
     res.status(500).json({ error: "Error al terminar el viaje" });
+  }
+});
+
+router.post("/cancelar-viaje", async(req,res) =>{
+  try{
+    const { viajeId } = req.body;
+    const result = await cancelarViaje(viajeId);
+
+    res.status(200).json({ result });
+  }catch(error){
+    res.status(500).json({ error: "Error al cancelar el viaje" });
   }
 });
 

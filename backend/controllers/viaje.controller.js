@@ -74,11 +74,26 @@ export const terminarViaje = async(viajeId) =>{
   try{
     const result = await pool.query(`
       UPDATE viaje
-      SET estado = 'finalizado', 
+      SET estado = 'finalizado'
       WHERE id = $1`,
     [viajeId])
 
     return result.rows;
+  }catch(error){
+    throw error;
+  }
+};
+
+
+export const cancelarViaje = async(viajeId) => {
+  try{
+    const result = await pool.query(`
+      UPDATE viaje
+      SET vehiculo_id = NULL, estado = 'pendiente'
+      WHERE id = $1`,
+    [viajeId]);
+
+    return result;
   }catch(error){
     throw error;
   }

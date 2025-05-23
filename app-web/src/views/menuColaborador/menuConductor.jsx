@@ -90,12 +90,15 @@ export default function MenuConductor({ onLogout }) {
   };
 
   const handleCancelarViaje = async(viajeId) => {
-    console.log(viajeId);
+    const queryViaje = new QueryViaje();
+    await queryViaje.cancelarViaje(viajeId);
+    await cargarDatos();
   };
 
   const handleTerminarViaje = async(viajeId) => {
     const queryViaje = new QueryViaje();
     await queryViaje.terminarViaje(viajeId);
+    await cargarDatos();
   };
 
   const handleAceptarViaje = async (viajeId) => {
