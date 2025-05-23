@@ -143,7 +143,7 @@ const Servicio = ({ onBack, originAddress, serviceType }) => {
         <button
           onClick={handleSubmit}
           disabled={isSubmitting || !destinationAddress.trim()}
-          className="search-button"
+          className="reserve-button"
         >
           {isSubmitting ? "Solicitando..." : "Solicitar Servicio"}
         </button>

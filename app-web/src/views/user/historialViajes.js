@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaHistory, FaMapMarkerAlt, FaCalendarAlt, FaCar } from "react-icons/fa";
 import { QueryViaje } from "../../components/queryViaje";
-import "./css/Menu.css";
+import "./css/Historial.css";
 
 const HistorialViajes = ({ onBack }) => {
   const [viajes, setViajes] = useState([]);
@@ -22,8 +22,6 @@ const HistorialViajes = ({ onBack }) => {
         
         const viajeQuery = new QueryViaje();
         const result = await viajeQuery.obtenerHistorialViajes(data.user.id);
-
-        console.log(result);
         
         if (result.error) {
           setError(result.message);
