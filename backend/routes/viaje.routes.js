@@ -103,4 +103,14 @@ router.get("/viajes-activos/:conductorId", async (req, res) => {
     res.status(500).json({ error: "Error al obtener los viajes activos" });
   }
 });
+
+router.post("/terminar-viaje", async(req,res) =>{
+  try{
+    const { viajeId } = req.body;
+
+  }catch(error){
+    res.status(500).json({ error: "Error al terminar el viaje" });
+  }
+});
+
 export default router;
