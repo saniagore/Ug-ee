@@ -62,12 +62,9 @@ const HistorialViajes = ({ onBack }) => {
 
   const getEstadoStyle = (estado) => {
     if (!estado) return { backgroundColor: '#9E9E9E', color: 'white' };
-    
     switch(estado.toLowerCase()) {
-      case 'completado':
+      case 'finalizado':
         return { backgroundColor: '#4CAF50', color: 'white' };
-      case 'cancelado':
-        return { backgroundColor: '#F44336', color: 'white' };
       case 'en curso':
         return { backgroundColor: '#2196F3', color: 'white' };
       default:
