@@ -3,10 +3,11 @@ import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import "../css/Menu.css";
-import Servicio from "./user/pedirVehiculo";
+import "./user/css/Menu.css";
 import { useAuthVerification } from "../components/useAuth";
+import Servicio from "./user/pedirVehiculo";
 import HistorialViajes from "./user/historialViajes";
+import AgendarReserva from "./user/agendarReserva";
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
@@ -104,16 +105,7 @@ export default function Menu() {
         )}
 
         {currentView === "reserva" && (
-          <>
-            <h2 className="panel-title">Reserva Confirmada</h2>
-            <p>Tu servicio ha sido reservado exitosamente.</p>
-            <button
-              onClick={() => setCurrentView("menu")}
-              className="back-button"
-            >
-              Volver al Menú
-            </button>
-          </>
+          <AgendarReserva onBack={()=> setCurrentView("menu")}/>
         )}
       </div>
 

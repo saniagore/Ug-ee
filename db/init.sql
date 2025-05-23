@@ -137,7 +137,7 @@ CREATE TABLE reserva(
     codigo_qr BYTEA NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     hora_salida TIMESTAMP NOT NULL,
-    punto_partida GEOGRAPHY(POINT, 4326) NOT NULL
+    punto_partida VARCHAR(50) NOT NULL
 );
 
 -- CREACION DE INDICES -- 

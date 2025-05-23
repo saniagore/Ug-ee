@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaArrowLeft, FaHistory, FaMapMarkerAlt, FaCalendarAlt, FaCar } from "react-icons/fa";
 import { QueryViaje } from "../../components/queryViaje";
-import "../../css/Menu.css";
+import "./css/Menu.css";
 
 const HistorialViajes = ({ onBack }) => {
   const [viajes, setViajes] = useState([]);
