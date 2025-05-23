@@ -89,12 +89,20 @@ export default function MenuConductor({ onLogout }) {
     }
   };
 
+  const handleCancelarViaje = async(viajeId) => {
+    console.log(viajeId);
+  };
+
+  const handleTerminarViaje = async(viajeId) => {
+    console.log(viajeId);
+  };
+
   const handleAceptarViaje = async (viajeId) => {
     if (!vehiculoActivo) {
       alert("Selecciona un vehículo primero");
       return;
     }
-    if(viajesAct.length==1){
+    if(viajesAct.length===1){
       alert("Ya tienes un viaje en curso");
       return;
     }
@@ -330,6 +338,7 @@ export default function MenuConductor({ onLogout }) {
                   <th style={styles.tableHeader}>Tipo</th>
                   <th style={styles.tableHeader}>Pasajero</th>
                   <th style={styles.tableHeader}>Estado</th>
+                  <th style={styles.tableHeader}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -374,6 +383,20 @@ export default function MenuConductor({ onLogout }) {
                     </td>
                     <td style={styles.tableCell}>
                       {viaje.estado || "En curso"}
+                    </td>
+                    <td style={styles.tableCell}>
+                      <button
+                        style={{ ...styles.button, ...styles.primaryButton, backgroundColor: "#9f5eca" }}
+                        onClick={() => handleCancelarViaje(viaje.viaje_id)}
+                      >
+                        Cancelar Viaje
+                      </button>
+                      <button
+                        style={{ ...styles.button, ...styles.primaryButton, marginLeft: 10 }}
+                        onClick={() => handleTerminarViaje(viaje.viaje_id)}
+                      >
+                        Terminar Viaje
+                      </button>
                     </td>
                   </tr>
                 ))}
