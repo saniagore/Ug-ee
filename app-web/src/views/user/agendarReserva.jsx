@@ -39,6 +39,7 @@ const ReservaForm = ({ onBack }) => {
       setErrors(validationErrors);
       return;
     }
+    
     console.log('Datos enviados:', formData);
     alert('¡Reserva agendada con éxito!');
   };

@@ -115,11 +115,13 @@ CREATE TABLE viaje(
     ruta_planificada GEOGRAPHY(LINESTRING, 4326),
     punto_destino VARCHAR(50) NOT NULL,
     ubicacion_actual GEOGRAPHY(POINT, 4326),
-    usuario_id INTEGER NOT NULL,
     tipo_viaje categoria_viaje NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    reserva_id INT UNIQUE,
     vehiculo_id INTEGER,
     FOREIGN KEY (usuario_id) REFERENCES usuario(UsId) ON DELETE CASCADE,
-    FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id) ON DELETE CASCADE
+    FOREIGN KEY (vehiculo_id) REFERENCES vehiculo(id) ON DELETE CASCADE,
+    FOREIGN KEY (reserva_id) REFERENCES reserva(id) ON DELETE CASCADE
 );
 
 CREATE TABLE calificacion(
@@ -137,7 +139,9 @@ CREATE TABLE reserva(
     codigo_qr BYTEA NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     hora_salida TIMESTAMP NOT NULL,
-    punto_partida VARCHAR(50) NOT NULL
+    punto_partida VARCHAR(50) NOT NULL,
+    usuario_id INTEGER NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(UsId) ON DELETE CASCADE
 );
 
 -- CREACION DE INDICES -- 
