@@ -5,6 +5,7 @@ import {
   viajesDisponibles,
   aceptarViaje,
   viajesActivos,
+  terminarViaje,
 } from "../controllers/viaje.controller.js";
 import pg from "pg";
 
@@ -107,7 +108,9 @@ router.get("/viajes-activos/:conductorId", async (req, res) => {
 router.post("/terminar-viaje", async(req,res) =>{
   try{
     const { viajeId } = req.body;
+    const result = await terminarViaje(viajeId);
 
+    res.status(200).json({ result });
   }catch(error){
     res.status(500).json({ error: "Error al terminar el viaje" });
   }

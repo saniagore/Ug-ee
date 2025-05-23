@@ -171,7 +171,7 @@ export class QueryViaje {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
         },
-        body: viajeId,
+        body: JSON.stringify({ viajeId }),
       });
 
       const result = await response.json();
@@ -189,6 +189,14 @@ export class QueryViaje {
         message: "Error de conexión al servidor",
         details: error.message,
       };
+    }
+  }
+
+  async cancelarViaje(viajeId){
+    try{
+
+    }catch(error){
+      
     }
   }
 }

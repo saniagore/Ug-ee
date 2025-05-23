@@ -53,18 +53,33 @@ export const aceptarViaje = async (vehiculoId, viajeId) => {
 export const viajesActivos = async (conductorId) => {
   try {
     const viajesEnCurso = await pool.query(
-      `SELECT v.id  AS viaje_id, v.punto_partida, v.punto_destino, v.usuario_id, v.tipo_viaje, u.nombre, u.celular
+      `SELECT v.id  AS viaje_id, v.punto_partida, v.punto_destino, v.usuario_id, v.tipo_viaje, v.estado, u.nombre, u.celular
         FROM viaje v
         JOIN usuario u ON v.usuario_id = u.UsId
         JOIN vehiculo b ON v.vehiculo_id = b.id
         JOIN conductor c ON b.conductor_id = c.CId
         WHERE c.id = $1  
-        AND v.estado = 'en curso'`,
+        AND v.estado = 'en curso'
+        OR v.estado = 'finalizado'`,
       [conductorId]
     );
 
     return viajesEnCurso.rows;
   } catch (error) {
+    throw error;
+  }
+};
+
+export const terminarViaje = async(viajeId) =>{
+  try{
+    const result = await pool.query(`
+      UPDATE viaje
+      SET estado = 'finalizado', 
+      WHERE id = $1`,
+    [viajeId])
+
+    return result.rows;
+  }catch(error){
     throw error;
   }
 };

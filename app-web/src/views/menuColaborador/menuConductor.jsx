@@ -46,7 +46,7 @@ export default function MenuConductor({ onLogout }) {
         vehiculoQuery.obtenerVehiculosPorConductor(userData.id),
         viajeQuery.viajesActivos(userData.id),
       ]);
-      
+      console.log(viajesActRes);
       setViajes(viajesRes?.result || []);
       setVehiculos(vehiculosRes || []);
       setViajesAct(viajesActRes?.result || []);
@@ -94,7 +94,8 @@ export default function MenuConductor({ onLogout }) {
   };
 
   const handleTerminarViaje = async(viajeId) => {
-    console.log(viajeId);
+    const queryViaje = new QueryViaje();
+    await queryViaje.terminarViaje(viajeId);
   };
 
   const handleAceptarViaje = async (viajeId) => {
@@ -102,13 +103,13 @@ export default function MenuConductor({ onLogout }) {
       alert("Selecciona un vehículo primero");
       return;
     }
-    if(viajesAct.length===1){
+    if (viajesAct.some(viaje => viaje.estado === 'en curso')) {
       alert("Ya tienes un viaje en curso");
       return;
     }
-
-    const  viajeQuery = new QueryViaje();
-    viajeQuery.aceptarViaje(viajeId,vehiculoActivo.id);
+    const viajeQuery = new QueryViaje();
+    await viajeQuery.aceptarViaje(viajeId, vehiculoActivo.id);
+    await cargarDatos();
   };
 
   const handleRegistrarVehiculo = async() => {
@@ -145,7 +146,7 @@ export default function MenuConductor({ onLogout }) {
           }}
           onClick={() => setActiveTab("viajes Activos")}
         >
-          Viajes Activos
+          Mis Viajes
         </div>
         <div
           style={{
@@ -382,21 +383,36 @@ export default function MenuConductor({ onLogout }) {
                       </div>
                     </td>
                     <td style={styles.tableCell}>
-                      {viaje.estado || "En curso"}
+
+                      {viaje.estado === 'en curso' && (
+                        <span>En curso</span>
+                      )}
+
+                      {viaje.estado === 'finalizado' && (
+                        <span>Finalizado</span>
+                      )}
+
                     </td>
                     <td style={styles.tableCell}>
-                      <button
-                        style={{ ...styles.button, ...styles.primaryButton, backgroundColor: "#9f5eca" }}
-                        onClick={() => handleCancelarViaje(viaje.viaje_id)}
-                      >
-                        Cancelar Viaje
-                      </button>
-                      <button
-                        style={{ ...styles.button, ...styles.primaryButton, marginLeft: 10 }}
-                        onClick={() => handleTerminarViaje(viaje.viaje_id)}
-                      >
-                        Terminar Viaje
-                      </button>
+                      {viaje.estado === 'en curso' && (
+                        <>
+                          <button
+                            style={{ ...styles.button, ...styles.primaryButton, backgroundColor: "#9f5eca" }}
+                            onClick={() => handleCancelarViaje(viaje.viaje_id)}
+                          >
+                            Cancelar Viaje
+                          </button>
+                          <button
+                            style={{ ...styles.button, ...styles.primaryButton, marginLeft: 10 }}
+                            onClick={() => handleTerminarViaje(viaje.viaje_id)}
+                          >
+                            Terminar Viaje
+                          </button>
+                        </>
+                      )}
+                      {viaje.estado === 'finalizado' && (
+                        <span>Su viaje ha finalizado</span>
+                      )}
                     </td>
                   </tr>
                 ))}
