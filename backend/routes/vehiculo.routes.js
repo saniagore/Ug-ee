@@ -1,6 +1,6 @@
 import { Router } from "express";
 import jwt from "jsonwebtoken";
-import { JWT_EXPIRATION, JWT_SECRET, DB_CONFIG } from "../config.js";
+import { JWT_SECRET, DB_CONFIG } from "../config.js";
 import pg from "pg";
 import multer from "multer";
 import path from "path";

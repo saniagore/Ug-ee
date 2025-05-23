@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { FaCalendarAlt, FaMapMarkerAlt, FaHome, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
 import { styles } from './css/reserva';
+import { QueryReserva } from '../../components/queryReserva';
 
 const ReservaForm = ({ onBack }) => {
+  const reservaQuery = new QueryReserva();
   const [formData, setFormData] = useState({
     fechaHora: '',
     destino: '',
@@ -32,7 +34,7 @@ const ReservaForm = ({ onBack }) => {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -40,6 +42,7 @@ const ReservaForm = ({ onBack }) => {
       return;
     }
     
+    await reservaQuery.registrarReserva(formData);
     console.log('Datos enviados:', formData);
     alert('¡Reserva agendada con éxito!');
   };

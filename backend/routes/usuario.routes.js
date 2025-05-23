@@ -15,7 +15,6 @@ import {
   obtenerUsuarios,
   actualizarEstado,
 } from "../controllers/usuario.controller.js";
-import { obtenerInstitucion } from "../controllers/institucion.controller.js";
 
 const router = Router();
 

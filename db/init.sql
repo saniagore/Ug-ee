@@ -135,7 +135,7 @@ CREATE TABLE calificacion(
 
 CREATE TABLE reserva(
     id SERIAL PRIMARY KEY,
-    estado estado_reserva NOT NULL,
+    estado estado_reserva NOT NULL DEFAULT 'pendiente',
     codigo_qr BYTEA NOT NULL,
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     hora_salida TIMESTAMP NOT NULL,
