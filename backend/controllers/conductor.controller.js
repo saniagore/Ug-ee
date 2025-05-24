@@ -1,7 +1,7 @@
 import pg from "pg";
 import bcrypt from "bcryptjs";
 import { DB_CONFIG, SALT_ROUNDS } from "../config.js";
-import { obtenerInstitucion } from "./institucion.controller.js";
+import { obtenerInstitucion } from "./institucion.ler.js";
 const { Pool } = pg;
 const pool = new Pool(DB_CONFIG);
 
@@ -47,7 +47,7 @@ export const existenDatosConductor = async (telefono, nid, correo, placa = null)
     const validationResult = await pool.query(
       `SELECT 
         (SELECT 1 FROM conductor WHERE celular = $1 LIMIT 1) AS telefono_exists,
-        (SELECT 1 FROM conductor WHERE numero_identificacion = $2 LIMIT 1) AS nid_exists,
+        (SELECT 1 FROM conductor WHERE numeroIdentificacion = $2 LIMIT 1) AS nid_exists,
         (SELECT 1 FROM conductor WHERE correo = $3 LIMIT 1) AS correo_exists`, [telefono, nid, correo]
     );
 
@@ -80,16 +80,16 @@ export const obtenerEstadoConductor = async (celular) => {
     
     // Verificar estado de verificación del conductor y su vehículo
     const vehiculoResult = await pool.query(
-      "SELECT estado_verificacion FROM vehiculo WHERE conductor_id = $1 LIMIT 1",
+      "SELECT estadoVerificacion FROM vehiculo WHERE conductorId = $1 LIMIT 1",
       [conductor.id]
     );
     
-    const vehiculoVerificado = vehiculoResult.rows.length > 0 ? vehiculoResult.rows[0].estado_verificacion : false;
+    const vehiculoVerificado = vehiculoResult.rows.length > 0 ? vehiculoResult.rows[0].estadoVerificacion : false;
 
     return {
-      conductor_verificado: conductor.estado_verificacion,
-      vehiculo_verificado: vehiculoVerificado,
-      completo: conductor.estado_verificacion && vehiculoVerificado
+      conductorVerificado: conductor.estadoVerificacion,
+      vehiculoVerificado: vehiculoVerificado,
+      completo: conductor.estadoVerificacion && vehiculoVerificado
     };
   } catch (err) {
     console.error("Error en obtenerEstadoConductor:", err);
@@ -131,8 +131,8 @@ export const crearConductor = async (formData) => {
       // Insertar conductor
       const conductorResult = await client.query(
         `INSERT INTO conductor 
-        (nombre, correo, contraseña, celular, numero_identificacion, 
-         tipo_identificacion, institucion_id, direccion, categoria_viajes) 
+        (nombre, correo, contraseña, celular, numeroIdentificacion, 
+         tipoIdentificacion, institucionId, direccion, categoriaViajes) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
         RETURNING cid`,  // Cambiado para retornar específicamente el CId
         [
@@ -152,8 +152,8 @@ export const crearConductor = async (formData) => {
 
       if (formData.documentoIdentificacion) {
         await client.query(
-          `INSERT INTO foto_documento 
-          (conductor_id, documento) 
+          `INSERT INTO fotoDocumento 
+          (conductorId, documento) 
           VALUES ($1, $2)`,
           [conductorId, formData.documentoIdentificacion.buffer]
         );
@@ -191,10 +191,10 @@ export const actualizarDocumentosConductor = async (conductorId, documentos) => 
       // Actualizar licencia si existe
       if (documentos.licencia) {
         await client.query(
-          `INSERT INTO foto_documento 
-          (conductor_id, documento, tipo_documento) 
+          `INSERT INTO fotoDocumento 
+          (conductorId, documento, tipoDocumento) 
           VALUES ($1, $2, 'licencia'::tipo_de_documento)
-          ON CONFLICT (conductor_id, tipo_documento) 
+          ON CONFLICT (conductorId, tipoDocumento) 
           DO UPDATE SET documento = EXCLUDED.documento`,
           [conductorId, documentos.licencia]
         );
@@ -203,10 +203,10 @@ export const actualizarDocumentosConductor = async (conductorId, documentos) => 
       // Actualizar identificación si existe
       if (documentos.identificacion) {
         await client.query(
-          `INSERT INTO foto_documento 
-          (conductor_id, documento, tipo_documento) 
+          `INSERT INTO fotoDocumento 
+          (conductorId, documento, tipoDocumento) 
           VALUES ($1, $2, 'identificacion'::tipo_de_documento)
-          ON CONFLICT (conductor_id, tipo_documento) 
+          ON CONFLICT (conductorId, tipoDocumento) 
           DO UPDATE SET documento = EXCLUDED.documento`,
           [conductorId, documentos.identificacion]
         );
@@ -229,7 +229,7 @@ export const actualizarDocumentosConductor = async (conductorId, documentos) => 
 export const obtenerVehiculosConductor = async (conductorId) => {
   try {
     const result = await pool.query(
-      "SELECT * FROM vehiculo WHERE conductor_id = $1",
+      "SELECT * FROM vehiculo WHERE conductorId = $1",
       [conductorId]
     );
     return result.rows;
@@ -239,43 +239,13 @@ export const obtenerVehiculosConductor = async (conductorId) => {
   }
 };
 
-export const actualizarUbicacionConductor = async (conductorId, ubicacion) => {
-  try {
-    // Primero obtenemos el vehículo del conductor
-    const vehiculoResult = await pool.query(
-      "SELECT id FROM vehiculo WHERE conductor_id = $1 LIMIT 1",
-      [conductorId]
-    );
-
-    if (vehiculoResult.rows.length === 0) {
-      throw new Error('Conductor no tiene vehículo registrado');
-    }
-
-    const vehiculoId = vehiculoResult.rows[0].id;
-
-    // Actualizamos la ubicación en los viajes activos
-    await pool.query(
-      `UPDATE viaje 
-       SET ubicacion_actual = ST_SetSRID(ST_MakePoint($1, $2), 4326)
-       WHERE vehiculo_id = $3 AND estado = 'en curso'::categorias_estado_viaje`,
-      [ubicacion.longitud, ubicacion.latitud, vehiculoId]
-    );
-
-    return { success: true };
-  } catch (err) {
-    console.error("Error en actualizarUbicacionConductor:", err);
-    throw err;
-  }
-};
-
-
 export const obtenerConductoresInstitucion = async (institucionId) => {
   try {
     // Primero obtenemos los conductores básicos
     const conductoresResult = await pool.query(
-      `SELECT id,cid, nombre, correo, celular, estado_verificacion, 
-       codigo_estudiante, tipo_identificacion, direccion 
-       FROM conductor WHERE institucion_id = $1`,
+      `SELECT id,cid, nombre, correo, celular, estadoVerificacion, 
+       codigoEstudiante, tipoIdentificacion, direccion 
+       FROM conductor WHERE institucionId = $1`,
       [institucionId]
     );
 
@@ -283,9 +253,9 @@ export const obtenerConductoresInstitucion = async (institucionId) => {
     const conductoresConDocumentos = await Promise.all(
       conductoresResult.rows.map(async (conductor) => {
         const documentosResult = await pool.query(
-          `SELECT documento, tipo_documento 
-           FROM foto_documento 
-           WHERE conductor_id = $1`,
+          `SELECT documento, tipoDocumento 
+           FROM fotoDocumento 
+           WHERE conductorId = $1`,
           [conductor.cid]
         );
         return {
@@ -305,7 +275,7 @@ export const obtenerConductoresInstitucion = async (institucionId) => {
 export const actualizarEstadoConductor = async (conductorId, estado) => {
   try {
     await pool.query(
-      "UPDATE conductor SET estado_verificacion = $1 WHERE id = $2",
+      "UPDATE conductor SET estadoVerificacion = $1 WHERE id = $2",
       [estado, conductorId]
     );
     
@@ -319,7 +289,7 @@ export const actualizarEstadoConductor = async (conductorId, estado) => {
 export const actualizarEstadoVehiculo = async (vehiculoId, estado) => {
   try {
     await pool.query(
-      "UPDATE vehiculo SET estado_verificacion = $1 WHERE id = $2",
+      "UPDATE vehiculo SET estadoVerificacion = $1 WHERE id = $2",
       [estado, vehiculoId]
     );
     

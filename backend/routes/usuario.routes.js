@@ -94,10 +94,10 @@ router.post("/login", async (req, res) => {
       celular: userData.celular,
       nombre: userData.nombre,
       correo: userData.correo,
-      estadoVerificacion: userData.estado_verificacion,
-      numeroIdentificacion: userData.numero_identificacion,
-      tipoIdentificacion: userData.tipo_identificacion,
-      institucionId: userData.institucion_id,
+      estadoVerificacion: userData.estadoVerificacion,
+      numeroIdentificacion: userData.numeroIdentificacion,
+      tipoIdentificacion: userData.tipoIdentificacion,
+      institucionId: userData.institucionId,
       tipo: userData.tipo,
     };
     const token = jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRATION });
@@ -152,7 +152,7 @@ router.get("/auth/verify", async (req, res) => {
         id: usuario.id,
         celular: usuario.celular,
         nombre: usuario.nombre,
-        estado: usuario.estado_verificacion
+        estado: usuario.estadoVerificacion
       },
     });
   } catch (error) {

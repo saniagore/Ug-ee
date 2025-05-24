@@ -18,7 +18,7 @@ router.post("/solicitar-viaje", async (req, res) => {
     const { puntoPartida, puntoDestino, tipoViaje, usuarioId } = req.body;
 
     const crearViaje = await pool.query(
-      `INSERT INTO viaje(punto_partida, punto_destino, usuario_id, tipo_viaje) 
+      `INSERT INTO viaje(puntoPartida, puntoDestino, usuarioId, tipoViaje) 
              SELECT $1, $2, usid, $4 
              FROM usuario 
              WHERE id = $3
@@ -46,19 +46,19 @@ router.get("/historial/:usuarioId", async (req, res) => {
 
     const result = await pool.query(
       `SELECT 
-      v.tipo_viaje, 
-      v.punto_partida, 
-      v.punto_destino, 
+      v.tipoViaje, 
+      v.puntoPartida, 
+      v.puntoDestino, 
       v.estado, 
-      v.vehiculo_id, 
-      v.fecha_creacion,
+      v.vehiculoId, 
+      v.fechaSalida,
       b.placa,
       u.usid
    FROM usuario u
-   LEFT JOIN viaje v ON v.usuario_id = u.usid
-   LEFT JOIN vehiculo b ON v.vehiculo_id = b.id  
-   WHERE u.id = $1  
-   ORDER BY v.fecha_creacion DESC
+   LEFT JOIN viaje v ON v.usuarioId = u.usid
+   LEFT JOIN vehiculo b ON v.vehiculoId = b.id
+   WHERE u.id = $1
+   ORDER BY v.fechaSalida DESC
    LIMIT 10`,
       [usuarioId]
     );
@@ -67,7 +67,7 @@ router.get("/historial/:usuarioId", async (req, res) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
-    const viajes = result.rows.filter((row) => row.tipo_viaje !== null);
+    const viajes = result.rows.filter((row) => row.tipoViaje !== null);
 
     res.status(200).json({ viajes });
   } catch (error) {

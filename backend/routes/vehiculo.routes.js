@@ -34,8 +34,8 @@ const upload = multer({
 router.post(
   "/registrar",
   upload.fields([
-    { name: "soat_file", maxCount: 1 },
-    { name: "tecnomecanica_file", maxCount: 1 },
+    { name: "soatFile", maxCount: 1 },
+    { name: "tecnomecanicaFile", maxCount: 1 },
   ]),
   async (req, res) => {
     try {
@@ -56,12 +56,12 @@ router.post(
         placa,
         marca,
         modelo,
-        vencimiento_soat,
-        vencimiento_tecnomecanica,
+        vencimientoSoat,
+        vencimientoTecnomecanica,
       } = req.body;
 
-      const soatFile = req.files?.soat_file?.[0]; 
-      const tecnomecanicaFile = req.files?.tecnomecanica_file?.[0];
+      const soatFile = req.files?.soatFile?.[0]; 
+      const tecnomecanicaFile = req.files?.tecnomecanicaFile?.[0];
 
       if (!categoria || !placa || !marca || !modelo) {
         return res.status(400).json({ message: "Campos obligatorios faltantes" });
@@ -76,8 +76,8 @@ router.post(
       const result = await pool.query(
         `INSERT INTO vehiculo 
         (categoria, color, placa, marca, modelo, 
-         vencimiento_soat, vencimiento_tecnomecanica, 
-         codigo_qr, conductor_id)
+         vencimientoSoat, vencimientoTecnomecanica, 
+         codigoQr, conductorId)
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         RETURNING id`,
         [
@@ -86,8 +86,8 @@ router.post(
           placa,
           marca,
           modelo,
-          new Date(vencimiento_soat),
-          new Date(vencimiento_tecnomecanica),
+          new Date(vencimientoSoat),
+          new Date(vencimientoTecnomecanica),
           qrCodeBuffer,
           conductorIdFk,
         ]
@@ -98,14 +98,14 @@ router.post(
 
       await pool.query(
         `INSERT INTO foto_documento_vehiculo 
-        (vehiculo_id, documento, tipo_documento)
+        (vehiculoId, documento, tipoDocumento)
         VALUES ($1, $2, 'soat')`,
         [vehiculoId, soatFile.buffer] 
       );
 
       await pool.query(
         `INSERT INTO foto_documento_vehiculo 
-        (vehiculo_id, documento, tipo_documento)
+        (vehiculoId, documento, tipoDocumento)
         VALUES ($1, $2, 'tecnomecanica')`,
         [vehiculoId, tecnomecanicaFile.buffer]
       );
@@ -134,43 +134,38 @@ router.get("/vehiculos", async (req, res) => {
                 v.color,
                 v.marca,
                 v.placa,
-                v.estado_verificacion,
+                v.estadoVerificacion,
                 v.categoria,
                 v.modelo,
-                v.vencimiento_soat,
-                v.vencimiento_tecnomecanica,
-                c.CId AS conductor_id,
-                c.nombre AS conductor_nombre,
-                c.correo AS conductor_correo,
-                c.celular AS conductor_celular
+                v.vencimientoSoat,
+                v.vencimientoTecnomecanica,
+                c.CId AS conductorId,
+                c.nombre AS conductorNombre,
+                c.correo AS conductorCorreo,
+                c.celular AS conductorCelular
             FROM Vehiculo v
-            JOIN conductor c ON v.conductor_id = c.CId
+            JOIN conductor c ON v.conductorId = c.CId
             ORDER BY v.id`
         );
-        
-        // Ahora obtenemos los documentos por separado
+
         const vehiculos = result.rows;
-        
-        // Para cada vehículo, obtenemos sus documentos
         for (const vehiculo of vehiculos) {
-            // Documentos del conductor
             const docsConductor = await pool.query(
-                `SELECT documento, tipo_documento 
+                `SELECT documento, tipoDocumento 
                  FROM foto_documento 
-                 WHERE conductor_id = $1`, 
-                [vehiculo.conductor_id]
+                 WHERE conductorId = $1`, 
+                [vehiculo.conductorId]
             );
             
-            // Documentos del vehículo
             const docsVehiculo = await pool.query(
-                `SELECT documento, tipo_documento 
+                `SELECT documento, tipoDocumento 
                  FROM foto_documento_vehiculo 
-                 WHERE vehiculo_id = $1`, 
+                 WHERE vehiculoId = $1`, 
                 [vehiculo.id]
             );
-            
-            vehiculo.documentos_conductor = docsConductor.rows;
-            vehiculo.documentos_vehiculo = docsVehiculo.rows;
+
+            vehiculo.documentosConductor = docsConductor.rows;
+            vehiculo.documentosVehiculo = docsVehiculo.rows;
         }
         
         res.status(200).json({ vehiculos });
@@ -193,11 +188,11 @@ router.get("/vehiculos/conductor/:conductorId", async (req, res) => {
                 v.placa,
                 v.marca,
                 v.modelo,
-                v.estado_verificacion,
-                v.vencimiento_soat,
-                v.vencimiento_tecnomecanica
+                v.estadoVerificacion,
+                v.vencimientoSoat,
+                v.vencimientoTecnomecanica
              FROM vehiculo v
-             WHERE v.conductor_id = $1
+             WHERE v.conductorId = $1
              ORDER BY v.id`,
             [CId.rows[0].cid]
         );
@@ -223,7 +218,7 @@ router.put("/vehiculos/:id/verificacion", async (req, res) => {
 
         const result = await pool.query(
             `UPDATE vehiculo 
-             SET estado_verificacion = $1
+             SET estadoVerificacion = $1
              WHERE id = $2
              RETURNING *`,
             [estado, id]

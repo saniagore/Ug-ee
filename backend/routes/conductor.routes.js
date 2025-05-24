@@ -128,11 +128,11 @@ router.post("/login", async (req, res) => {
       celular: conductor.celular,
       nombre: conductor.nombre,
       correo: conductor.correo,
-      estadoVerificacion: conductor.estado_verificacion,
-      numeroIdentificacion: conductor.numero_identificacion,
-      tipoIdentificacion: conductor.tipo_identificacion,
-      institucionId: conductor.institucion_id,
-      tipo: conductor.categoria_viajes,
+      estadoVerificacion: conductor.estadoVerificacion,
+      numeroIdentificacion: conductor.numeroIdentificacion,
+      tipoIdentificacion: conductor.tipoIdentificacion,
+      institucionId: conductor.institucionId,
+      tipo: conductor.categoriaViajes,
       esConductor: true
     };
 
@@ -194,7 +194,7 @@ router.get("/auth/verify", async (req, res) => {
         id: conductor.id,
         celular: conductor.celular,
         nombre: conductor.nombre,
-        estado: conductor.estado_verificacion,
+        estado: conductor.estadoVerificacion,
         vehiculos: vehiculos
       },
     });

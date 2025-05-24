@@ -47,7 +47,7 @@ export const existenDatos = async (telefono, nid, correo) => {
     const validationResult = await pool.query(
       `SELECT 
         (SELECT 1 FROM usuario WHERE celular = $1 LIMIT 1) AS telefono_exists,
-        (SELECT 1 FROM usuario WHERE numero_identificacion = $2 LIMIT 1) AS nid_exists,
+        (SELECT 1 FROM usuario WHERE numeroIdentificacion = $2 LIMIT 1) AS nid_exists,
         (SELECT 1 FROM usuario WHERE correo = $3 LIMIT 1) AS correo_exists`,
       [telefono, nid, correo]
     );
@@ -79,7 +79,7 @@ export const obtenerEstadoUsuario = async (celular) => {
       throw new Error('Usuario no encontrado');
     }
     return {
-      estado_verificacion: usuario.estado_verificacion,
+      estadoVerificacion: usuario.estadoVerificacion,
     };
   } catch (err) {
     console.error("Error en obtenerEstadoUsuario:", err);
@@ -115,7 +115,7 @@ export const crearUsuario = async (formData) => {
 
     const result = await pool.query(
       `INSERT INTO usuario 
-      (nombre, correo, contraseña, celular, numero_identificacion, tipo_identificacion, institucion_id) 
+      (nombre, correo, contraseña, celular, numeroIdentificacion, tipoIdentificacion, institucionId) 
       VALUES ($1, $2, $3, $4, $5, $6, $7) 
       RETURNING *`,
       [
@@ -144,9 +144,9 @@ export const obtenerUsuarios = async(institucionId) => {
     try {
         const result = await pool.query(
             `SELECT nombre, correo, tipo, celular, 
-             estado_verificacion, codigo_estudiante,
-             numero_identificacion, tipo_identificacion 
-             FROM usuario WHERE institucion_id = $1`, 
+             estadoVerificacion, codigoEstudiante,
+             numeroIdentificacion, tipoIdentificacion 
+             FROM usuario WHERE institucionId = $1`, 
             [institucionId]
         );
         return result.rows || [];
@@ -158,7 +158,7 @@ export const obtenerUsuarios = async(institucionId) => {
 
 export const actualizarEstado = async(celular, estado) => {
   try{
-    const result = pool.query(`UPDATE usuario SET estado_verificacion = $1 WHERE celular = $2`, [estado, celular]);
+    await pool.query(`UPDATE usuario SET estadoVerificacion = $1 WHERE celular = $2`, [estado, celular]);
     return;
   }catch(error){
     throw error;

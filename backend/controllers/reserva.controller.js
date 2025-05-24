@@ -14,7 +14,7 @@ export const crearReserva = async (formData) => {
         
         const result = await pool.query(`
             INSERT INTO reserva
-            (codigo_qr, fecha, hora_salida, punto_partida, punto_destino, usuario_id)
+            (codigoQr, fecha, horaSalida, puntoPartida, puntoDestino, usuarioId)
             SELECT $1,$2,$3,$4,$5, u.UsId
             FROM usuario u
             WHERE u.id = $6
@@ -37,11 +37,11 @@ export const crearReserva = async (formData) => {
 export const obtenerHistorialReservas = async (usuarioId) => {
     try{
         const result = await pool.query(`
-            SELECT r.id, r.estado, r.codigo_qr, r.fecha, r.hora_salida, r.punto_partida, r.punto_destino
+            SELECT r.id, r.estado, r.codigoQr, r.fecha, r.horaSalida, r.puntoPartida, r.puntoDestino
             FROM reserva r
-            INNER JOIN usuario u ON r.usuario_id = u.UsId
+            INNER JOIN usuario u ON r.usuarioId = u.UsId
             WHERE u.UsId = $1
-            ORDER BY r.hora_salida DESC
+            ORDER BY r.horaSalida DESC
             `, [usuarioId]);
 
         return result.rows;
