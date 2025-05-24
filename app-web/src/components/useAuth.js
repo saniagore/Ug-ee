@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigation } from "./navigations";
 
 export function useAuthVerification() {
-  const { goToHomePage, goToWaitForValid } = useNavigation();
+  const { goToHomePage, goToValidando } = useNavigation();
 
   useEffect(() => {
     const verifyAuth = async () => {
@@ -15,13 +15,14 @@ export function useAuthVerification() {
         );
         if (!response.ok) goToHomePage();
         const data = await response.json();
-        if (!data.user.estado) goToWaitForValid();
+        console.log(data);
+        if (!data.user.estado) goToValidando();
       } catch (error) {
         goToHomePage();
       }
     };
     verifyAuth();
-  }, [goToHomePage, goToWaitForValid]);
+  }, [goToHomePage, goToValidando]);
 
   const handleLogout = async () => {
     try {

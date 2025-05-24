@@ -28,7 +28,7 @@ export default function Register({ onBack }) {
   const handleAlertClose = () => {
         setShowAlert(false);
         if (alertType === "success") {
-            onBack(); // Solo llamamos onBack() cuando se cierra la alerta de éxito
+            onBack(); 
         }
     };
 
@@ -62,7 +62,7 @@ export default function Register({ onBack }) {
       ValidarDatos.correo(formData.correo);
       ValidarDatos.contraseña(formData.contraseña);
       ValidarDatos.Identificacion(formData.numeroIdentificacion);
-      ValidarDatos.tipo_documento(formData.tipoIdentificacion);
+      ValidarDatos.tipoDocumento(formData.tipoIdentificacion);
       ValidarDatos.institucion(formData.institucion);
     } catch (err) {
       setAlertMessage(err.message);

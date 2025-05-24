@@ -54,7 +54,6 @@ export default function MenuInstitucion({ onLogout }) {
       } catch (error) {
         console.error("Error al verificar autenticación:", error);
         localStorage.removeItem("jwt_token");
-        console.log("2");
         goToHomePage();
       }
     };
@@ -75,6 +74,7 @@ export default function MenuInstitucion({ onLogout }) {
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
         const data = await userQuery.obtenerUsuarios(decodedToken.id);
         setUsuarios(data || []);
+        console.log(data);
       } catch (error) {
         console.error("Error al cargar usuarios:", error);
       }
@@ -97,7 +97,7 @@ export default function MenuInstitucion({ onLogout }) {
       setUsuarios(
         usuarios.map((usuario) =>
           usuario.celular === celular
-            ? { ...usuario, estado_verificacion: !estadoActual }
+            ? { ...usuario, estadoverificacion: !estadoActual }
             : usuario
         )
       );
@@ -290,7 +290,7 @@ function UserRow({
         {usuario.celular}
       </td>
       <td style={{ textAlign: "center", padding: "0.5rem" }}>
-        {usuario.numero_identificacion || "Sin número"}
+        {usuario.numeroidentificacion || "Sin número"}
       </td>
       <VerificationCell
         usuario={usuario}
@@ -326,10 +326,10 @@ function VerificationCell({
         cursor: "pointer",
       }}
       onClick={() =>
-        handleEstadoClick(usuario.celular, usuario.estado_verificacion)
+        handleEstadoClick(usuario.celular, usuario.estadoverificacion)
       }
     >
-      {usuario.estado_verificacion ? (
+      {usuario.estadoverificacion ? (
         <span style={{ color: "green" }}>Verificado</span>
       ) : (
         <span style={{ color: "orange" }}>Pendiente</span>

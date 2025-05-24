@@ -3,7 +3,7 @@ import React from 'react';
 
 import HomePage from './views/home/homePage.js';
 import Validando from './views/validando.js';
-import Menu from './views/menu.jsx';
+import Menu from './views/user/menu.jsx';
 import Colaborador from './views/home/colaborador.js';
 
 import VerificarColaborador from './views/verificarColaborador.js';

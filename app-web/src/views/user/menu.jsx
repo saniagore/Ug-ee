@@ -10,12 +10,12 @@ import {
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
-import "./user/css/Menu.css";
-import { useAuthVerification } from "../components/useAuth";
-import Servicio from "./user/pedirVehiculo";
-import HistorialViajes from "./user/historialViajes";
-import AgendarReserva from "./user/agendarReserva";
-import HistorialReservas from "./user/historialReservas";
+import "./css/Menu.css";
+import { useAuthVerification } from "../../components/useAuth";
+import Servicio from "./pedirVehiculo";
+import HistorialViajes from "./historialViajes";
+import AgendarReserva from "./agendarReserva";
+import HistorialReservas from "./historialReservas";
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
