@@ -166,10 +166,10 @@ router.post("/login", async (req, res) => {
     const payload = {
       id: result.institucion.id,
       nombre: result.institucion.nombre,
-      colorPrimario: result.institucion.colorPrimario,
-      colorSecundario: result.institucion.colorSecundario,
+      colorPrimario: result.institucion.colorprimario,
+      colorSecundario: result.institucion.colorsecundario,
       direccion: result.institucion.direccion,
-      estadoVerificacion: result.institucion.estadoVerificacion,
+      estadoVerificacion: result.institucion.estadoverificacion,
       esInstitucion: true
     };
 

@@ -44,7 +44,7 @@ export default function MenuInstitucion({ onLogout }) {
         }
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
 
-        if (!decodedToken.estadoverificacion) {
+        if (!decodedToken.estadoVerificacion) {
           goToValidando();
           return;
         }

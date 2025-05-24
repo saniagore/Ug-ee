@@ -4,20 +4,21 @@ import { useNavigation } from '../components/navigations';
 import MenuConductor from './menuColaborador/menuConductor'; // Componente para conductores
 import MenuInstitucion from './menuColaborador/menuInstitucion'; // Componente para instituciones
 
-export default function MenuColaborador() {
+export default function VerificarColaborador() {
     const { goToHomePage, goToValidando } = useNavigation();
     const [userType, setUserType] = useState(null); // 'conductor' o 'institucion'
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+
     useEffect(() => {
         const verifyAuth = async () => {
             try {
                 const token = localStorage.getItem("jwt_token");
-                
                 if (!token) {
                     goToHomePage();
                     return;
                 }
+                
                 const decodedToken = JSON.parse(atob(token.split('.')[1]));   
                 if (decodedToken.esConductor) {
                     setUserType('conductor');
@@ -42,14 +43,11 @@ export default function MenuColaborador() {
                 if (!response.ok) {
                     throw new Error("Token inválido o expirado");
                 }
-
                 setLoading(false);
             } catch (error) {
                 console.error("Error de autenticación:", error);
                 setError(error.message);
                 localStorage.removeItem("jwt_token");
-                
-                console.log("1");
                 goToHomePage();
             }
         };

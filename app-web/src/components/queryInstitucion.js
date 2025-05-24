@@ -183,7 +183,6 @@ export class QueryInstitucion {
       if (data.token) {
         localStorage.setItem("jwt_token", data.token);
       }
-
       return data;
     } catch (error) {
       throw error;
@@ -199,6 +198,7 @@ export class QueryInstitucion {
           Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
         },
       });
+
       const data = await response.json();
       if (!response.ok) {
         if (response.status === 403) {

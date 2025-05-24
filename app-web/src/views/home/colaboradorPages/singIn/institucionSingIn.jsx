@@ -2,34 +2,6 @@ import React, { useState } from "react";
 import { QueryInstitucion } from "../../../../components/queryInstitucion";
 import { useNavigate } from 'react-router-dom';
 
-/**
- * Institution Login Component
- * 
- * @component
- * @name InstitucionLogin
- * @description Provides a login form for institution collaborators with:
- * - Credential validation
- * - Authentication flow
- * - Error handling and user feedback
- * - Navigation to institution menu upon success
- * 
- * @param {Function} onBack - Callback for returning to previous screen
- * 
- * @property {boolean} showAlert - Controls alert visibility
- * @property {string} alertMessage - Message to display in alert
- * @property {string} alertType - Alert type ('success' or 'error')
- * @property {Object} formData - Stores login form values
- * 
- * @example
- * // Usage in parent component
- * <InstitucionLogin onBack={() => setCurrentView('welcome')} />
- * 
- * @returns {React.Element} Returns a login form with:
- * - Name and password fields
- * - Form submission handling
- * - Alert notifications
- * - Navigation controls
- */
 export default function InstitucionLogin({ onBack }) {
   const [showAlert, setShowAlert] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -42,18 +14,10 @@ export default function InstitucionLogin({ onBack }) {
     contraseña: "",
   });
 
-  /**
-   * Handles form submission and authentication
-   * @async
-   * @function handleSubmit
-   * @param {Event} e - Form submission event
-   * @description Validates credentials, handles authentication, and manages navigation
-   */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      // Verify credentials
       const loginResponse = await institucionQuery.verificarColaborador(
         formData.nombre,
         formData.contraseña
@@ -62,17 +26,14 @@ export default function InstitucionLogin({ onBack }) {
       if (!loginResponse.success) {
         throw new Error(loginResponse.message || "Credenciales incorrectas");
       }
-
-      // Verify authentication status
       const verifyResponse = await institucionQuery.verifyAuth();
       if (!verifyResponse.authenticated) {
         throw new Error(verifyResponse.error || "No autenticado");
       }
 
-      // Navigate to institution menu on success
       navigate('/Colaborador/Menu');
     } catch (error) {
-      // Handle specific error cases
+
       setAlertType("error");
       let errorMessage = error.message;
 

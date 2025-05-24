@@ -6,7 +6,7 @@ import Validando from './views/validando.js';
 import Menu from './views/menu.jsx';
 import Colaborador from './views/home/colaborador.js';
 
-import MenuColaborador from './views/menuColaborador.js';
+import VerificarColaborador from './views/verificarColaborador.js';
 import GestionConductores from './views/menuColaborador/ventanasInstitucion/gestionConductores.jsx';
 import GestionVehiculos from './views/menuColaborador/ventanasInstitucion/gestionVehiculos.jsx';
 import RegistroVehiculo from './views/menuColaborador/ventanasConductor/registrarVehiculo.js';
@@ -84,7 +84,7 @@ function App() {
          */}
         <Route 
           path='/Colaborador/Menu' 
-          element={<MenuColaborador />} 
+          element={<VerificarColaborador />} 
         />
         
         {/**
@@ -139,7 +139,7 @@ function App() {
 
 /**
  * Collaborator menu component
- * @module MenuColaborador
+ * @module VerificarColaborador
  * @description Specialized menu with additional options for collaborators
  * @see {@link ./views/menuColaborador.js}
  */
