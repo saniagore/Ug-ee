@@ -22,11 +22,9 @@ const HistorialReservas = ({ onBack }) => {
         
         const reservaQuery = new QueryReserva();
         const result = await reservaQuery.historialReservas(data.user.id);
-        setReservas(result);
-
+        
         if (result.error) {
           setError(result.message);
-        
         } else {
           const reservasArray = Array.isArray(result) ? result : 
                              result.data ? result.data : 
@@ -87,6 +85,7 @@ const HistorialReservas = ({ onBack }) => {
   };
 
   const handleShowQR = (qrCode) => {
+    // Implementar lógica para mostrar el QR en un modal o nueva ventana
     window.open(qrCode, '_blank');
   };
 
@@ -139,11 +138,11 @@ const HistorialReservas = ({ onBack }) => {
                 <div className="reserva-ruta">
                   <div className="ruta-item">
                     <FaMapMarkerAlt className="origen-icon" />
-                    <span className="ruta-text">{'Origen: ' + reserva.punto_partida || 'Origen no disponible'}</span>
+                    <span className="ruta-text">{reserva.punto_partida || 'Origen no disponible'}</span>
                   </div>
                   <div className="ruta-item">
                     <FaMapMarkerAlt className="destino-icon" />
-                    <span className="ruta-text">{'Destino: ' + reserva.punto_destino || 'Destino no disponible'}</span>
+                    <span className="ruta-text">{reserva.punto_destino || 'Destino no disponible'}</span>
                   </div>
                 </div>
                 

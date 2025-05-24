@@ -8,7 +8,7 @@ const pool = new Pool(DB_CONFIG);
 export const obtenerInstitucion = async (nombre) => {
   try {
     const result = await pool.query(
-      "SELECT id, nombre, color_primario, color_secundario, logo, fecha_registro, direccion, estado_verificacion FROM institucion WHERE nombre = $1",
+      "SELECT id, nombre, colorPrimario, colorSecundario, logo, fechaRegistro, direccion, estadoVerificacion FROM institucion WHERE nombre = $1",
       [nombre]
     );
 
@@ -27,7 +27,7 @@ export const obtenerInstitucion = async (nombre) => {
 export const obtenerInstitucionPorId = async (id) => {
   try {
     const result = await pool.query(
-      "SELECT id, nombre, color_primario, color_secundario, logo, fecha_registro, direccion, estado_verificacion FROM institucion WHERE id = $1",
+      "SELECT id, nombre, colorPrimario, colorSecundario, logo, fechaRegistro, direccion, estadoVerificacion FROM institucion WHERE id = $1",
       [id]
     );
 
@@ -47,12 +47,12 @@ export const obtenerTodasInstituciones = async (pagina = 1, limite = 10, verific
   const offset = (pagina - 1) * limite;
   const params = [];
   let query = `
-    SELECT id, nombre, color_primario, color_secundario, direccion, estado_verificacion 
+    SELECT id, nombre, colorPrimario, colorSecundario, direccion, estadoVerificacion
     FROM institucion
   `;
 
   if (verificadas !== null) {
-    query += ` WHERE estado_verificacion = $1`;
+    query += ` WHERE estadoVerificacion = $1`;
     params.push(verificadas);
   }
 
@@ -94,9 +94,9 @@ export const crearInstitucion = async (formData) => {
 
     const result = await client.query(
       `INSERT INTO institucion
-      (nombre, contraseña, color_primario, color_secundario, direccion, estado_verificacion,logo)
+      (nombre, contraseña, colorPrimario, colorSecundario, direccion, estadoVerificacion, logo)
       VALUES ($1, $2, $3, $4, $5, $6, $7)
-      RETURNING id, nombre, color_primario, color_secundario, direccion, estado_verificacion`,
+      RETURNING id, nombre, colorPrimario, colorSecundario, direccion, estadoVerificacion`,
       [
         formData.nombre,
         contraseñaHasheada,
@@ -154,13 +154,13 @@ export const actualizarInstitucion = async (id, formData) => {
       UPDATE institucion SET
         nombre = COALESCE($1, nombre),
         contraseña = COALESCE($2, contraseña),
-        color_primario = COALESCE($3, color_primario),
-        color_secundario = COALESCE($4, color_secundario),
+        colorPrimario = COALESCE($3, colorPrimario),
+        colorSecundario = COALESCE($4, colorSecundario),
         logo = COALESCE($5, logo),
         direccion = COALESCE($6, direccion),
-        estado_verificacion = COALESCE($7, estado_verificacion)
+        estadoVerificacion = COALESCE($7, estadoVerificacion)
       WHERE id = $8
-      RETURNING id, nombre, color_primario, color_secundario, direccion, estado_verificacion
+      RETURNING id, nombre, colorPrimario, colorSecundario, direccion, estadoVerificacion
     `;
 
     const result = await client.query(query, [
@@ -198,7 +198,7 @@ export const actualizarInstitucion = async (id, formData) => {
 export const eliminarInstitucion = async (id) => {
   try {
     const result = await pool.query(
-      "UPDATE institucion SET estado_verificacion = FALSE WHERE id = $1 RETURNING id",
+      "UPDATE institucion SET estadoVerificacion = FALSE WHERE id = $1 RETURNING id",
       [id]
     );
 
@@ -258,10 +258,10 @@ export const obtenerEstadisticasInstitucion = async (institucionId) => {
       totalVehiculos,
       totalViajes
     ] = await Promise.all([
-      pool.query("SELECT COUNT(*) FROM persona WHERE institucion_id = $1", [institucionId]),
-      pool.query("SELECT COUNT(*) FROM conductor WHERE institucion_id = $1", [institucionId]),
-      pool.query("SELECT COUNT(*) FROM vehiculo v JOIN persona p ON v.conductor_id = p.id WHERE p.institucion_id = $1", [institucionId]),
-      pool.query("SELECT COUNT(*) FROM viaje v JOIN persona p ON v.usuario_id = p.id WHERE p.institucion_id = $1", [institucionId])
+      pool.query("SELECT COUNT(*) FROM persona WHERE institucionId = $1", [institucionId]),
+      pool.query("SELECT COUNT(*) FROM conductor WHERE institucionId = $1", [institucionId]),
+      pool.query("SELECT COUNT(*) FROM vehiculo v JOIN persona p ON v.conductorId = p.id WHERE p.institucionId = $1", [institucionId]),
+      pool.query("SELECT COUNT(*) FROM viaje v JOIN persona p ON v.usuarioId = p.id WHERE p.institucionId = $1", [institucionId])
     ]);
 
     return {

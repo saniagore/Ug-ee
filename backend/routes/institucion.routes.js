@@ -166,10 +166,10 @@ router.post("/login", async (req, res) => {
     const payload = {
       id: result.institucion.id,
       nombre: result.institucion.nombre,
-      colorPrimario: result.institucion.color_primario,
-      colorSecundario: result.institucion.color_secundario,
+      colorPrimario: result.institucion.colorPrimario,
+      colorSecundario: result.institucion.colorSecundario,
       direccion: result.institucion.direccion,
-      estadoVerificacion: result.institucion.estado_verificacion,
+      estadoVerificacion: result.institucion.estadoVerificacion,
       esInstitucion: true
     };
 
@@ -230,7 +230,7 @@ router.get("/auth/verify", async (req, res) => {
       institucion: {
         id: institucion.id,
         nombre: institucion.nombre,
-        estado: institucion.estado_verificacion,
+        estado: institucion.estadoVerificacion,
       },
     });
 
