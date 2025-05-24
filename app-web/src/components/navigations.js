@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
  * 
  * @returns {Object} Navigation methods:
  * - goToHomePage: Navigates to the home page
- * - goToWaitForValid: Navigates to the validation waiting page
+ * - goToValidando: Navigates to the validation waiting page
  * - goToMenu: Navigates to the main menu
  * - goToColaborador: Navigates to the collaborator section
  * 
@@ -33,10 +33,10 @@ export const useNavigation = () => {
   
   /**
    * Navigates to the validation waiting page
-   * @function goToWaitForValid
+   * @function goToValidando
    */
-  const goToWaitForValid = () => {
-    navigate('/WaitForValid');
+  const goToValidando = () => {
+    navigate('/Validando');
   };
 
   /**
@@ -57,7 +57,7 @@ export const useNavigation = () => {
   
   return { 
     goToHomePage, 
-    goToWaitForValid, 
+    goToValidando, 
     goToMenu, 
     goToColaborador 
   };

@@ -3,7 +3,7 @@ import UwayLogo from "../../../resources/UwayLogo.png";
 import "../../../css/homePagePhone.css";
 import { useState } from "react";
 import { QueryUser } from "../../../components/queryUser";
-import { Validar_datos } from "../../../components/dataValid";
+import { ValidarDatos } from "../../../components/validarDatos";
 import { useNavigation } from "../../../components/navigations";
 
 function usePhoneInput() {
@@ -26,7 +26,7 @@ function PhoneInput({ onRegister, onLogin, setCelular }) {
     event.preventDefault();
 
     try {
-      Validar_datos.celular(phone);
+      ValidarDatos.celular(phone);
     } catch (err) {
       setAlertMessage(err.message);
       setShowAlert(true);

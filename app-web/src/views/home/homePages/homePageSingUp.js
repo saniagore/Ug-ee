@@ -4,7 +4,7 @@ import "../../../css/homePageSingUp.css";
 import { QueryInstitucion } from "../../../components/queryInstitucion";
 import { useState, useEffect, useMemo } from "react";
 import { QueryUser } from "../../../components/queryUser";
-import { Validar_datos } from "../../../components/dataValid";
+import { ValidarDatos } from "../../../components/validarDatos";
 
 export default function Register({ onBack }) {
   const [formData, setFormData] = useState({
@@ -57,13 +57,13 @@ export default function Register({ onBack }) {
     event.preventDefault();
 
     try {
-      Validar_datos.celular(formData.celular);
-      Validar_datos.nombre(formData.nombre);
-      Validar_datos.correo(formData.correo);
-      Validar_datos.contraseña(formData.contraseña);
-      Validar_datos.Identificacion(formData.numeroIdentificacion);
-      Validar_datos.tipo_documento(formData.tipoIdentificacion);
-      Validar_datos.institucion(formData.institucion);
+      ValidarDatos.celular(formData.celular);
+      ValidarDatos.nombre(formData.nombre);
+      ValidarDatos.correo(formData.correo);
+      ValidarDatos.contraseña(formData.contraseña);
+      ValidarDatos.Identificacion(formData.numeroIdentificacion);
+      ValidarDatos.tipo_documento(formData.tipoIdentificacion);
+      ValidarDatos.institucion(formData.institucion);
     } catch (err) {
       setAlertMessage(err.message);
       setShowAlert(true);

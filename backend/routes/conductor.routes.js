@@ -13,7 +13,6 @@ import {
   obtenerDatosConductor,
   actualizarDocumentosConductor,
   obtenerVehiculosConductor,
-  actualizarUbicacionConductor,
   obtenerConductoresInstitucion,
   actualizarEstadoConductor,
   actualizarEstadoVehiculo
@@ -246,22 +245,6 @@ router.get("/vehiculos/:conductorId", async (req, res) => {
   }
 });
 
-// Actualizar ubicación del conductor
-router.post("/ubicacion", async (req, res) => {
-  try {
-    const { conductorId, latitud, longitud } = req.body;
-    
-    const result = await actualizarUbicacionConductor(conductorId, { 
-      latitud, 
-      longitud 
-    });
-    
-    res.json(result);
-  } catch (err) {
-    console.error("Error actualizando ubicación:", err);
-    res.status(500).json({ error: "Error al actualizar ubicación" });
-  }
-});
 
 // Logout del conductor
 router.post("/logout", (req, res) => {

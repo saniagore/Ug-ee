@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { QueryInstitucion } from "../../../../components/queryInstitucion";
-import { Validar_datos } from "../../../../components/dataValid";
+import { ValidarDatos } from "../../../../components/validarDatos";
 import { QueryConductor } from "../../../../components/queryConductor";
 
 export default function ColaboratorInstitucion({ onBack, onSuccess }) {
@@ -26,14 +26,14 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      Validar_datos.nombre(formData.nombre);
-      Validar_datos.contraseña(formData.contrasena);
-      Validar_datos.direccion(formData.direccion);
-      Validar_datos.Identificacion(formData.numeroIdentificacion);
-      Validar_datos.tipo_documento(formData.tipoIdentificacion);
-      Validar_datos.celular(formData.celular);
-      Validar_datos.institucion(formData.institucion);
-      Validar_datos.correo(formData.correo);
+      ValidarDatos.nombre(formData.nombre);
+      ValidarDatos.contraseña(formData.contrasena);
+      ValidarDatos.direccion(formData.direccion);
+      ValidarDatos.Identificacion(formData.numeroIdentificacion);
+      ValidarDatos.tipo_documento(formData.tipoIdentificacion);
+      ValidarDatos.celular(formData.celular);
+      ValidarDatos.institucion(formData.institucion);
+      ValidarDatos.correo(formData.correo);
       if (!formData.documentoIdentificacion)
         throw new Error("Suba un documento para identificarse");
       if (formData.tipo === "")

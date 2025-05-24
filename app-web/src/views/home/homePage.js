@@ -1,68 +1,22 @@
 import '../../css/homePagePhone.css';
-import { MapContainer, TileLayer } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
-import { useState, useEffect } from 'react';
+import { MapContainer, TileLayer } from 'react-leaflet';
+
+import { useState } from 'react';
 import { PhoneInput } from './homePages/homePagePhone';
-import Register from './homePages/homePageSingUp';
-import Login from './homePages/homePageSingIn';
 import { useNavigation } from '../../components/navigations';
 
-/**
- * Application Homepage Component
- * 
- * @component
- * @name HomePage
- * @description The main entry point of the application featuring:
- * - Authentication flow (phone input, registration, login)
- * - Interactive map display
- * - Automatic session verification
- * 
- * @property {string} currentView - Tracks current authentication view state
- * @property {Array} caliPosition - Default map coordinates [lat, lng] for Cali, Colombia
- * 
- * @example
- * // Usage as root component
- * <Route path="/" element={<HomePage />} />
- * 
- * @returns {React.Element} Returns a split-view layout with:
- * - Left panel: Authentication forms (phone input/registration/login)
- * - Right panel: Interactive map
- */
+import Register from './homePages/homePageSingUp';
+import Login from './homePages/homePageSingIn';
+
+
 function HomePage() {
     const [currentView, setCurrentView] = useState('phoneInput');
     const caliPosition = [3.375658, -76.529885];
     const { goToMenu } = useNavigation();
     const [celular,setCelular] = useState('');
-
-    /**
-     * Effect hook for session verification
-     * @effect
-     * @name checkAuth
-     * @description Checks for existing valid session on component mount
-     * and redirects to menu if user is already authenticated
-     */
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/api/usuario/auth/verify', {
-                    credentials: 'include'
-                }).catch(() => {}); 
-                
-                if (response?.ok) { 
-                    const data = await response.json();
-                    if (data.authenticated) {
-                        goToMenu(); 
-                    }
-                }
-            } catch (error) {
-                // Silent error handling for failed auth check
-            }
-        };
-    
-        checkAuth();
-    }, [goToMenu]);
 
     /**
      * Handles successful login event
@@ -117,12 +71,6 @@ function HomePage() {
     );
 }
 
-/**
- * Map container style configuration
- * @constant
- * @name mapContainerStyle
- * @type {Object}
- */
 const mapContainerStyle = { 
     width: '2000px',
     height: '900px', 

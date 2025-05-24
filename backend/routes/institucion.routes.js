@@ -230,7 +230,7 @@ router.get("/auth/verify", async (req, res) => {
       institucion: {
         id: institucion.id,
         nombre: institucion.nombre,
-        estado: institucion.estadoVerificacion,
+        estado: institucion.estadoverificacion,
       },
     });
 

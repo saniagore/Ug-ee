@@ -29,18 +29,11 @@ import { useNavigate } from "react-router-dom";
 export default function MenuInstitucion({ onLogout }) {
   const navigate = useNavigate();
   const userQuery = React.useMemo(() => new QueryUser(), []);
-  const { goToHomePage, goToWaitForValid } = useNavigation();
+  const { goToHomePage, goToValidando } = useNavigation();
   const [colorPrimario, setColorPrimario] = useState("#2c3e50");
   const [colorSecundario, setColorSecundario] = useState("#ecf0f1");
   const [usuarios, setUsuarios] = useState([]);
 
-  /**
-   * Effect hook for authentication verification and data loading
-   * @effect
-   * @name verifyAuthAndLoadData
-   * @description Verifies JWT token, checks verification status,
-   * loads institution colors and user list on component mount
-   */
   useEffect(() => {
     const verifyAuth = async () => {
       try {
@@ -49,18 +42,19 @@ export default function MenuInstitucion({ onLogout }) {
           goToHomePage();
           return;
         }
-
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
 
-        if (!decodedToken.estadoVerificacion) {
-          goToWaitForValid();
+        if (!decodedToken.estadoverificacion) {
+          goToValidando();
           return;
         }
 
         setColorPrimario(decodedToken.colorPrimario || "#2c3e50");
         setColorSecundario(decodedToken.colorSecundario || "#ecf0f1");
       } catch (error) {
+        console.error("Error al verificar autenticación:", error);
         localStorage.removeItem("jwt_token");
+        console.log("2");
         goToHomePage();
       }
     };
@@ -88,7 +82,7 @@ export default function MenuInstitucion({ onLogout }) {
 
     verifyAuth();
     fetchUsuarios();
-  }, [goToHomePage, goToWaitForValid, userQuery]);
+  }, [goToHomePage, goToValidando, userQuery]);
 
   /**
    * Handles user verification status updates

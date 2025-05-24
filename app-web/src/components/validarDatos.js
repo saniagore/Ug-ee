@@ -1,7 +1,7 @@
 /**
  * Data Validation Utility Class
  * 
- * @class Validar_datos
+ * @class ValidarDatos
  * @description Provides static methods for validating various data types with:
  * - Type checking
  * - Format validation
@@ -11,13 +11,13 @@
  * @example
  * // Example usage:
  * try {
- *   Validar_datos.celular('3101234567');
- *   Validar_datos.correo('usuario@ejemplo.com');
+ *   ValidarDatos.celular('3101234567');
+ *   ValidarDatos.correo('usuario@ejemplo.com');
  * } catch (error) {
  *   console.error(error.message);
  * }
  */
-export class Validar_datos {
+export class ValidarDatos {
   /**
    * Validates a phone number
    * @static
@@ -107,15 +107,15 @@ export class Validar_datos {
   /**
    * Validates a document type
    * @static
-   * @method tipo_documento
-   * @param {string} tipo_documento - Document type to validate
+   * @method tipoDocumento
+   * @param {string} tipoDocumento - Document type to validate
    * @throws {Error} When validation fails
    */
-  static tipo_documento(tipo_documento) {
-    if (typeof tipo_documento !== "string") {
+  static tipoDocumento(tipoDocumento) {
+    if (typeof tipoDocumento !== "string") {
       throw new Error("El tipo de documento debe ser un string");
     }
-    if (tipo_documento.trim() === "") {
+    if (tipoDocumento.trim() === "") {
       throw new Error("El tipo de documento no puede estar vacío");
     }
   }

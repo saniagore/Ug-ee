@@ -1,13 +1,16 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React from 'react';
+
 import HomePage from './views/home/homePage.js';
-import WaitForValid from './views/waitForValid.js';
+import Validando from './views/validando.js';
 import Menu from './views/menu.jsx';
 import Colaborador from './views/home/colaborador.js';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+
 import MenuColaborador from './views/menuColaborador.js';
 import GestionConductores from './views/menuColaborador/ventanasInstitucion/gestionConductores.jsx';
 import GestionVehiculos from './views/menuColaborador/ventanasInstitucion/gestionVehiculos.jsx';
 import RegistroVehiculo from './views/menuColaborador/ventanasConductor/registrarVehiculo.js';
+
 /**
  * Main application component that handles routing and navigation.
  * 
@@ -46,12 +49,12 @@ function App() {
         
         {/**
          * Route for the validation waiting page
-         * @route /WaitForValid
+         * @route /Validando
          * @description Displays a waiting screen during validation processes
          */}
         <Route 
-          path='/WaitForValid' 
-          element={<WaitForValid />} 
+          path='/Validando' 
+          element={<Validando />} 
         />
         
         {/**
@@ -115,9 +118,9 @@ function App() {
 
 /**
  * Validation waiting component
- * @module WaitForValid
+ * @module Validando
  * @description Displays a waiting state during validation processes
- * @see {@link ./views/waitForValid.js}
+ * @see {@link ./views/Validando.js}
  */
 
 /**

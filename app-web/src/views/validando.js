@@ -1,4 +1,4 @@
-import '../css/WaitForValid.css';
+import '../css/validando.css';
 import React from "react";
 import UwayLogo from '../resources/UwayLogo.png';
 import { useNavigation } from '../components/navigations';
@@ -7,7 +7,7 @@ import { useNavigation } from '../components/navigations';
  * Component that displays a waiting screen while user account is being validated.
  * 
  * @component
- * @name WaitForValid
+ * @name Validando
  * @description A full-screen view that shows a loading state while the user's account 
  * is being verified by the system. Includes the application logo, a spinner animation,
  * status message, and a logout button.
@@ -17,7 +17,7 @@ import { useNavigation } from '../components/navigations';
  * 
  * @example
  * // Usage in router configuration
- * <Route path='/WaitForValid' element={<WaitForValid />} />
+ * <Route path='/Validando' element={<Validando />} />
  * 
  * @returns {React.Element} Returns a styled div containing:
  * - Application logo
@@ -26,7 +26,7 @@ import { useNavigation } from '../components/navigations';
  * - Status message
  * - Logout button
  */
-export default function WaitForValid() {
+export default function Validando() {
   const { goToHomePage } = useNavigation();
 
   /**

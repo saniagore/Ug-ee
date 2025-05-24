@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { QueryInstitucion } from '../../../../components/queryInstitucion';
-import { Validar_datos } from '../../../../components/dataValid';
+import { ValidarDatos } from '../../../../components/validarDatos';
 
-export default function ColaboratorInstitucion({ onBack, onSuccess }) {
+export default function ColaboratorInstitucion({ onBack }) {
     const queryInstitucion = new QueryInstitucion();
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState("");
@@ -28,9 +28,9 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            Validar_datos.nombre(formData.nombre);
-            Validar_datos.contraseña(formData.contrasena);
-            Validar_datos.direccion(formData.direccion);
+            ValidarDatos.nombre(formData.nombre);
+            ValidarDatos.contraseña(formData.contrasena);
+            ValidarDatos.direccion(formData.direccion);
             if(!formData.logo) throw new Error('Introduzca el logo de la institución.');
 
             const formDataToSend = new FormData();

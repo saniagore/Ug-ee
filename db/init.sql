@@ -77,9 +77,9 @@ CREATE TABLE conductor (
     direccion VARCHAR(255) NOT NULL,
     fechaRegistro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     puntuacionPromedio DECIMAL(3, 2) DEFAULT 0.00,
-    categoriaViajes categoria_viaje
+    categoriaViajes categoria_viaje,
     registroAcademico BYTEA,
-    cantidadViajes INTEGER DEFAULT 0,
+    cantidadViajes INTEGER DEFAULT 0
 ) INHERITS (persona);
 
 CREATE TABLE foto_documento (
@@ -114,10 +114,22 @@ CREATE TABLE foto_documento_vehiculo (
     PRIMARY KEY (vehiculoId, tipoDocumento) 
 );
 
+CREATE TABLE reserva(
+    id SERIAL PRIMARY KEY,
+    estado estado_reserva NOT NULL DEFAULT 'pendiente',
+    codigoQr BYTEA NOT NULL,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    horaSalida TIMESTAMP NOT NULL,
+    puntoPartida VARCHAR(50) NOT NULL,
+    puntoDestino VARCHAR(50) NOT NULL,
+    usuarioId INTEGER NOT NULL,
+    FOREIGN KEY (usuarioId) REFERENCES usuario(usId) ON DELETE CASCADE
+);
+
 CREATE TABLE viaje(
     id SERIAL PRIMARY KEY,
     estado categorias_estado_viaje NOT NULL DEFAULT 'pendiente',
-    fechaSalida TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    fechaSalida TIMESTAMP,
     puntoPartida VARCHAR(50) NOT NULL,
     rutaPlanificada GEOGRAPHY(LINESTRING, 4326),
     puntoDestino VARCHAR(50) NOT NULL,
@@ -148,24 +160,12 @@ CREATE TABLE calificacion(
     FOREIGN KEY (viajeId) REFERENCES viaje(id) ON DELETE CASCADE
 );
 
-CREATE TABLE reserva(
-    id SERIAL PRIMARY KEY,
-    estado estado_reserva NOT NULL DEFAULT 'pendiente',
-    codigoQr BYTEA NOT NULL,
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    horaSalida TIMESTAMP NOT NULL,
-    puntoPartida VARCHAR(50) NOT NULL,
-    puntoDestino VARCHAR(50) NOT NULL,
-    usuarioId INTEGER NOT NULL,
-    FOREIGN KEY (usuarioId) REFERENCES usuario(usId) ON DELETE CASCADE
-);
-
 CREATE TABLE reporte(
     id SERIAL PRIMARY KEY,
     descripcion TEXT NOT NULL,
     tipo categoria_reporte NOT NULL,
     viajeId INTEGER NOT NULL,
-    FOREIGN KEY (viajeId) REFERENCES viaje(id) ON DELETE CASCADE,
+    FOREIGN KEY (viajeId) REFERENCES viaje(id) ON DELETE CASCADE
 );
 
 -- CREACION DE INDICES -- 

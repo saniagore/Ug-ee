@@ -1,7 +1,6 @@
 import { PORT } from "./config.js";
 import express from "express";
 import cors from "cors";
-import multer from "multer";
 import cookieParser from "cookie-parser";
 
 import usuarioRoutes from "./routes/usuario.routes.js";
