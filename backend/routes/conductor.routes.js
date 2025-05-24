@@ -100,7 +100,6 @@ router.post("/registro", upload.single('documentoIdentificacion'), async (req, r
   }
 });
 
-// Login de conductor
 router.post("/login", async (req, res) => {
   try {
     const { celular, contraseña } = req.body;
@@ -121,17 +120,17 @@ router.post("/login", async (req, res) => {
         error: "Contraseña incorrecta" 
       });
     }
-
+    console.log(conductor);
     const payload = {
       id: conductor.id,
       celular: conductor.celular,
       nombre: conductor.nombre,
       correo: conductor.correo,
-      estadoVerificacion: conductor.estadoVerificacion,
-      numeroIdentificacion: conductor.numeroIdentificacion,
-      tipoIdentificacion: conductor.tipoIdentificacion,
-      institucionId: conductor.institucionId,
-      tipo: conductor.categoriaViajes,
+      estadoVerificacion: conductor.estadoverificacion,
+      numeroIdentificacion: conductor.numeroidentificacion,
+      tipoIdentificacion: conductor.tipoidentificacion,
+      institucionId: conductor.institucionid,
+      tipo: conductor.categoriaviajes,
       esConductor: true
     };
 

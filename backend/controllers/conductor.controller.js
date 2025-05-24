@@ -87,9 +87,9 @@ export const obtenerEstadoConductor = async (celular) => {
     const vehiculoVerificado = vehiculoResult.rows.length > 0 ? vehiculoResult.rows[0].estadoVerificacion : false;
 
     return {
-      conductorVerificado: conductor.estadoVerificacion,
+      conductorVerificado: conductor.estadoverificacion,
       vehiculoVerificado: vehiculoVerificado,
-      completo: conductor.estadoVerificacion && vehiculoVerificado
+      completo: conductor.estadoverificacion && vehiculoVerificado
     };
   } catch (err) {
     console.error("Error en obtenerEstadoConductor:", err);
@@ -134,7 +134,7 @@ export const crearConductor = async (formData) => {
         (nombre, correo, contraseña, celular, numeroIdentificacion, 
          tipoIdentificacion, institucionId, direccion, categoriaViajes) 
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-        RETURNING cid`,  // Cambiado para retornar específicamente el CId
+        RETURNING cid`,
         [
           formData.nombre,
           formData.correo,
@@ -152,7 +152,7 @@ export const crearConductor = async (formData) => {
 
       if (formData.documentoIdentificacion) {
         await client.query(
-          `INSERT INTO fotoDocumento 
+          `INSERT INTO foto_documento 
           (conductorId, documento) 
           VALUES ($1, $2)`,
           [conductorId, formData.documentoIdentificacion.buffer]
@@ -241,7 +241,6 @@ export const obtenerVehiculosConductor = async (conductorId) => {
 
 export const obtenerConductoresInstitucion = async (institucionId) => {
   try {
-    // Primero obtenemos los conductores básicos
     const conductoresResult = await pool.query(
       `SELECT id,cid, nombre, correo, celular, estadoVerificacion, 
        codigoEstudiante, tipoIdentificacion, direccion 
@@ -254,7 +253,7 @@ export const obtenerConductoresInstitucion = async (institucionId) => {
       conductoresResult.rows.map(async (conductor) => {
         const documentosResult = await pool.query(
           `SELECT documento, tipoDocumento 
-           FROM fotoDocumento 
+           FROM foto_documento 
            WHERE conductorId = $1`,
           [conductor.cid]
         );

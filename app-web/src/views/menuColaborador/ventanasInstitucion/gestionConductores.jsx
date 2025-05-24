@@ -61,6 +61,7 @@ export default function AdministrarConductores() {
         }
         
         setConductores(data || []);
+        console.log(data);
         setDocumentosConductores(docsConductores);
       } catch (error) {
         console.error("Error al obtener conductores:", error);
@@ -83,7 +84,7 @@ export default function AdministrarConductores() {
       setConductores(
         conductores.map((conductor) =>
           conductor.id === conductorId
-            ? { ...conductor, estado_verificacion: !estadoActual }
+            ? { ...conductor, estadoverificacion: !estadoActual }
             : conductor
         )
       );
@@ -167,9 +168,9 @@ export default function AdministrarConductores() {
               padding: "0.5rem",
               cursor: "pointer",
             }}
-            onClick={(e) => handleEstadoClick(conductor.id, conductor.estado_verificacion, e)}
+            onClick={(e) => handleEstadoClick(conductor.id, conductor.estadoverificacion, e)}
           >
-            {conductor.estado_verificacion ? (
+            {conductor.estadoverificacion ? (
               <span style={{ color: "green" }}>Verificado</span>
             ) : (
               <span style={{ color: "orange" }}>Pendiente</span>
@@ -257,7 +258,7 @@ export default function AdministrarConductores() {
                           </div>
                           <div>
                             <strong>Estado:</strong>{" "}
-                            {vehiculo.estado_verificacion ? (
+                            {vehiculo.estadoverificacion ? (
                               <span style={{ color: "green" }}>Verificado</span>
                             ) : (
                               <span style={{ color: "orange" }}>Pendiente</span>

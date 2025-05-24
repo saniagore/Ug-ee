@@ -76,7 +76,6 @@ export class QueryConductor {
             if (!response.ok) {
                 throw new Error(data.message || "Error en autenticación");
             }
-
             if (data.token) {
                 localStorage.setItem("jwt_token", data.token);
                 localStorage.setItem("user_type", "conductor");

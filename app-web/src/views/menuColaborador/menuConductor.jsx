@@ -22,8 +22,9 @@ export default function MenuConductor({ onLogout }) {
     }
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
+      console.log(decoded);
       if (!decoded.estadoVerificacion) {
-        navigate("/WaitForValid");
+        navigate("/Validando");
         return;
       }
       setUserData(decoded);

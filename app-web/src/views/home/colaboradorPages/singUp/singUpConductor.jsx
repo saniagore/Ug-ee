@@ -30,7 +30,7 @@ export default function ColaboratorInstitucion({ onBack, onSuccess }) {
       ValidarDatos.contraseña(formData.contrasena);
       ValidarDatos.direccion(formData.direccion);
       ValidarDatos.Identificacion(formData.numeroIdentificacion);
-      ValidarDatos.tipo_documento(formData.tipoIdentificacion);
+      ValidarDatos.tipoDocumento(formData.tipoIdentificacion);
       ValidarDatos.celular(formData.celular);
       ValidarDatos.institucion(formData.institucion);
       ValidarDatos.correo(formData.correo);

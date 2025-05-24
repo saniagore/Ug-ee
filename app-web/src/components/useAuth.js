@@ -15,7 +15,6 @@ export function useAuthVerification() {
         );
         if (!response.ok) goToHomePage();
         const data = await response.json();
-        console.log(data);
         if (!data.user.estado) goToValidando();
       } catch (error) {
         goToHomePage();
