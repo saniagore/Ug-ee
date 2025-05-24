@@ -1,7 +1,7 @@
 import React from 'react';
 import HomePage from './views/home/homePage.js';
 import WaitForValid from './views/waitForValid.js';
-import Menu from './views/menu.js';
+import Menu from './views/menu.jsx';
 import Colaborador from './views/home/colaborador.js';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import MenuColaborador from './views/menuColaborador.js';

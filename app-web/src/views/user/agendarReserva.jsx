@@ -8,7 +8,8 @@ const ReservaForm = ({ onBack }) => {
   const [formData, setFormData] = useState({
     fechaHora: '',
     destino: '',
-    direccion: ''
+    direccion: '',
+    usuarioId: '',
   });
   const [errors, setErrors] = useState({});
 
@@ -42,8 +43,16 @@ const ReservaForm = ({ onBack }) => {
       return;
     }
     
-    await reservaQuery.registrarReserva(formData);
-    console.log('Datos enviados:', formData);
+    const token = localStorage.getItem("jwt_token");
+    const decoded = JSON.parse(atob(token.split(".")[1]));
+    formData.usuarioId = decoded.id;
+
+    try{
+      await reservaQuery.registrarReserva(formData);
+    }catch(error){
+      alert('Error al agendar la reserva. Por favor, inténtalo de nuevo.');
+    }
+
     alert('¡Reserva agendada con éxito!');
   };
 

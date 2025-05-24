@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
-import { FaCar, FaCalendarAlt, FaHistory, FaSignOutAlt, FaMapMarkerAlt, FaUniversity, FaBus, FaGlobeAmericas } from 'react-icons/fa';
+import {
+  FaCar,
+  FaCalendarAlt,
+  FaHistory,
+  FaSignOutAlt,
+  FaMapMarkerAlt,
+} from "react-icons/fa";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
@@ -62,16 +68,9 @@ export default function Menu() {
                 onChange={handleServiceTypeChange}
                 className="service-select"
               >
-                <option value="campus">
-                  <FaUniversity style={{ marginRight: "8px" }} /> Campus
-                </option>
-                <option value="metropolitano">
-                  <FaBus style={{ marginRight: "8px" }} /> Metropolitano
-                </option>
-                <option value="intermunicipal">
-                  <FaGlobeAmericas style={{ marginRight: "8px" }} />{" "}
-                  Intermunicipal
-                </option>
+                <option value="campus">Campus</option>
+                <option value="metropolitano">Metropolitano</option>
+                <option value="intermunicipal">Intermunicipal</option>
               </select>
 
               <button
@@ -94,6 +93,13 @@ export default function Menu() {
                 className="reserve-button"
               >
                 <FaHistory style={{ marginRight: "8px" }} /> Historial de Viajes
+              </button>
+
+              <button
+                onClick={() => setCurrentView("ReservasH")}
+                className="reserve-button"
+              >
+                <FaHistory style={{ marginRight: "8px" }} /> Historial de Reservas
               </button>
 
               <button onClick={handleLogout} className="logout-button">
@@ -121,6 +127,15 @@ export default function Menu() {
 
         {currentView === "reserva" && (
           <AgendarReserva onBack={() => setCurrentView("menu")} />
+        )}
+        {currentView === "reservasH" && (
+          <div>
+            <h2 className="panel-title">
+              <FaHistory style={{ marginRight: "10px" }} /> Historial de
+              Reservas
+            </h2>
+            <p>Aquí se mostrarán las reservas realizadas.</p>
+          </div>
         )}
       </div>
 

@@ -140,6 +140,7 @@ CREATE TABLE reserva(
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     hora_salida TIMESTAMP NOT NULL,
     punto_partida VARCHAR(50) NOT NULL,
+    punto_destino VARCHAR(50) NOT NULL,
     usuario_id INTEGER NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuario(UsId) ON DELETE CASCADE
 );
