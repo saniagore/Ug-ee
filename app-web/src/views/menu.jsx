@@ -15,6 +15,7 @@ import { useAuthVerification } from "../components/useAuth";
 import Servicio from "./user/pedirVehiculo";
 import HistorialViajes from "./user/historialViajes";
 import AgendarReserva from "./user/agendarReserva";
+import HistorialReservas from "./user/historialReservas";
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
@@ -96,7 +97,7 @@ export default function Menu() {
               </button>
 
               <button
-                onClick={() => setCurrentView("ReservasH")}
+                onClick={() => setCurrentView("reservasH")}
                 className="reserve-button"
               >
                 <FaHistory style={{ marginRight: "8px" }} /> Historial de Reservas
@@ -129,13 +130,7 @@ export default function Menu() {
           <AgendarReserva onBack={() => setCurrentView("menu")} />
         )}
         {currentView === "reservasH" && (
-          <div>
-            <h2 className="panel-title">
-              <FaHistory style={{ marginRight: "10px" }} /> Historial de
-              Reservas
-            </h2>
-            <p>Aquí se mostrarán las reservas realizadas.</p>
-          </div>
+          <HistorialReservas onBack={() => setCurrentView("menu")} />
         )}
       </div>
 

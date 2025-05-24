@@ -45,7 +45,7 @@ export class QueryReserva {
         };
       }
 
-      return result;
+      return result.result;
     }catch(error){
       return {
         error: true,
