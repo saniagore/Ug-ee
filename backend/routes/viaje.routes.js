@@ -44,31 +44,7 @@ router.get("/historial/:usuarioId", async (req, res) => {
   try {
     const { usuarioId } = req.params;
 
-    const result = await pool.query(
-      `SELECT 
-      v.tipoViaje, 
-      v.puntoPartida, 
-      v.puntoDestino, 
-      v.estado, 
-      v.vehiculoId, 
-      v.fechaSalida,
-      b.placa,
-      u.usid
-   FROM usuario u
-   LEFT JOIN viaje v ON v.usuarioId = u.usid
-   LEFT JOIN vehiculo b ON v.vehiculoId = b.id
-   WHERE u.id = $1
-   ORDER BY v.fechaSalida DESC
-   LIMIT 10`,
-      [usuarioId]
-    );
-
-    if (result.rows.length === 0 || !result.rows[0].usid) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    const viajes = result.rows.filter((row) => row.tipoViaje !== null);
-
+    
     res.status(200).json({ viajes });
   } catch (error) {
     res.status(500).json({ error: "Error al obtener el historial de viajes" });

@@ -61,7 +61,6 @@ export default function AdministrarConductores() {
         }
         
         setConductores(data || []);
-        console.log(data);
         setDocumentosConductores(docsConductores);
       } catch (error) {
         console.error("Error al obtener conductores:", error);
