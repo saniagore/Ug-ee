@@ -1,18 +1,19 @@
-import React, { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { QueryViaje } from "../../components/queryViaje";
 import { QueryVehicle } from "../../components/queryVehiculo";
 import { styles } from "../../css/menuConductor";
 
+import CrearRutaViaje from "./ventanasConductor/crearRuta";
+
 export default function MenuConductor({ onLogout }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState(null);
-  const [viajes, setViajes] = useState([]);
-  const [viajesAct, setViajesAct] = useState([]);
   const [vehiculos, setVehiculos] = useState([]);
   const [vehiculoActivo, setVehiculoActivo] = useState(null);
   const [activeTab, setActiveTab] = useState("viajes");
+  const [showNuevaRutaForm, setShowNuevaRutaForm] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("jwt_token");
@@ -42,16 +43,11 @@ export default function MenuConductor({ onLogout }) {
       const viajeQuery = new QueryViaje();
       const vehiculoQuery = new QueryVehicle();
 
-      const [viajesRes, vehiculosRes, viajesActRes ] = await Promise.all([
-        viajeQuery.ObtenerViajeConductor(userData.id, userData.tipo),
+      const [vehiculosRes] = await Promise.all([
         vehiculoQuery.obtenerVehiculosPorConductor(userData.id),
-        viajeQuery.viajesActivos(userData.id),
       ]);
-      console.log(viajesActRes);
-      setViajes(viajesRes?.result || []);
-      setVehiculos(vehiculosRes || []);
-      setViajesAct(viajesActRes?.result || []);
 
+      setVehiculos(vehiculosRes || []);
       setVehiculoActivo('');
 
     } catch (error) {
@@ -90,32 +86,6 @@ export default function MenuConductor({ onLogout }) {
     }
   };
 
-  const handleCancelarViaje = async(viajeId) => {
-    const queryViaje = new QueryViaje();
-    await queryViaje.cancelarViaje(viajeId);
-    await cargarDatos();
-  };
-
-  const handleTerminarViaje = async(viajeId) => {
-    const queryViaje = new QueryViaje();
-    await queryViaje.terminarViaje(viajeId);
-    await cargarDatos();
-  };
-
-  const handleAceptarViaje = async (viajeId) => {
-    if (!vehiculoActivo) {
-      alert("Selecciona un vehículo primero");
-      return;
-    }
-    if (viajesAct.some(viaje => viaje.estado === 'en curso')) {
-      alert("Ya tienes un viaje en curso");
-      return;
-    }
-    const viajeQuery = new QueryViaje();
-    await viajeQuery.aceptarViaje(viajeId, vehiculoActivo.id);
-    await cargarDatos();
-  };
-
   const handleRegistrarVehiculo = async() => {
     navigate("/Colaborador/Registrar-vehiculo");
   };
@@ -141,7 +111,7 @@ export default function MenuConductor({ onLogout }) {
           }}
           onClick={() => setActiveTab("viajes")}
         >
-          Viajes Disponibles
+          Crear Ruta de Viaje
         </div>
         <div
           style={{
@@ -241,188 +211,33 @@ export default function MenuConductor({ onLogout }) {
 
       {activeTab === "viajes" && (
         <div style={styles.card}>
-          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Viajes Disponibles</h2>
+          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Crear Nueva Ruta de Viaje</h2>
 
-          {loading ? (
-            <div style={styles.loading}>Cargando viajes...</div>
-          ) : !vehiculoActivo ? (
-            <div style={styles.emptyState}>
-              <p>
-                Selecciona un vehículo en la pestaña "Mis Vehículos" para ver
-                los viajes disponibles
-              </p>
-            </div>
-          ) : viajes.length === 0 ? (
-            <div style={styles.emptyState}>
-              <p>No hay viajes disponibles en este momento</p>
-            </div>
+          {!showNuevaRutaForm ? (
+            <>
+              <button
+                style={{ ...styles.button, ...styles.primaryButton, marginBottom: "20px" }}
+                onClick={() => setShowNuevaRutaForm(true)}
+              >
+                Crear Nueva Ruta
+              </button>
+            </>
           ) : (
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Origen</th>
-                  <th style={styles.tableHeader}>Destino</th>
-                  <th style={styles.tableHeader}>Tipo</th>
-                  <th style={styles.tableHeader}>Pasajero</th>
-                  <th style={styles.tableHeader}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {viajes.map((viaje) => (
-                  <tr
-                    key={viaje.viaje_id}
-                    style={{
-                      backgroundColor:
-                        viajes.indexOf(viaje) % 2 === 0 ? "#fff" : "#f8f9fa",
-                    }}
-                  >
-                    <td style={styles.tableCell}>
-                      {viaje.punto_partida || "No especificado"}
-                    </td>
-                    <td style={styles.tableCell}>
-                      {viaje.punto_destino || "No especificado"}
-                    </td>
-                    <td style={styles.tableCell}>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          background:
-                            viaje.tipo_viaje === "Urgente"
-                              ? "#e74c3c"
-                              : "#7e46d2",
-                          color: "white",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {viaje.tipo_viaje || "Regular"}
-                      </span>
-                    </td>
-                    <td style={styles.tableCell}>
-                      <div>
-                        <div style={{ fontWeight: "500" }}>
-                          {viaje.nombre_usuario || "N/A"}
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#7f8c8d" }}>
-                          {viaje.contacto_usuario || "Sin contacto"}
-                        </div>
-                      </div>
-                    </td>
-                    <td style={styles.tableCell}>
-                      <button
-                        style={{ ...styles.button, ...styles.primaryButton }}
-                        onClick={() => handleAceptarViaje(viaje.viaje_id)}
-                      >
-                        Aceptar Viaje
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <CrearRutaViaje
+              conductorId={userData?.id}
+              vehiculoActivo={vehiculoActivo}
+              onRutaCreada={() => {
+                setShowNuevaRutaForm(false);
+                cargarDatos();
+              }}
+              onCancelar={() => setShowNuevaRutaForm(false)}
+            />
           )}
         </div>
       )}
       {activeTab === "viajes Activos" && (
         <div style={styles.card}>
-          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Viajes Activos</h2>
-          {loading ? (
-            <div style={styles.loading}>Cargando viajes activos...</div>
-          ) : viajesAct.length === 0 ? (
-            <div style={styles.emptyState}>
-              <p>No tienes viajes activos actualmente</p>
-            </div>
-          ) : (
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.tableHeader}>Origen</th>
-                  <th style={styles.tableHeader}>Destino</th>
-                  <th style={styles.tableHeader}>Tipo</th>
-                  <th style={styles.tableHeader}>Pasajero</th>
-                  <th style={styles.tableHeader}>Estado</th>
-                  <th style={styles.tableHeader}>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {viajesAct.map((viaje) => (
-                  <tr
-                    key={viaje.viaje_id}
-                    style={{
-                      backgroundColor:
-                        viajesAct.indexOf(viaje) % 2 === 0 ? "#fff" : "#f8f9fa",
-                    }}
-                  >
-                    <td style={styles.tableCell}>
-                      {viaje.punto_partida || "No especificado"}
-                    </td>
-                    <td style={styles.tableCell}>
-                      {viaje.punto_destino || "No especificado"}
-                    </td>
-                    <td style={styles.tableCell}>
-                      <span
-                        style={{
-                          display: "inline-block",
-                          padding: "4px 8px",
-                          borderRadius: "4px",
-                          background: "#7e46d2",
-                          color: "white",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                        }}
-                      >
-                        {viaje.tipo_viaje || "Regular"}
-                      </span>
-                    </td>
-                    <td style={styles.tableCell}>
-                      <div>
-                        <div style={{ fontWeight: "500" }}>
-                          {viaje.nombre || "N/A"}
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#7f8c8d" }}>
-                          {viaje.celular || "Sin contacto"}
-                        </div>
-                      </div>
-                    </td>
-                    <td style={styles.tableCell}>
-
-                      {viaje.estado === 'en curso' && (
-                        <span>En curso</span>
-                      )}
-
-                      {viaje.estado === 'finalizado' && (
-                        <span>Finalizado</span>
-                      )}
-
-                    </td>
-                    <td style={styles.tableCell}>
-                      {viaje.estado === 'en curso' && (
-                        <>
-                          <button
-                            style={{ ...styles.button, ...styles.primaryButton, backgroundColor: "#9f5eca" }}
-                            onClick={() => handleCancelarViaje(viaje.viaje_id)}
-                          >
-                            Cancelar Viaje
-                          </button>
-                          <button
-                            style={{ ...styles.button, ...styles.primaryButton, marginLeft: 10 }}
-                            onClick={() => handleTerminarViaje(viaje.viaje_id)}
-                          >
-                            Terminar Viaje
-                          </button>
-                        </>
-                      )}
-                      {viaje.estado === 'finalizado' && (
-                        <span>Su viaje ha finalizado</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Mis Viajes Activos</h2>
         </div>
       )}
     </div>
