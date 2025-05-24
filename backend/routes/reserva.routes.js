@@ -13,7 +13,16 @@ router.post("/registrar", async(req,res) =>{
     }
 });
 
+router.get("/historial/:usuarioId", async(req,res) =>{
+    try{
+        const { usuarioId } =  req.params;
+        
 
+
+    }catch(error){
+        res.status(500).json({ error: "Error al obtener el historial de reservas" });
+    }
+});
 
 
 

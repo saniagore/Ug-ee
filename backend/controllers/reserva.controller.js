@@ -12,7 +12,8 @@ export const crearReserva = async (formData) => {
         const qrCode = await QRCode.toDataURL(qrContent);
 
         const fechaHora = new Date(formData.fechaHora);
-
+        
+        /*
         const result = await pool.query(`
             INSERT INTO reserva
             (codigo_qr, fecha, hora_salida, punto_partida, punto_destino, usuario_id)
@@ -27,8 +28,16 @@ export const crearReserva = async (formData) => {
             ]);
 
         return result.rows[0];
+        */
     } catch (error) {
         console.error(error);
+        throw error;
+    }
+};
+
+export const obtenerHistorialReservas = async (usuarioId) => {
+    try{
+    }catch(error){
         throw error;
     }
 };
