@@ -4,6 +4,7 @@ import { QueryVehicle } from "../../components/queryVehiculo";
 import { styles } from "../../css/menuConductor";
 
 import CrearRutaViaje from "./ventanasConductor/crearRuta";
+import ViajesActivos from "./ventanasConductor/viajesActivos";
 
 export default function MenuConductor({ onLogout }) {
   const navigate = useNavigate();
@@ -247,8 +248,17 @@ export default function MenuConductor({ onLogout }) {
         </div>
       )}
       {activeTab === "viajes Activos" && (
-        <div style={styles.card}>
+        <div style={{...styles.card,
+                maxHeight: "80vh",
+                overflowY: "auto",
+                padding: "0 15px",
+                border: "1px solid #eee",
+                borderRadius: "8px",
+        }}>
           <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Mis Viajes Activos</h2>
+          <ViajesActivos
+            conductorId={userData?.id}
+          />
         </div>
       )}
     </div>

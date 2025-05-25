@@ -144,7 +144,7 @@ export class QueryViaje {
           details: result.details,
         };
       }
-      return result;
+      return result.result;
     } catch (error) {
       return {
         error: true,

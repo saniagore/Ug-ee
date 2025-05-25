@@ -50,17 +50,13 @@ export const aceptarViaje = async (vehiculoId, viajeId) => {
 
 export const viajesActivos = async (conductorId) => {
   try {
-    const viajesEnCurso = await pool.query(
-      `SELECT v.id  AS viajeId, v.puntoPartida, v.puntoDestino, v.usuarioId, v.tipoViaje, v.estado, u.nombre, u.celular
-        FROM viaje v
-        JOIN usuario u ON v.usuarioId = u.UsId
-        JOIN vehiculo b ON v.vehiculoId = b.id
-        JOIN conductor c ON b.conductorId = c.CId
-        WHERE c.id = $1  
-        AND v.estado = 'en curso'
-        OR v.estado = 'finalizado'`,
-      [conductorId]
-    );
+    const viajesEnCurso = await pool.query(`
+      SELECT v.id, v.estado, v.fechaSalida, v.puntoPartida, v.puntoDestino, v.tipoViaje, v.cantidadPasajeros, v.rutaPlanificada
+      FROM viaje v
+      JOIN vehiculo ve ON v.vehiculoId = ve.id
+      JOIN conductor c ON ve.conductorId = c.cId
+      WHERE c.id = $1
+    `, [conductorId]);
 
     return viajesEnCurso.rows;
   } catch (error) {
@@ -85,13 +81,8 @@ export const terminarViaje = async(viajeId) =>{
 
 export const cancelarViaje = async(viajeId) => {
   try{
-    const result = await pool.query(`
-      UPDATE viaje
-      SET vehiculoId = NULL, estado = 'pendiente'
-      WHERE id = $1`,
-    [viajeId]);
-
-    return result;
+    //implementar viaje
+    console.log("cancelado");
   }catch(error){
     throw error;
   }
@@ -106,7 +97,6 @@ async function obtenerDireccion(latitud, longitud) {
         
         if (!data.address) return "Dirección no encontrada";
         
-        // Construye la dirección con los campos disponibles
         const parts = [];
         if (data.address.road) parts.push(data.address.road);
         if (data.address.house_number) parts.push(data.address.house_number);
@@ -138,26 +128,28 @@ export const crearRutaViaje = async(viajeData) => {
       .join(', ');
     const rutaPlanificadaWKT = `LINESTRING(${coordenadasWKT})`;
 
+    const fechaHoraSalida = `${viajeData.fechaSalida} ${viajeData.horaSalida}`;
+
     const result = await pool.query(`
       INSERT INTO viaje (
-        puntoPartida, 
-        puntoDestino, 
-        fechaSalida,
-        tipoViaje,
-        cantidadPasajeros,
-        rutaPlanificada,
-        vehiculoId
+      puntoPartida, 
+      puntoDestino, 
+      fechaSalida,
+      tipoViaje,
+      cantidadPasajeros,
+      rutaPlanificada,
+      vehiculoId
       )
       VALUES ($1, $2, $3, $4, $5, ST_GeomFromText($6, 4326), $7)
       RETURNING *`, 
       [
-        direccionOrigen, 
-        direccionDestino, 
-        viajeData.fechaSalida, 
-        viajeData.tipoViaje, 
-        viajeData.cantidadPasajeros, 
-        rutaPlanificadaWKT, 
-        viajeData.vehiculoId
+      direccionOrigen, 
+      direccionDestino, 
+      fechaHoraSalida, 
+      viajeData.tipoViaje, 
+      viajeData.cantidadPasajeros, 
+      rutaPlanificadaWKT, 
+      viajeData.vehiculoId
       ]);
 
     return result.rows[0];

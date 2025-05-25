@@ -25,16 +25,6 @@ router.post("/crear", async (req, res) => {
   }
 });
 
-router.get("/historial/:usuarioId", async (req, res) => {
-  try {
-    const { usuarioId } = req.params;
-    
-    res.status(200).json({ viajes });
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener el historial de viajes" });
-  }
-});
-
 router.post("/viajes-disponibles", async (req, res) => {
   try {
     const { conductorId, categoriaViaje } = req.body;
