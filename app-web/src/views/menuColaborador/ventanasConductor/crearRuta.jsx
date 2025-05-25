@@ -8,7 +8,7 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
   const [nuevaRuta, setNuevaRuta] = useState({
     puntoPartida: "",
     puntoDestino: "",
-    tipoViaje: "campus",
+    tipoViaje: JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo,
     cantidadPasajeros: 1,
     fechaSalida: "",
     horaSalida: "",
@@ -20,7 +20,6 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
   const [error, setError] = useState(null);
   const [loadingVehiculos, setLoadingVehiculos] = useState(true);
 
-  // Cargar vehículos del conductor
   useEffect(() => {
     const cargarVehiculos = async () => {
       try {
@@ -71,7 +70,6 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
 
   const handleSubmitNuevaRuta = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError(null);
 
     if (!nuevaRuta.vehiculoId) {

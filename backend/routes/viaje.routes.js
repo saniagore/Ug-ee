@@ -15,7 +15,7 @@ const router = Router();
 
 router.post("/crear", async (req, res) => {
   try{
-    const { viajeData } = req.body;
+    const viajeData = req.body;
     console.log(viajeData);
   }catch(error){
     res.status(500).json({ error: "Error al crear el viaje" });
