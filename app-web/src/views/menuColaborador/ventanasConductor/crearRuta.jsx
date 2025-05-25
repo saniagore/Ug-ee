@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { QueryViaje } from "../../../components/queryViaje";
-import { styles } from "../../../css/menuConductor";
+import { styles } from "../css/crearRuta";
 
 const CrearRutaViaje = ({ conductorId, vehiculoActivo, onRutaCreada, onCancelar }) => {
   const [nuevaRuta, setNuevaRuta] = useState({
@@ -11,6 +11,7 @@ const CrearRutaViaje = ({ conductorId, vehiculoActivo, onRutaCreada, onCancelar 
     fechaSalida: "",
     horaSalida: ""
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
