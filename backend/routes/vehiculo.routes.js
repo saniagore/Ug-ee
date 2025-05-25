@@ -56,6 +56,7 @@ router.post(
         placa,
         marca,
         modelo,
+        cantidadPasajeros,
         vencimientoSoat,
         vencimientoTecnomecanica,
       } = req.body;
@@ -77,8 +78,8 @@ router.post(
         `INSERT INTO vehiculo 
         (categoria, color, placa, marca, modelo, 
          vencimientoSoat, vencimientoTecnomecanica, 
-         codigoQr, conductorId)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         codigoQr, conductorId, cantidadPasajeros)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         RETURNING id`,
         [
           categoria,
@@ -90,6 +91,7 @@ router.post(
           new Date(vencimientoTecnomecanica),
           qrCodeBuffer,
           conductorIdFk,
+          cantidadPasajeros,
         ]
       );
 
@@ -126,8 +128,9 @@ router.post(
   }
 );
 
-router.get("/vehiculos", async (req, res) => {
+router.get("/vehiculos/:institucionId", async (req, res) => {
     try {
+        const { institucionId } = req.params;
         const result = await pool.query(
             `SELECT DISTINCT ON (v.id)
                 v.id,
@@ -145,7 +148,9 @@ router.get("/vehiculos", async (req, res) => {
                 c.celular AS conductorCelular
             FROM Vehiculo v
             JOIN conductor c ON v.conductorId = c.CId
-            ORDER BY v.id`
+            JOIN institucion i ON c.institucionId = i.id
+            WHERE i.id = $1
+            ORDER BY v.id`, [institucionId]
         );
 
         const vehiculos = result.rows;
@@ -167,7 +172,8 @@ router.get("/vehiculos", async (req, res) => {
             vehiculo.documentosConductor = docsConductor.rows;
             vehiculo.documentosVehiculo = docsVehiculo.rows;
         }
-        
+      
+
         res.status(200).json({ vehiculos });
     } catch (error) {
         console.error(error);
@@ -197,9 +203,6 @@ router.get("/vehiculos/conductor/:conductorId", async (req, res) => {
             [CId.rows[0].cid]
         );
 
-        if (result.rows.length === 0) {
-            return res.status(404).json({ error: "No se encontraron vehículos para este conductor" });
-        }
         res.status(200).json({ vehiculos: result.rows });
     } catch (error) {
         console.error(error);

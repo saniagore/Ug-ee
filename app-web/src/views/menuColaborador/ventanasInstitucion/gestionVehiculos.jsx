@@ -57,18 +57,18 @@ export default function GestionVehiculos() {
         setColorPrimario(decodedToken.colorPrimario || "#2c3e50");
         setColorSecundario(decodedToken.colorSecundario || "#ecf0f1");
 
-        const vehiculosData = await vehiculoQuery.obtenerVehiculos();
+        const vehiculosData = await vehiculoQuery.obtenerVehiculos(decodedToken.id);
         const docsVehiculos = {};
         const conductoresMap = {};
 
         for (const vehiculo of vehiculosData) {
           try {
-            const docsVehiculo = vehiculo.documentos_vehiculo;
+            const docsVehiculo = vehiculo.documentosVehiculo;
             docsVehiculos[vehiculo.id] = docsVehiculo;
             const conductor = {
-              nombre: vehiculo.conductor_nombre,
-              correo: vehiculo.conductor_correo,
-              celular: vehiculo.conductor_celular,
+              nombre: vehiculo.conductornombre,
+              correo: vehiculo.conductorcorreo,
+              celular: vehiculo.conductorcelular,
             };
             conductoresMap[vehiculo.id] = conductor;
           } catch (error) {
@@ -101,7 +101,7 @@ export default function GestionVehiculos() {
       setVehiculos(
         vehiculos.map((vehiculo) =>
           vehiculo.id === vehiculoId
-            ? { ...vehiculo, estado_verificacion: !estadoActual }
+            ? { ...vehiculo, estadoverificacion: !estadoActual }
             : vehiculo
         )
       );
@@ -176,10 +176,10 @@ export default function GestionVehiculos() {
               cursor: "pointer",
             }}
             onClick={(e) =>
-              handleEstadoClick(vehiculo.id, vehiculo.estado_verificacion, e)
+              handleEstadoClick(vehiculo.id, vehiculo.estadoverificacion, e)
             }
           >
-            {vehiculo.estado_verificacion ? (
+            {vehiculo.estadoverificacion ? (
               <span style={{ color: "green" }}>Verificado</span>
             ) : (
               <span style={{ color: "orange" }}>Pendiente</span>
@@ -218,12 +218,12 @@ export default function GestionVehiculos() {
                     </div>
                     <div>
                       <strong>Vencimiento SOAT:</strong>{" "}
-                      {new Date(vehiculo.vencimiento_soat).toLocaleDateString()}
+                      {new Date(vehiculo.vencimientosoat).toLocaleDateString()}
                     </div>
                     <div>
                       <strong>Vencimiento Tecnomecánica:</strong>{" "}
                       {new Date(
-                        vehiculo.vencimiento_tecnomecanica
+                        vehiculo.vencimientotecnomecanica
                       ).toLocaleDateString()}
                     </div>
                   </div>

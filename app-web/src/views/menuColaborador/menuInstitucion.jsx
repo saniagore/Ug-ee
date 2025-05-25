@@ -74,7 +74,6 @@ export default function MenuInstitucion({ onLogout }) {
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
         const data = await userQuery.obtenerUsuarios(decodedToken.id);
         setUsuarios(data || []);
-        console.log(data);
       } catch (error) {
         console.error("Error al cargar usuarios:", error);
       }

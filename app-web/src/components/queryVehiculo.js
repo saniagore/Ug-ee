@@ -33,11 +33,11 @@ export class QueryVehicle {
     }
   }
 
-  async obtenerVehiculos() {
+  async obtenerVehiculos(institucionId) {
     try {
       const token = localStorage.getItem("jwt_token");
       const response = await fetch(
-        `${QueryVehicle.BASE_URL}/vehiculos`,
+        `${QueryVehicle.BASE_URL}/vehiculos/${institucionId}`,
         {
           method: "GET",
           headers: {

@@ -23,7 +23,7 @@ import { QueryVehicle } from "../../../components/queryVehiculo";
  */
 export default function RegistroVehiculo() {
   const navigate = useNavigate();
-  const { goToHomePage, goToWaitForValid } = useNavigation();
+  const { goToHomePage, goToValidando } = useNavigation();
   const vehicleQuery = React.useMemo(() => new QueryVehicle(), []);
   
   // Purple color scheme
@@ -39,22 +39,17 @@ export default function RegistroVehiculo() {
     placa: "",
     marca: "",
     modelo: "",
-    vencimiento_soat: "",
-    vencimiento_tecnomecanica: "",
-    soat_file: null,
-    tecnomecanica_file: null
+    cantidadPasajeros: "",
+    vencimientoSoat: "",
+    vencimientoTecnomecanica: "",
+    soatFile: null,
+    tecnomecanicaFile: null
   });
   
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionSuccess, setSubmissionSuccess] = useState(false);
 
-  /**
-   * Effect hook for authentication verification
-   * @effect
-   * @name verifyAuth
-   * @description Verifies JWT token on component mount
-   */
   useEffect(() => {
     const verifyAuth = async () => {
       try {
@@ -68,17 +63,17 @@ export default function RegistroVehiculo() {
 
 
         if (!decodedToken.estadoVerificacion) {
-          goToWaitForValid();
+          goToValidando();
           return;
         }
       } catch (error) {
-        localStorage.removeItem("jwt_token");
+        localStorage.removeItem("jwtToken");
         goToHomePage();
       }
     };
 
     verifyAuth();
-  }, [goToHomePage, goToWaitForValid]);
+  }, [goToHomePage, goToValidando]);
 
   /**
    * Handles form input changes
@@ -128,10 +123,13 @@ export default function RegistroVehiculo() {
     if (!formData.placa) newErrors.placa = "Ingresa la placa del vehículo";
     if (!formData.marca) newErrors.marca = "Ingresa la marca del vehículo";
     if (!formData.modelo) newErrors.modelo = "Ingresa el modelo del vehículo";
-    if (!formData.vencimiento_soat) newErrors.vencimiento_soat = "Ingresa la fecha de vencimiento del SOAT";
-    if (!formData.vencimiento_tecnomecanica) newErrors.vencimiento_tecnomecanica = "Ingresa la fecha de vencimiento de la técnomecánica";
-    if (!formData.soat_file) newErrors.soat_file = "Sube el archivo del SOAT";
-    if (!formData.tecnomecanica_file) newErrors.tecnomecanica_file = "Sube el archivo de la técnomecánica";
+    if (!formData.vencimientoSoat) newErrors.vencimientoSoat = "Ingresa la fecha de vencimiento del SOAT";
+    if (!formData.vencimientoTecnomecanica) newErrors.vencimientoTecnomecanica = "Ingresa la fecha de vencimiento de la técnomecánica";
+    if (!formData.soatFile) newErrors.soatFile = "Sube el archivo del SOAT";
+    if (!formData.tecnomecanicaFile) newErrors.tecnomecanicaFile = "Sube el archivo de la técnomecánica";
+    if (!formData.cantidadPasajeros || formData.cantidadPasajeros <= 0) {
+      newErrors.cantidadPasajeros = "Ingresa una cantidad válida de pasajeros";
+    }
     
     // Plate format validation (basic check)
     if (formData.placa && !/^[A-Za-z0-9]{5,7}$/.test(formData.placa)) {
@@ -142,17 +140,17 @@ export default function RegistroVehiculo() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
-    if (formData.vencimiento_soat) {
-      const soatDate = new Date(formData.vencimiento_soat);
+    if (formData.vencimientoSoat) {
+      const soatDate = new Date(formData.vencimientoSoat);
       if (soatDate <= today) {
-        newErrors.vencimiento_soat = "El SOAT debe estar vigente (fecha futura)";
+        newErrors.vencimientoSoat = "El SOAT debe estar vigente (fecha futura)";
       }
     }
     
-    if (formData.vencimiento_tecnomecanica) {
-      const tecnoDate = new Date(formData.vencimiento_tecnomecanica);
+    if (formData.vencimientoTecnomecanica) {
+      const tecnoDate = new Date(formData.vencimientoTecnomecanica);
       if (tecnoDate <= today) {
-        newErrors.vencimiento_tecnomecanica = "La técnomecánica debe estar vigente (fecha futura)";
+        newErrors.vencimientoTecnomecanica = "La técnomecánica debe estar vigente (fecha futura)";
       }
     }
     
@@ -179,20 +177,19 @@ export default function RegistroVehiculo() {
       const token = localStorage.getItem("jwt_token");
       const decodedToken = JSON.parse(atob(token.split(".")[1]));
       
-      // Prepare form data for submission
       const formDataToSend = new FormData();
       formDataToSend.append('categoria', formData.categoria);
       formDataToSend.append('color', formData.color);
       formDataToSend.append('placa', formData.placa);
       formDataToSend.append('marca', formData.marca);
       formDataToSend.append('modelo', formData.modelo);
-      formDataToSend.append('vencimiento_soat', formData.vencimiento_soat);
-      formDataToSend.append('vencimiento_tecnomecanica', formData.vencimiento_tecnomecanica);
-      formDataToSend.append('soat_file', formData.soat_file);
-      formDataToSend.append('tecnomecanica_file', formData.tecnomecanica_file);
-      formDataToSend.append('conductor_id', decodedToken.id);
+      formDataToSend.append('vencimientoSoat', formData.vencimientoSoat);
+      formDataToSend.append('vencimientoTecnomecanica', formData.vencimientoTecnomecanica);
+      formDataToSend.append('soatFile', formData.soatFile);
+      formDataToSend.append('tecnomecanicaFile', formData.tecnomecanicaFile);
+      formDataToSend.append('conductorId', decodedToken.id);
+      formDataToSend.append('cantidadPasajeros', formData.cantidadPasajeros);
       
-      // Call API to register vehicle
       await vehicleQuery.registrarVehiculo(formDataToSend);
       
       setSubmissionSuccess(true);
@@ -289,32 +286,53 @@ export default function RegistroVehiculo() {
               <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.color}</span>
             )}
           </div>
-          
-          {/* Plate Number */}
-          <div style={{ marginBottom: "1.5rem" }}>
-            <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold", color: colorPrimario }}>
-              Placa del Vehículo *
-            </label>
-            <input
-              type="text"
-              name="placa"
-              value={formData.placa}
-              onChange={handleChange}
-              placeholder="Ej: ABC123"
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: "4px",
-                border: `1px solid ${errors.placa ? "red" : "#ddd"}`,
-                backgroundColor: "#fff"
-              }}
-            />
-            {errors.placa && (
-              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.placa}</span>
-            )}
+          <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold", color: colorPrimario }}>
+                Placa del Vehículo *
+              </label>
+              <input
+                type="text"
+                name="placa"
+                value={formData.placa}
+                onChange={handleChange}
+                placeholder="Ej: ABC123"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  borderRadius: "4px",
+                  border: `1px solid ${errors.placa ? "red" : "#ddd"}`,
+                  backgroundColor: "#fff"
+                }}
+              />
+              {errors.placa && (
+                <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.placa}</span>
+              )}
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold", color: colorPrimario }}>
+                Cantidad de Pasajeros *
+              </label>
+              <input
+                type="number"
+                name="cantidadPasajeros"
+                value={formData.cantidadPasajeros || ""}
+                onChange={handleChange}
+                min={1}
+                placeholder="Ej: 4"
+                style={{
+                  width: "100%",
+                  padding: "0.5rem",
+                  borderRadius: "4px",
+                  border: `1px solid ${errors.cantidadPasajeros ? "red" : "#ddd"}`,
+                  backgroundColor: "#fff"
+                }}
+              />
+              {errors.cantidadPasajeros && (
+                <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.cantidadPasajeros}</span>
+              )}
+            </div>
           </div>
-          
-          {/* Brand and Model */}
           <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
             <div style={{ flex: 1 }}>
               <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold", color: colorPrimario }}>
@@ -367,19 +385,19 @@ export default function RegistroVehiculo() {
             </label>
             <input
               type="date"
-              name="vencimiento_soat"
-              value={formData.vencimiento_soat}
+              name="vencimientoSoat"
+              value={formData.vencimientoSoat}
               onChange={handleChange}
               style={{
                 width: "100%",
                 padding: "0.5rem",
                 borderRadius: "4px",
-                border: `1px solid ${errors.vencimiento_soat ? "red" : "#ddd"}`,
+                border: `1px solid ${errors.vencimientoSoat ? "red" : "#ddd"}`,
                 backgroundColor: "#fff"
               }}
             />
-            {errors.vencimiento_soat && (
-              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.vencimiento_soat}</span>
+            {errors.vencimientoSoat && (
+              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.vencimientoSoat}</span>
             )}
           </div>
           
@@ -390,19 +408,19 @@ export default function RegistroVehiculo() {
             </label>
             <input
               type="date"
-              name="vencimiento_tecnomecanica"
-              value={formData.vencimiento_tecnomecanica}
+              name="vencimientoTecnomecanica"
+              value={formData.vencimientoTecnomecanica}
               onChange={handleChange}
               style={{
                 width: "100%",
                 padding: "0.5rem",
                 borderRadius: "4px",
-                border: `1px solid ${errors.vencimiento_tecnomecanica ? "red" : "#ddd"}`,
+                border: `1px solid ${errors.vencimientoTecnomecanica ? "red" : "#ddd"}`,
                 backgroundColor: "#fff"
               }}
             />
-            {errors.vencimiento_tecnomecanica && (
-              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.vencimiento_tecnomecanica}</span>
+            {errors.vencimientoTecnomecanica && (
+              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.vencimientoTecnomecanica}</span>
             )}
           </div>
           
@@ -413,19 +431,19 @@ export default function RegistroVehiculo() {
             </label>
             <input
               type="file"
-              name="soat_file"
+              name="soatFile"
               onChange={handleFileChange}
               accept=".pdf,.jpg,.jpeg,.png"
               style={{
                 width: "100%",
                 padding: "0.5rem",
                 borderRadius: "4px",
-                border: `1px solid ${errors.soat_file ? "red" : "#ddd"}`,
+                border: `1px solid ${errors.soatFile ? "red" : "#ddd"}`,
                 backgroundColor: "#fff"
               }}
             />
-            {errors.soat_file && (
-              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.soat_file}</span>
+            {errors.soatFile && (
+              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.soatFile}</span>
             )}
           </div>
           
@@ -436,19 +454,19 @@ export default function RegistroVehiculo() {
             </label>
             <input
               type="file"
-              name="tecnomecanica_file"
+              name="tecnomecanicaFile"
               onChange={handleFileChange}
               accept=".pdf,.jpg,.jpeg,.png"
               style={{
                 width: "100%",
                 padding: "0.5rem",
                 borderRadius: "4px",
-                border: `1px solid ${errors.tecnomecanica_file ? "red" : "#ddd"}`,
+                border: `1px solid ${errors.tecnomecanicaFile ? "red" : "#ddd"}`,
                 backgroundColor: "#fff"
               }}
             />
-            {errors.tecnomecanica_file && (
-              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.tecnomecanica_file}</span>
+            {errors.tecnomecanicaFile && (
+              <span style={{ color: "red", fontSize: "0.875rem" }}>{errors.tecnomecanicaFile}</span>
             )}
           </div>
           

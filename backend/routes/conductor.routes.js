@@ -120,7 +120,6 @@ router.post("/login", async (req, res) => {
         error: "Contraseña incorrecta" 
       });
     }
-    console.log(conductor);
     const payload = {
       id: conductor.id,
       celular: conductor.celular,

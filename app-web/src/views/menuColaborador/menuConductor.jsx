@@ -1,6 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { QueryViaje } from "../../components/queryViaje";
 import { QueryVehicle } from "../../components/queryVehiculo";
 import { styles } from "../../css/menuConductor";
 
@@ -23,7 +22,7 @@ export default function MenuConductor({ onLogout }) {
     }
     try {
       const decoded = JSON.parse(atob(token.split(".")[1]));
-      console.log(decoded);
+
       if (!decoded.estadoVerificacion) {
         navigate("/Validando");
         return;
@@ -40,7 +39,6 @@ export default function MenuConductor({ onLogout }) {
 
     setLoading(true);
     try {
-      const viajeQuery = new QueryViaje();
       const vehiculoQuery = new QueryVehicle();
 
       const [vehiculosRes] = await Promise.all([
