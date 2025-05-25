@@ -46,8 +46,7 @@ export default function MenuConductor({ onLogout }) {
       ]);
 
       setVehiculos(vehiculosRes || []);
-      setVehiculoActivo('');
-
+      setVehiculoActivo("");
     } catch (error) {
       console.error("Error al cargar datos:", error);
     } finally {
@@ -84,10 +83,9 @@ export default function MenuConductor({ onLogout }) {
     }
   };
 
-  const handleRegistrarVehiculo = async() => {
+  const handleRegistrarVehiculo = async () => {
     navigate("/Colaborador/Registrar-vehiculo");
   };
-
 
   return (
     <div style={styles.container}>
@@ -209,27 +207,43 @@ export default function MenuConductor({ onLogout }) {
 
       {activeTab === "viajes" && (
         <div style={styles.card}>
-          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Crear Nueva Ruta de Viaje</h2>
+          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>
+            Crear Nueva Ruta de Viaje
+          </h2>
 
           {!showNuevaRutaForm ? (
             <>
               <button
-                style={{ ...styles.button, ...styles.primaryButton, marginBottom: "20px" }}
+                style={{
+                  ...styles.button,
+                  ...styles.primaryButton,
+                  marginBottom: "20px",
+                }}
                 onClick={() => setShowNuevaRutaForm(true)}
               >
                 Crear Nueva Ruta
               </button>
             </>
           ) : (
-            <CrearRutaViaje
-              conductorId={userData?.id}
-              vehiculoActivo={vehiculoActivo}
-              onRutaCreada={() => {
-                setShowNuevaRutaForm(false);
-                cargarDatos();
+            <div
+              style={{
+                maxHeight: "80vh",
+                overflowY: "auto",
+                padding: "0 15px",
+                border: "1px solid #eee",
+                borderRadius: "8px",
               }}
-              onCancelar={() => setShowNuevaRutaForm(false)}
-            />
+            >
+              <CrearRutaViaje
+                conductorId={userData?.id}
+                vehiculoActivo={vehiculoActivo}
+                onRutaCreada={() => {
+                  setShowNuevaRutaForm(false);
+                  cargarDatos();
+                }}
+                onCancelar={() => setShowNuevaRutaForm(false)}
+              />
+            </div>
           )}
         </div>
       )}

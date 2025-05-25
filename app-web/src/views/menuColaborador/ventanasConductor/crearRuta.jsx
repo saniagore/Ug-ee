@@ -6,7 +6,6 @@ import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet'
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Configuración de iconos para Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -15,10 +14,13 @@ L.Icon.Default.mergeOptions({
 });
 
 const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
+  const token = localStorage.getItem("jwt_token");
+  const decodedToken = JSON.parse(atob(token.split(".")[1]));
+
   const [nuevaRuta, setNuevaRuta] = useState({
     puntoPartida: "",
     puntoDestino: "",
-    tipoViaje: JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo,
+    tipoViaje: decodedToken.tipo,
     cantidadPasajeros: 1,
     fechaSalida: "",
     horaSalida: "",
@@ -39,9 +41,6 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
     const cargarVehiculos = async () => {
       try {
         const vehiculoQuery = new QueryVehicle();
-        const token = localStorage.getItem("jwt_token");
-        const decodedToken = JSON.parse(atob(token.split(".")[1]));
-
         const vehiculosData = await vehiculoQuery.obtenerVehiculosPorConductor(decodedToken.id);
         setVehiculos(vehiculosData);
 
@@ -61,7 +60,7 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
     };
 
     cargarVehiculos();
-  }, [conductorId]);
+  }, [decodedToken.id]);
 
   const handleMapClick = (e) => {
     if (mapMode === 'draw') {
@@ -84,7 +83,7 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
 
   const handleNuevaRutaChange = (e) => {
     const { name, value } = e.target;
-    
+
     if (name === "vehiculoId") {
       const vehiculoSeleccionado = vehiculos.find(v => v.id === value);
       setNuevaRuta(prev => ({
@@ -197,7 +196,7 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
   return (
     <div style={{ 
       ...styles.card,
-      maxHeight: '60vh',
+      maxHeight: '640vh',
       overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column'
@@ -281,7 +280,7 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
         border: '1px solid #e2e8f0'
       }}>
         <MapContainer
-          center={[4.60971, -74.08175]}
+          center={[3.374733, -76.535007]}
           zoom={12}
           style={{ height: '100%', width: '100%' }}
           ref={mapRef}
@@ -410,14 +409,13 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
           </label>
           <select
             name="tipoViaje"
-            value={JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo}
+            value={decodedToken.tipo}
             onChange={handleNuevaRutaChange}
             style={styles.select}
             required
           >
-            <option value={JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo}>
-              {JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo.charAt(0).toUpperCase() + 
-               JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo.slice(1).toLowerCase()}
+            <option value={decodedToken.tipo}>
+              {decodedToken.tipo.charAt(0).toUpperCase() + decodedToken.tipo.slice(1).toLowerCase()}
             </option>
           </select>
         </div>
