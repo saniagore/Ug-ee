@@ -81,8 +81,7 @@ export const terminarViaje = async(viajeId) =>{
 
 export const cancelarViaje = async(viajeId) => {
   try{
-    //implementar viaje
-    console.log("cancelado");
+    await pool.query(`DELETE FROM viaje WHERE id = $1`, [viajeId]);
   }catch(error){
     throw error;
   }
