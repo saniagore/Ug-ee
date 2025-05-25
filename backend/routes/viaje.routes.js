@@ -13,37 +13,18 @@ const { Pool } = pg;
 const pool = new Pool(DB_CONFIG);
 const router = Router();
 
-router.post("/solicitar-viaje", async (req, res) => {
-  try {
-    const { puntoPartida, puntoDestino, tipoViaje, usuarioId } = req.body;
-
-    const crearViaje = await pool.query(
-      `INSERT INTO viaje(puntoPartida, puntoDestino, usuarioId, tipoViaje) 
-             SELECT $1, $2, usid, $4 
-             FROM usuario 
-             WHERE id = $3
-             RETURNING *`,
-      [puntoPartida, puntoDestino, usuarioId, tipoViaje]
-    );
-
-    if (crearViaje.rows.length === 0) {
-      return res.status(404).json({ error: "Usuario no encontrado" });
-    }
-
-    res.status(201).json({
-      message: "Viaje solicitado correctamente",
-      viaje: crearViaje.rows[0],
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Error en el servidor" });
+router.post("/crear", async (req, res) => {
+  try{
+    const { viajeData } = req.body;
+    console.log(viajeData);
+  }catch(error){
+    res.status(500).json({ error: "Error al crear el viaje" });
   }
 });
 
 router.get("/historial/:usuarioId", async (req, res) => {
   try {
     const { usuarioId } = req.params;
-
     
     res.status(200).json({ viajes });
   } catch (error) {
@@ -58,16 +39,6 @@ router.post("/viajes-disponibles", async (req, res) => {
     res.status(200).json({ result });
   } catch (error) {
     res.status(500).json({ error: "Error al obtener los viajes disponibles" });
-  }
-});
-
-router.post("/aceptar-viaje", async (req, res) => {
-  try {
-    const { vehiculoId, viajeId } = req.body;
-    const result = await aceptarViaje(vehiculoId, viajeId);
-    res.status(200).json({ result });
-  } catch (error) {
-    res.status(500).json({ error: "Error al aceptar el viaje" });
   }
 });
 

@@ -196,7 +196,8 @@ router.get("/vehiculos/conductor/:conductorId", async (req, res) => {
                 v.modelo,
                 v.estadoVerificacion,
                 v.vencimientoSoat,
-                v.vencimientoTecnomecanica
+                v.vencimientoTecnomecanica,
+                v.cantidadPasajeros
              FROM vehiculo v
              WHERE v.conductorId = $1
              ORDER BY v.id`,
