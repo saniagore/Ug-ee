@@ -2,7 +2,7 @@ import { Router } from "express";
 import { DB_CONFIG } from "../config.js";
 import {
   viajesDisponibles,
-  aceptarViaje,
+  crearRutaViaje,
   viajesActivos,
   terminarViaje,
   cancelarViaje,
@@ -16,8 +16,11 @@ const router = Router();
 router.post("/crear", async (req, res) => {
   try{
     const viajeData = req.body;
-    console.log(viajeData);
+    const result = await crearRutaViaje(viajeData);
+    return res.status(201).json({ result });
+
   }catch(error){
+    console.error(error);
     res.status(500).json({ error: "Error al crear el viaje" });
   }
 });

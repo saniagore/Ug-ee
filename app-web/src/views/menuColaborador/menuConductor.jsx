@@ -235,7 +235,6 @@ export default function MenuConductor({ onLogout }) {
               }}
             >
               <CrearRutaViaje
-                conductorId={userData?.id}
                 vehiculoActivo={vehiculoActivo}
                 onRutaCreada={() => {
                   setShowNuevaRutaForm(false);
