@@ -2,16 +2,33 @@ export class QueryViaje {
   static BASE_URL = "http://localhost:5000/api/viaje";
 
   async crearViaje(viajeData) {
-    try{
+    try {
+      // Convertir las coordenadas a formato compatible con tu backend
+      const rutaPlanificada = viajeData.rutaPlanificada.map((point) => ({
+        latitud: point.lat,
+        longitud: point.lng,
+      }));
+
+      const ubicacionPartida = {
+        latitud: viajeData.ubicacionPartida.lat,
+        longitud: viajeData.ubicacionPartida.lng,
+      };
+
       const response = await fetch(`${QueryViaje.BASE_URL}/crear`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
         },
-        body: JSON.stringify(viajeData),
+        body: JSON.stringify({
+          ...viajeData,
+          rutaPlanificada,
+          ubicacionPartida,
+        }),
       });
+
       const result = await response.json();
+
       if (!response.ok) {
         return {
           error: true,
@@ -19,8 +36,9 @@ export class QueryViaje {
           details: result.details,
         };
       }
+
       return result;
-    }catch(error){
+    } catch (error) {
       return {
         error: true,
         message: "Error de conexión al servidor",
@@ -29,7 +47,6 @@ export class QueryViaje {
     }
   }
 
-  
   async obtenerHistorialViajes(usuarioId) {
     try {
       const response = await fetch(
@@ -116,7 +133,9 @@ export class QueryViaje {
 
   async viajesActivos(conductorId) {
     try {
-      const response = await fetch(`${QueryViaje.BASE_URL}/viajes-activos/${conductorId}`);
+      const response = await fetch(
+        `${QueryViaje.BASE_URL}/viajes-activos/${conductorId}`
+      );
       const result = await response.json();
       if (!response.ok) {
         return {
@@ -135,8 +154,8 @@ export class QueryViaje {
     }
   }
 
-  async terminarViaje(viajeId){
-    try{
+  async terminarViaje(viajeId) {
+    try {
       const response = await fetch(`${QueryViaje.BASE_URL}/terminar-viaje`, {
         method: "POST",
         headers: {
@@ -155,7 +174,7 @@ export class QueryViaje {
         };
       }
       return result;
-    }catch(error){
+    } catch (error) {
       return {
         error: true,
         message: "Error de conexión al servidor",
@@ -164,8 +183,8 @@ export class QueryViaje {
     }
   }
 
-  async cancelarViaje(viajeId){
-    try{
+  async cancelarViaje(viajeId) {
+    try {
       const response = await fetch(`${QueryViaje.BASE_URL}/cancelar-viaje`, {
         method: "POST",
         headers: {
@@ -184,7 +203,7 @@ export class QueryViaje {
         };
       }
       return result;
-    }catch(error){
+    } catch (error) {
       return {
         error: true,
         message: "Error de conexión al servidor",

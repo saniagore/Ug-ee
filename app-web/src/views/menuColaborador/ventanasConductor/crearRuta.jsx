@@ -1,8 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { QueryViaje } from "../../../components/queryViaje";
 import { QueryVehicle } from "../../../components/queryVehiculo";
 import { styles } from "../css/crearRuta";
+import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
+// Configuración de iconos para Leaflet
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
+});
 
 const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
   const [nuevaRuta, setNuevaRuta] = useState({
@@ -12,13 +22,18 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
     cantidadPasajeros: 1,
     fechaSalida: "",
     horaSalida: "",
-    vehiculoId: ""
+    vehiculoId: "",
+    rutaPlanificada: [],
+    ubicacionPartida: null,
+    ubicacionDestino: null
   });
 
   const [vehiculos, setVehiculos] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [loadingVehiculos, setLoadingVehiculos] = useState(true);
+  const [mapMode, setMapMode] = useState('search');
+  const mapRef = useRef(null);
 
   useEffect(() => {
     const cargarVehiculos = async () => {
@@ -29,7 +44,6 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
 
         const vehiculosData = await vehiculoQuery.obtenerVehiculosPorConductor(decodedToken.id);
         setVehiculos(vehiculosData);
-        
 
         if (vehiculosData.length === 1) {
           setNuevaRuta(prev => ({
@@ -49,10 +63,28 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
     cargarVehiculos();
   }, [conductorId]);
 
+  const handleMapClick = (e) => {
+    if (mapMode === 'draw') {
+      if (!nuevaRuta.ubicacionPartida) {
+        setNuevaRuta(prev => ({
+          ...prev,
+          ubicacionPartida: e.latlng,
+          puntoPartida: `Ubicación seleccionada (${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)})`
+        }));
+      } else if (!nuevaRuta.ubicacionDestino) {
+        setNuevaRuta(prev => ({
+          ...prev,
+          ubicacionDestino: e.latlng,
+          puntoDestino: `Ubicación seleccionada (${e.latlng.lat.toFixed(4)}, ${e.latlng.lng.toFixed(4)})`,
+          rutaPlanificada: [prev.ubicacionPartida, e.latlng]
+        }));
+      }
+    }
+  };
+
   const handleNuevaRutaChange = (e) => {
     const { name, value } = e.target;
     
-    // Si cambia el vehículo, actualizar también la cantidad máxima de pasajeros
     if (name === "vehiculoId") {
       const vehiculoSeleccionado = vehiculos.find(v => v.id === value);
       setNuevaRuta(prev => ({
@@ -68,13 +100,40 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
     }
   };
 
+  const resetRouteDrawing = () => {
+    setNuevaRuta(prev => ({
+      ...prev,
+      puntoPartida: "",
+      puntoDestino: "",
+      rutaPlanificada: [],
+      ubicacionPartida: null,
+      ubicacionDestino: null
+    }));
+  };
+
+  const calcularDistancia = (point1, point2) => {
+    const R = 6371;
+    const dLat = (point2.lat - point1.lat) * Math.PI / 180;
+    const dLon = (point2.lng - point1.lng) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(point1.lat * Math.PI / 180) * Math.cos(point2.lat * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c;
+  };
+
   const handleSubmitNuevaRuta = async (e) => {
     e.preventDefault();
     setError(null);
 
     if (!nuevaRuta.vehiculoId) {
       setError("Debes seleccionar un vehículo");
-      setLoading(false);
+      return;
+    }
+
+    if (nuevaRuta.rutaPlanificada.length < 2) {
+      setError("Debes trazar la ruta en el mapa seleccionando punto de partida y destino");
       return;
     }
 
@@ -82,13 +141,31 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
 
     if (parseInt(nuevaRuta.cantidadPasajeros) > vehiculoSeleccionado.cantidadpasajeros) {
       setError(`La cantidad de pasajeros no puede exceder ${vehiculoSeleccionado.cantidadpasajeros}`);
-      setLoading(false);
       return;
     }
 
     try {
+      setLoading(true);
       const viajeQuery = new QueryViaje();
-      await viajeQuery.crearViaje(nuevaRuta);
+      
+      // Preparar datos para enviar al backend
+      const viajeData = {
+        puntoPartida: nuevaRuta.puntoPartida,
+        puntoDestino: nuevaRuta.puntoDestino,
+        tipoViaje: nuevaRuta.tipoViaje,
+        cantidadPasajeros: nuevaRuta.cantidadPasajeros,
+        fechaSalida: nuevaRuta.fechaSalida,
+        horaSalida: nuevaRuta.horaSalida,
+        vehiculoId: nuevaRuta.vehiculoId,
+        rutaPlanificada: nuevaRuta.rutaPlanificada,
+        ubicacionPartida: nuevaRuta.ubicacionPartida
+      };
+      
+      const result = await viajeQuery.crearViaje(viajeData);
+      
+      if (result.error) {
+        throw new Error(result.message);
+      }
 
       if (onRutaCreada) {
         onRutaCreada();
@@ -101,7 +178,10 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
         cantidadPasajeros: 1,
         fechaSalida: "",
         horaSalida: "",
-        vehiculoId: vehiculos.length === 1 ? vehiculos[0].id : ""
+        vehiculoId: vehiculos.length === 1 ? vehiculos[0].id : "",
+        rutaPlanificada: [],
+        ubicacionPartida: null,
+        ubicacionDestino: null
       });
       
     } catch (error) {
@@ -117,89 +197,198 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
   return (
     <div style={{ 
       ...styles.card,
-      maxHeight: '60vh', // Altura máxima del 90% del viewport
-      overflowY: 'auto', // Scroll vertical cuando sea necesario
+      maxHeight: '60vh',
+      overflowY: 'auto',
       display: 'flex',
       flexDirection: 'column'
     }}>
-      <div style={{ padding: '0 4px' }}> {/* Padding para evitar que el contenido toque los bordes del scroll */}
-        <h2 style={styles.title}>Crear Nueva Ruta</h2>
-        
-        {error && (
-          <div style={styles.errorMessage}>
-            <svg 
-              width="20" 
-              height="20" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              style={{ flexShrink: 0 }}
-            >
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <span>{error}</span>
-          </div>
-        )}
-        
-        <form onSubmit={handleSubmitNuevaRuta} style={styles.form}>
-          {/* Campo para seleccionar vehículo */}
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Vehículo:</label>
-            {loadingVehiculos ? (
-              <div style={{ 
-                padding: "12px", 
-                backgroundColor: "#f8fafc", 
-                borderRadius: "8px",
-                color: "#718096"
-              }}>
-                Cargando vehículos...
-              </div>
-            ) : vehiculos.length === 0 ? (
-              <div style={{ 
-                padding: "12px", 
-                backgroundColor: "#fff5f5", 
-                borderRadius: "8px",
-                color: "#e53e3e",
-                border: "1px solid #fed7d7"
-              }}>
-                No tienes vehículos registrados
-              </div>
-            ) : (
-              <select
-                name="vehiculoId"
-                value={nuevaRuta.vehiculoId}
-                onChange={handleNuevaRutaChange}
-                style={styles.select}
-                required
-              >
-                <option value="">Selecciona un vehículo</option>
-                {vehiculos.map(vehiculo => (
-                  <option key={vehiculo.id} value={vehiculo.id}>
-                    {vehiculo.marca} {vehiculo.modelo} - {vehiculo.placa} ({vehiculo.cantidadpasajeros} pasajeros)
-                  </option>
-                ))}
-              </select>
-            )}
-          </div>
+      <h2 style={styles.title}>Crear Nueva Ruta</h2>
+      
+      {error && (
+        <div style={styles.errorMessage}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" style={{ flexShrink: 0 }}>
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <span>{error}</span>
+        </div>
+      )}
+      
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '20px' }}>
+        <button 
+          onClick={() => setMapMode('search')} 
+          style={{ 
+            ...styles.button,
+            ...(mapMode === 'search' ? styles.primaryButton : styles.secondaryButton),
+            flex: 1
+          }}
+        >
+          Modo Búsqueda
+        </button>
+        <button 
+          onClick={() => setMapMode('draw')} 
+          style={{ 
+            ...styles.button,
+            ...(mapMode === 'draw' ? styles.primaryButton : styles.secondaryButton),
+            flex: 1
+          }}
+        >
+          Modo Dibujar Ruta
+        </button>
+      </div>
 
-          {/* Resto de los campos del formulario (mantén todo igual) */}
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Punto de Partida:</label>
-            <input
-              type="text"
-              name="puntoPartida"
-              value={nuevaRuta.puntoPartida}
-              onChange={handleNuevaRutaChange}
-              style={styles.input}
-              required
-              placeholder="Ej: Universidad Nacional, Bogotá"
+      {mapMode === 'draw' && (
+        <div style={{ 
+          backgroundColor: '#f8fafc', 
+          padding: '16px', 
+          borderRadius: '8px',
+          marginBottom: '20px',
+          border: '1px solid #e2e8f0'
+        }}>
+          <p style={{ margin: '0 0 8px 0', color: '#4a5568' }}>
+            {!nuevaRuta.ubicacionPartida 
+              ? "Haz clic en el mapa para seleccionar el punto de partida" 
+              : !nuevaRuta.ubicacionDestino 
+                ? "Ahora haz clic para seleccionar el punto de destino"
+                : "Ruta trazada. Puedes reiniciar si es necesario"}
+          </p>
+          {(nuevaRuta.ubicacionPartida || nuevaRuta.ubicacionDestino) && (
+            <button 
+              onClick={resetRouteDrawing}
+              style={{ 
+                ...styles.button,
+                background: 'none',
+                color: '#e53e3e',
+                border: '1px solid #fed7d7',
+                padding: '8px 12px',
+                fontSize: '13px'
+              }}
+            >
+              Reiniciar Ruta
+            </button>
+          )}
+        </div>
+      )}
+
+      <div style={{ 
+        height: '400px', 
+        width: '100%', 
+        marginBottom: '20px', 
+        borderRadius: '8px', 
+        overflow: 'hidden',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        border: '1px solid #e2e8f0'
+      }}>
+        <MapContainer
+          center={[4.60971, -74.08175]}
+          zoom={12}
+          style={{ height: '100%', width: '100%' }}
+          ref={mapRef}
+          onClick={handleMapClick}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          />
+          
+          {nuevaRuta.ubicacionPartida && (
+            <Marker position={nuevaRuta.ubicacionPartida}>
+              <Popup>Punto de partida</Popup>
+            </Marker>
+          )}
+          
+          {nuevaRuta.ubicacionDestino && (
+            <Marker position={nuevaRuta.ubicacionDestino}>
+              <Popup>Punto de destino</Popup>
+            </Marker>
+          )}
+          
+          {nuevaRuta.rutaPlanificada.length > 0 && (
+            <Polyline 
+              positions={nuevaRuta.rutaPlanificada} 
+              color="#7e46d2"
+              weight={4}
+              opacity={0.8}
             />
-          </div>
+          )}
+        </MapContainer>
+      </div>
+
+      <form onSubmit={handleSubmitNuevaRuta} style={styles.form}>
+        <div style={styles.formGroup}>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <path d="M20 9v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9"></path>
+              <path d="M9 22V12h6v10M2 10.6L12 2l10 8.6"></path>
+            </svg>
+            Vehículo
+          </label>
+          {loadingVehiculos ? (
+            <div style={{ 
+              padding: "12px", 
+              backgroundColor: "#f8fafc", 
+              borderRadius: "8px",
+              color: "#718096",
+              border: '1px solid #e2e8f0'
+            }}>
+              Cargando vehículos...
+            </div>
+          ) : vehiculos.length === 0 ? (
+            <div style={{ 
+              padding: "12px", 
+              backgroundColor: "#fff5f5", 
+              borderRadius: "8px",
+              color: "#e53e3e",
+              border: "1px solid #fed7d7"
+            }}>
+              No tienes vehículos registrados
+            </div>
+          ) : (
+            <select
+              name="vehiculoId"
+              value={nuevaRuta.vehiculoId}
+              onChange={handleNuevaRutaChange}
+              style={styles.select}
+              required
+            >
+              <option value="">Selecciona un vehículo</option>
+              {vehiculos.map(vehiculo => (
+                <option key={vehiculo.id} value={vehiculo.id}>
+                  {vehiculo.marca} {vehiculo.modelo} - {vehiculo.placa} ({vehiculo.cantidadpasajeros} pasajeros)
+                </option>
+              ))}
+            </select>
+          )}
+        </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Punto de Destino:</label>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <circle cx="12" cy="10" r="3"></circle>
+              <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"></path>
+            </svg>
+            Punto de Partida
+          </label>
+          <input
+            type="text"
+            name="puntoPartida"
+            value={nuevaRuta.puntoPartida}
+            onChange={handleNuevaRutaChange}
+            style={styles.input}
+            required
+            placeholder="Ej: Universidad Nacional, Bogotá"
+          />
+        </div>
+
+        <div style={styles.formGroup}>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            Punto de Destino
+          </label>
           <input
             type="text"
             name="puntoDestino"
@@ -212,7 +401,13 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Tipo de Viaje:</label>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Tipo de Viaje
+          </label>
           <select
             name="tipoViaje"
             value={JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo}
@@ -220,12 +415,23 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
             style={styles.select}
             required
           >
-            <option value={JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo}>{JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo.charAt(0).toUpperCase() + JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo.slice(1).toLowerCase()}</option>
+            <option value={JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo}>
+              {JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo.charAt(0).toUpperCase() + 
+               JSON.parse(atob(localStorage.getItem("jwt_token").split(".")[1])).tipo.slice(1).toLowerCase()}
+            </option>
           </select>
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Cantidad de Pasajeros:</label>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            Cantidad de Pasajeros
+          </label>
           <input
             type="number"
             name="cantidadPasajeros"
@@ -244,7 +450,15 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Fecha de Salida:</label>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Fecha de Salida
+          </label>
           <input
             type="date"
             name="fechaSalida"
@@ -257,7 +471,13 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
         </div>
 
         <div style={styles.formGroup}>
-          <label style={styles.label}>Hora de Salida:</label>
+          <label style={styles.label}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7e46d2" style={{ marginRight: '6px' }}>
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            Hora de Salida
+          </label>
           <input
             type="time"
             name="horaSalida"
@@ -268,25 +488,76 @@ const CrearRutaViaje = ({ conductorId, onRutaCreada, onCancelar }) => {
           />
         </div>
 
-        <div style={styles.buttonGroup}>
-            <button
-              type="button"
-              style={{ ...styles.button, ...styles.secondaryButton }}
-              onClick={onCancelar}
-              disabled={loading}
-            >
-              Cancelar
-            </button>
-            <button
-              type="submit"
-              style={{ ...styles.button, ...styles.primaryButton }}
-              disabled={loading || loadingVehiculos || vehiculos.length === 0}
-            >
-              {loading ? "Creando..." : "Crear Ruta"}
-            </button>
+        {nuevaRuta.rutaPlanificada.length > 0 && (
+          <div style={{ 
+            backgroundColor: '#f8fafc', 
+            padding: '16px', 
+            borderRadius: '8px',
+            marginBottom: '20px',
+            border: '1px solid #e2e8f0'
+          }}>
+            <h4 style={{ 
+              margin: '0 0 12px 0', 
+              color: '#2c3e50',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7e46d2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+              Resumen de Ruta
+            </h4>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#718096' }}>Partida:</p>
+                <p style={{ margin: 0, fontWeight: '500' }}>{nuevaRuta.puntoPartida}</p>
+              </div>
+              <div>
+                <p style={{ margin: '0 0 4px 0', fontSize: '13px', color: '#718096' }}>Destino:</p>
+                <p style={{ margin: 0, fontWeight: '500' }}>{nuevaRuta.puntoDestino}</p>
+              </div>
+            </div>
+            {nuevaRuta.ubicacionPartida && nuevaRuta.ubicacionDestino && (
+              <p style={{ margin: '12px 0 0 0', color: '#4a5568' }}>
+                <strong>Distancia aproximada:</strong> {calcularDistancia(nuevaRuta.ubicacionPartida, nuevaRuta.ubicacionDestino).toFixed(2)} km
+              </p>
+            )}
           </div>
-        </form>
-      </div>
+        )}
+
+        <div style={styles.buttonGroup}>
+          <button
+            type="button"
+            style={styles.secondaryButton}
+            onClick={onCancelar}
+            disabled={loading}
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            style={styles.primaryButton}
+            disabled={loading || loadingVehiculos || vehiculos.length === 0 || nuevaRuta.rutaPlanificada.length < 2}
+          >
+            {loading ? (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" style={{ animation: 'spin 1s linear infinite' }}>
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56"></path>
+                </svg>
+                Creando...
+              </>
+            ) : (
+              <>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
+                </svg>
+                Crear Ruta
+              </>
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
