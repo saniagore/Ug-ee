@@ -140,7 +140,6 @@ router.get("/auth/verify", async (req, res) => {
     }
     const usuario = await obtenerDatosUsuario(decoded.celular);
     if (!usuario) {
-      console.error(`Usuario ${decoded.celular} no encontrado en BD`);
       return res.status(404).json({
         authenticated: false,
         error: "Usuario no existe en la base de datos",

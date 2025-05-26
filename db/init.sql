@@ -136,6 +136,7 @@ CREATE TABLE viaje(
     tipoViaje categoria_viaje NOT NULL,
     cantidadPasajeros INTEGER NOT NULL,
     rutaPlanificada GEOGRAPHY(LINESTRING, 4326),
+    codigoQr BYTEA NOT NULL,
     reservaId INT UNIQUE,
     vehiculoId INTEGER,
     FOREIGN KEY (vehiculoId) REFERENCES vehiculo(id) ON DELETE CASCADE,

@@ -1,18 +1,20 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, useMap } from "react-leaflet";
 import {
   FaCar,
   FaCalendarAlt,
   FaHistory,
   FaSignOutAlt,
-  FaMapMarkerAlt,
+  FaChevronLeft,
 } from "react-icons/fa";
 import "leaflet/dist/leaflet.css";
 import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "./css/Menu.css";
+
 import { useAuthVerification } from "../../components/useAuth";
-import Servicio from "./pedirVehiculo";
+
+import Rutas from "./rutasDisponibles";
 import HistorialViajes from "./historialViajes";
 import AgendarReserva from "./agendarReserva";
 import HistorialReservas from "./historialReservas";
@@ -28,114 +30,96 @@ function MapViewUpdater({ center, zoom }) {
 export default function Menu() {
   const caliPosition = [3.375658, -76.529885];
   const { handleLogout } = useAuthVerification();
-  const [address, setAddress] = useState("");
-  const [serviceType, setServiceType] = useState("campus");
   const [currentView, setCurrentView] = useState("menu");
-
-  const handleAddressChange = (e) => {
-    setAddress(e.target.value);
-  };
-
-  const handleServiceTypeChange = (e) => {
-    setServiceType(e.target.value);
-  };
+  const token = localStorage.getItem("jwt_token");
+  const decoded = JSON.parse(atob(token.split(".")[1]));
+  const userId = decoded.id;
 
   return (
     <div className="app-container">
       <div className="control-panel">
-        {currentView === "menu" && (
-          <>
-            <h2 className="panel-title">
-              <FaCar style={{ marginRight: "10px" }} /> Servicio UW
-            </h2>
-            <div className="search-container">
-              <label className="search-label">
-                <FaMapMarkerAlt style={{ marginRight: "8px" }} /> Ingresa tu
-                dirección:
-              </label>
-              <input
-                type="text"
-                value={address}
-                onChange={handleAddressChange}
-                placeholder="Ej: Carrera 100 #15-20"
-                className="search-input"
-              />
+        {currentView !== "menu" && (
+          <button
+            onClick={() => setCurrentView("menu")}
+            className="back-button"
+          >
+            <FaChevronLeft /> Volver al menú
+          </button>
+        )}
 
-              <label className="search-label">
-                <FaCar style={{ marginRight: "8px" }} /> Tipo de servicio:
-              </label>
-              <select
-                value={serviceType}
-                onChange={handleServiceTypeChange}
-                className="service-select"
-              >
-                <option value="campus">Campus</option>
-                <option value="metropolitano">Metropolitano</option>
-                <option value="intermunicipal">Intermunicipal</option>
-              </select>
+        {currentView === "menu" ? (
+          <div className="menu-content">
+            <div className="brand-header">
+              <h2 className="panel-title">
+                <FaCar className="title-icon" /> Servicio UW
+              </h2>
+              <p className="brand-subtitle">Transporte universitario seguro</p>
+            </div>
 
+            <div className="button-grid">
               <button
-                onClick={() => setCurrentView("servicio")}
-                className="reserve-button"
+                onClick={() => setCurrentView("Rutas")}
+                className="menu-button service-button"
               >
-                <FaCar style={{ marginRight: "8px" }} /> Pedir Servicio
+                <div className="button-icon">
+                  <FaCar />
+                </div>
+                <span>Ver Rutas Disponibles</span>
               </button>
 
               <button
                 onClick={() => setCurrentView("reserva")}
-                className="reserve-button"
+                className="menu-button reserve-button"
               >
-                <FaCalendarAlt style={{ marginRight: "8px" }} /> Reservar
-                Servicio
+                <div className="button-icon">
+                  <FaCalendarAlt />
+                </div>
+                <span>Reservar Rutas</span>
               </button>
 
               <button
                 onClick={() => setCurrentView("historial")}
-                className="reserve-button"
+                className="menu-button history-button"
               >
-                <FaHistory style={{ marginRight: "8px" }} /> Historial de Viajes
+                <div className="button-icon">
+                  <FaHistory />
+                </div>
+                <span>Historial de Viajes</span>
               </button>
 
               <button
                 onClick={() => setCurrentView("reservasH")}
-                className="reserve-button"
+                className="menu-button reservations-button"
               >
-                <FaHistory style={{ marginRight: "8px" }} /> Historial de Reservas
-              </button>
-
-              <button onClick={handleLogout} className="logout-button">
-                <FaSignOutAlt style={{ marginRight: "8px" }} /> Cerrar Sesión
+                <div className="button-icon">
+                  <FaHistory />
+                </div>
+                <span>Historial de Reservas</span>
               </button>
             </div>
-          </>
-        )}
 
-        {currentView === "servicio" && (
-          <Servicio
-            onBack={() => setCurrentView("menu")}
-            originAddress={{
-              address: address,
-              markerPosition: null,
-              selectedAddress: null,
-            }}
-            serviceType={serviceType}
-          />
-        )}
-
-        {currentView === "historial" && (
+            <button onClick={handleLogout} className="logout-button">
+              <FaSignOutAlt className="logout-icon" /> Cerrar Sesión
+            </button>
+          </div>
+        ) : currentView === "Rutas" ? (
+          <Rutas onBack={() => setCurrentView("menu")} userId={userId} />
+        ) : currentView === "historial" ? (
           <HistorialViajes onBack={() => setCurrentView("menu")} />
-        )}
-
-        {currentView === "reserva" && (
+        ) : currentView === "reserva" ? (
           <AgendarReserva onBack={() => setCurrentView("menu")} />
-        )}
-        {currentView === "reservasH" && (
+        ) : (
           <HistorialReservas onBack={() => setCurrentView("menu")} />
         )}
       </div>
 
       <div className="map-container">
-        <MapContainer center={caliPosition} zoom={13} className="leaflet-map">
+        <MapContainer
+          center={caliPosition}
+          zoom={13}
+          className="leaflet-map"
+          zoomControl={false}
+        >
           <MapViewUpdater center={caliPosition} zoom={13} />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

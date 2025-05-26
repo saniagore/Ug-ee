@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { DB_CONFIG } from "../config.js";
 import {
   viajesDisponibles,
   crearRutaViaje,
@@ -7,10 +6,7 @@ import {
   terminarViaje,
   cancelarViaje,
 } from "../controllers/viaje.controller.js";
-import pg from "pg";
 
-const { Pool } = pg;
-const pool = new Pool(DB_CONFIG);
 const router = Router();
 
 router.post("/crear", async (req, res) => {
@@ -22,16 +18,6 @@ router.post("/crear", async (req, res) => {
   }catch(error){
     console.error(error);
     res.status(500).json({ error: "Error al crear el viaje" });
-  }
-});
-
-router.post("/viajes-disponibles", async (req, res) => {
-  try {
-    const { conductorId, categoriaViaje } = req.body;
-    const result = await viajesDisponibles(conductorId, categoriaViaje);
-    res.status(200).json({ result });
-  } catch (error) {
-    res.status(500).json({ error: "Error al obtener los viajes disponibles" });
   }
 });
 
@@ -64,6 +50,16 @@ router.post("/cancelar-viaje", async(req,res) =>{
     res.status(200).json({ result });
   }catch(error){
     res.status(500).json({ error: "Error al cancelar el viaje" });
+  }
+});
+
+router.get("/viajes-disponibles/:usuarioId", async (req, res) =>{
+  try{
+    const { usuarioId } = req.params;
+    const result = await viajesDisponibles(usuarioId);
+    res.status(200).json({ result });
+  }catch(error){
+    res.status(500).json({ error: "Error al obtener los viajes disponibles" });
   }
 });
 
