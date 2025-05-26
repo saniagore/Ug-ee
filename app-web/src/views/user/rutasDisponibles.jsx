@@ -2,10 +2,16 @@ import { useEffect, useState } from "react";
 import { QueryViaje } from "../../components/queryViaje";
 import "./css/RutasDisponibles.css";
 
-const RutasDisponibles = ({ userId }) => {
+const RutasDisponibles = ({ userId, onViewRoute }) => {
   const [loading, setLoading] = useState(true);
   const [viajes, setViajes] = useState([]);
   const [error, setError] = useState(null);
+
+  const handleViewRoute = (viaje) => {
+    if (onViewRoute) {
+      onViewRoute(viaje.rutaplanificada);
+    }
+  };
 
   const handleUnirseRuta = async (viajeId) => {
     console.log("Unirse a la ruta:", viajeId);
@@ -19,6 +25,7 @@ const RutasDisponibles = ({ userId }) => {
       try {
         const viajeQuery = new QueryViaje();
         const result = await viajeQuery.verViajesDisponibles(userId);
+
         setViajes(result || []);
       } catch (err) {
         console.error("Error al cargar viajes disponibles:", err);
@@ -136,14 +143,20 @@ const RutasDisponibles = ({ userId }) => {
                 </div>
               </div>
 
-              <button
-                className="join-button"
-                onClick={() => {
-                  handleUnirseRuta(viaje.id);
-                }}
-              >
-                Unirse a este viaje
-              </button>
+              <div className="viaje-actions">
+                <button
+                  className="view-route-button"
+                  onClick={() => handleViewRoute(viaje)}
+                >
+                  Visualizar ruta planificada
+                </button>
+                <button
+                  className="join-button"
+                  onClick={() => handleUnirseRuta(viaje.id)}
+                >
+                  Unirse a este viaje
+                </button>
+              </div>
             </div>
           ))}
         </div>

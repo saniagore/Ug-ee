@@ -209,3 +209,42 @@
   background-color: var(--primary-color);
   border-radius: 10px;
 }
+
+
+
+.viaje-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.view-route-button {
+  background-color: #4a6baf;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.view-route-button:hover {
+  background-color: #3a5a9f;
+}
+
+.join-button {
+  height: 70px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.join-button:hover {
+  background-color: #3e8e41;
+}

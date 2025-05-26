@@ -12,6 +12,9 @@ import "leaflet-defaulticon-compatibility";
 import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css";
 import "./css/Menu.css";
 
+import { Polyline } from "react-leaflet";
+import * as WKT from "wellknown";
+
 import { useAuthVerification } from "../../components/useAuth";
 
 import Rutas from "./rutasDisponibles";
@@ -31,9 +34,41 @@ export default function Menu() {
   const caliPosition = [3.375658, -76.529885];
   const { handleLogout } = useAuthVerification();
   const [currentView, setCurrentView] = useState("menu");
-  const token = localStorage.getItem("jwt_token");
-  const decoded = JSON.parse(atob(token.split(".")[1]));
-  const userId = decoded.id;
+  const [routeCoordinates, setRouteCoordinates] = useState(null);
+  const userId = JSON.parse(
+    atob(localStorage.getItem("jwt_token").split(".")[1])
+  ).id;
+
+  const handleViewRoute = (wktString) => {
+    try {
+      console.log("WKT recibido:", wktString); // Para depuración
+      
+      let wktToParse = wktString;
+      if (!wktString.startsWith("LINESTRING")) {
+        wktToParse = `LINESTRING(${wktString})`;
+      }
+
+      const geoJSON = WKT.parse(wktToParse);
+      console.log("geoJSON parseado:", geoJSON);
+      
+      if (geoJSON && geoJSON.coordinates && geoJSON.coordinates.length > 0) {
+        const leafletCoords = geoJSON.coordinates.map((coord) => [
+          coord[1], // latitud
+          coord[0], // longitud
+        ]);
+        setRouteCoordinates(leafletCoords);
+        
+        // Centrar el mapa en el primer punto de la ruta
+        if (leafletCoords.length > 0) {
+          setCurrentView("menu");
+        }
+      } else {
+        console.error("No se encontraron coordenadas válidas en el WKT");
+      }
+    } catch (error) {
+      console.error("Error al parsear WKT:", error);
+    }
+  };
 
   return (
     <div className="app-container">
@@ -103,7 +138,7 @@ export default function Menu() {
             </button>
           </div>
         ) : currentView === "Rutas" ? (
-          <Rutas onBack={() => setCurrentView("menu")} userId={userId} />
+          <Rutas onBack={() => setCurrentView("menu")} userId={userId} onViewRoute={handleViewRoute} />
         ) : currentView === "historial" ? (
           <HistorialViajes onBack={() => setCurrentView("menu")} />
         ) : currentView === "reserva" ? (
@@ -120,11 +155,22 @@ export default function Menu() {
           className="leaflet-map"
           zoomControl={false}
         >
-          <MapViewUpdater center={caliPosition} zoom={13} />
+          <MapViewUpdater 
+            center={routeCoordinates ? routeCoordinates[Math.floor(routeCoordinates.length / 2)] : caliPosition} 
+            zoom={13} 
+          />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
+          {routeCoordinates && (
+            <Polyline 
+              positions={routeCoordinates} 
+              color="blue" 
+              weight={5}
+              opacity={0.7}
+            />
+          )}
         </MapContainer>
       </div>
     </div>
