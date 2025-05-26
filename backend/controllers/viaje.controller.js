@@ -243,3 +243,47 @@ export const unirseViaje = async (viajeId, usuarioId) => {
     throw error;
   }
 };
+
+export const historialViajes = async (usuarioId) => {
+  try {
+    const viajes = await pool.query(
+      `SELECT 
+        v.id, 
+        v.estado, 
+        v.fechaSalida, 
+        v.puntoPartida, 
+        v.puntoDestino, 
+        v.tipoViaje, 
+        v.cantidadPasajeros, 
+        ST_AsText(v.rutaPlanificada) as rutaPlanificada,
+        v.codigoQr,
+        ve.id AS vehiculoId, 
+        ve.categoria, 
+        ve.color, 
+        ve.placa, 
+        ve.marca, 
+        ve.modelo, 
+        ve.conductorId,
+        c.nombre AS conductorNombre,
+        c.celular AS conductorCelular,
+        c.correo AS conductorCorreo,
+        c.puntuacionPromedio AS conductorPuntuacion
+      FROM viaje v
+      JOIN vehiculo ve ON v.vehiculoId = ve.id
+      JOIN conductor c ON ve.conductorId = c.cId
+      WHERE v.id IN (
+        SELECT viajeId FROM pasajeros WHERE usuarioId = $1
+      )`,
+      [usuarioId]
+    );
+
+    viajes.rows.forEach((element) => {
+      element.rutaplanificada = wktToRutaPlanificada(element.rutaplanificada);
+    });
+
+    return viajes.rows;
+  } catch (error) {
+    console.error("Error al obtener el historial de viajes:", error);
+    throw error;
+  }
+};

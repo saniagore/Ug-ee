@@ -130,7 +130,7 @@ export default function Menu() {
         ) : currentView === "Rutas" ? (
           <Rutas onBack={() => setCurrentView("menu")} userId={userId} onViewRoute={handleViewRoute} />
         ) : currentView === "historial" ? (
-          <HistorialViajes onBack={() => setCurrentView("menu")} />
+          <HistorialViajes onBack={() => setCurrentView("menu")} userId={userId} onViewRoute={handleViewRoute}/>
         ) : currentView === "reserva" ? (
           <AgendarReserva onBack={() => setCurrentView("menu")} />
         ) : (
