@@ -7,6 +7,19 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
   const [viajes, setViajes] = useState([]);
   const [error, setError] = useState(null);
 
+  const handleCancelarViaje = async(viajeId) => {
+    try{
+      const viajeQuery = new QueryViaje();
+      await viajeQuery.cancelarViajeUsuario(viajeId, userId);
+      
+      const result = await viajeQuery.obtenerHistorial(userId);
+      setViajes(result || []);
+      
+      alert("Viaje cancelado exitosamente");
+    }catch(error){
+      alert("Error al cancelar el viaje: " + error.message);
+    }
+  };
 
   const handleViewRoute = (viaje) => {
     if (onViewRoute) {
@@ -154,6 +167,12 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
                   onClick={() => handleViewRoute(viaje)}
                 >
                   Visualizar ruta realizada
+                </button>
+                <button
+                  className="join-button"
+                  onClick={() => handleCancelarViaje(viaje.id)}
+                >
+                  Cancelar Viaje
                 </button>
               </div>
             </div>

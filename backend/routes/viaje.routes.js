@@ -7,6 +7,7 @@ import {
   cancelarViaje,
   unirseViaje,
   historialViajes,
+  cancelarViajeUsuario
 } from "../controllers/viaje.controller.js";
 
 const router = Router();
@@ -81,6 +82,16 @@ router.get("/historial/:usuarioId", async (req, res) => {
     res.status(200).json({ result });
   } catch (error) {
     res.status(500).json({ error: "Error al obtener el historial de viajes" });
+  }
+});
+
+router.post("/cancelar-viaje-usuario", async (req, res) => {
+  try {
+    const { viajeId, usuarioId } = req.body;
+    const result = await cancelarViajeUsuario(viajeId, usuarioId);
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({ error: "Error al cancelar el viaje" });
   }
 });
 

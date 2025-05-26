@@ -13,7 +13,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "./css/Menu.css";
 
 import { Polyline } from "react-leaflet";
-import L from 'leaflet';
+import L from "leaflet";
 
 import { useAuthVerification } from "../../components/useAuth";
 
@@ -24,10 +24,22 @@ import HistorialReservas from "./historialReservas";
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
+
+const DefaultIcon = L.icon({
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41],
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
@@ -48,15 +60,27 @@ export default function Menu() {
 
   const handleViewRoute = (rutaPlanificada) => {
     try {
-      console.log(rutaPlanificada);
+      if (!rutaPlanificada || rutaPlanificada.length < 2) {
+        throw new Error("Invalid route data");
+      }
 
-      setRouteCoordinates([
-        [rutaPlanificada[0].latitud, rutaPlanificada[0].longitud],
-        [rutaPlanificada[1].latitud, rutaPlanificada[1].longitud],
-      ]);
-      
-    } catch(error) {
-      console.error(error);
+      const startPoint = [
+        rutaPlanificada[0].latitud,
+        rutaPlanificada[0].longitud,
+      ];
+      const endPoint = [
+        rutaPlanificada[1].latitud,
+        rutaPlanificada[1].longitud,
+      ];
+
+      if (startPoint.some(isNaN) || endPoint.some(isNaN)) {
+        throw new Error("Invalid coordinates");
+      }
+
+      setRouteCoordinates([startPoint, endPoint]);
+    } catch (error) {
+      console.error("Error setting route:", error);
+      setRouteCoordinates(null);
     }
   };
 
@@ -128,9 +152,17 @@ export default function Menu() {
             </button>
           </div>
         ) : currentView === "Rutas" ? (
-          <Rutas onBack={() => setCurrentView("menu")} userId={userId} onViewRoute={handleViewRoute} />
+          <Rutas
+            onBack={() => setCurrentView("menu")}
+            userId={userId}
+            onViewRoute={handleViewRoute}
+          />
         ) : currentView === "historial" ? (
-          <HistorialViajes onBack={() => setCurrentView("menu")} userId={userId} onViewRoute={handleViewRoute}/>
+          <HistorialViajes
+            onBack={() => setCurrentView("menu")}
+            userId={userId}
+            onViewRoute={handleViewRoute}
+          />
         ) : currentView === "reserva" ? (
           <AgendarReserva onBack={() => setCurrentView("menu")} />
         ) : (
@@ -145,26 +177,36 @@ export default function Menu() {
           className="leaflet-map"
           zoomControl={false}
         >
-          <MapViewUpdater 
-            center={routeCoordinates ? routeCoordinates[Math.floor(routeCoordinates.length / 2)] : caliPosition} 
-            zoom={13} 
+          <MapViewUpdater
+            center={
+              routeCoordinates
+                ? routeCoordinates[Math.floor(routeCoordinates.length / 2)]
+                : caliPosition
+            }
+            zoom={13}
           />
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
-          {routeCoordinates && (
+          {routeCoordinates && routeCoordinates.length === 2 && (
             <>
-              <Polyline 
-                positions={routeCoordinates} 
-                color="blue" 
+              <Polyline
+                positions={routeCoordinates}
+                color="blue"
                 weight={5}
                 opacity={0.7}
               />
-              <Marker position={routeCoordinates[0]}>
+              <Marker
+                position={routeCoordinates[0]}
+                key={`start-${routeCoordinates[0][0]}-${routeCoordinates[0][1]}`}
+              >
                 <Popup>Punto de inicio</Popup>
               </Marker>
-              <Marker position={routeCoordinates[1]}>
+              <Marker
+                position={routeCoordinates[1]}
+                key={`end-${routeCoordinates[1][0]}-${routeCoordinates[1][1]}`}
+              >
                 <Popup>Punto de destino</Popup>
               </Marker>
             </>

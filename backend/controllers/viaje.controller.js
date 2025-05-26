@@ -58,7 +58,7 @@ export const viajesDisponibles = async (usuarioId) => {
     viajes.rows.forEach((element) => {
       element.rutaplanificada = wktToRutaPlanificada(element.rutaplanificada);
     });
-
+    
     return viajes.rows;
   } catch (error) {
     console.error("Error en viajesDisponibles:", error);
@@ -283,7 +283,28 @@ export const historialViajes = async (usuarioId) => {
 
     return viajes.rows;
   } catch (error) {
-    console.error("Error al obtener el historial de viajes:", error);
+    throw error;
+  }
+};
+
+export const cancelarViajeUsuario = async (viajeId, usuarioId) => {
+  try {
+    const result = await pool.query(
+      `DELETE FROM pasajeros WHERE viajeId = $1 AND usuarioId = $2 RETURNING *`,
+      [viajeId, usuarioId]
+    );
+
+    await pool.query(
+      `
+        UPDATE viaje
+        SET cantidadPasajeros = cantidadPasajeros + 1 
+        WHERE id = $1
+      `,
+      [viajeId]
+    );
+
+    return result.rows[0];
+  } catch (error) {
     throw error;
   }
 };
