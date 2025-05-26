@@ -5,6 +5,7 @@ import {
   viajesActivos,
   terminarViaje,
   cancelarViaje,
+  unirseViaje,
 } from "../controllers/viaje.controller.js";
 
 const router = Router();
@@ -60,6 +61,16 @@ router.get("/viajes-disponibles/:usuarioId", async (req, res) =>{
     res.status(200).json({ result });
   }catch(error){
     res.status(500).json({ error: "Error al obtener los viajes disponibles" });
+  }
+});
+
+router.post("/unirse-viaje", async(req, res) =>{
+  try{
+    const { viajeId, usuarioId } = req.body;
+    const result = await unirseViaje(viajeId, usuarioId);
+    res.status(200).json({ result });
+  }catch(error){
+    res.status(500).json({ error: "Error al unirse al viaje" });
   }
 });
 

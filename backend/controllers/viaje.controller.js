@@ -5,15 +5,14 @@ const pool = new Pool(DB_CONFIG);
 import QRCode from "qrcode";
 
 function wktToRutaPlanificada(wkt) {
-  try{
+  try {
     const matches = wkt.match(/^LINESTRING\((.+)\)$/);
-      if (!matches) return [];
-      return matches[1].split(",").map(pair => {
-        const [lon, lat] = pair.trim().split(" ").map(Number);
-        return { latitud: lat, longitud: lon };
-      });
-  }catch (error) {
-    console.error("Error en wktToRutaPlanificada:", error);
+    if (!matches) return [];
+    return matches[1].split(",").map((pair) => {
+      const [lon, lat] = pair.trim().split(" ").map(Number);
+      return { latitud: lat, longitud: lon };
+    });
+  } catch (error) {
     return [];
   }
 }
@@ -23,54 +22,46 @@ export const viajesDisponibles = async (usuarioId) => {
     const viajes = await pool.query(
       `
       SELECT 
-    v.id, 
-    v.estado, 
-    v.fechaSalida, 
-    v.puntoPartida, 
-    v.puntoDestino, 
-    v.tipoViaje, 
-    v.cantidadPasajeros, 
-    ST_AsText(v.rutaPlanificada) as rutaPlanificada,
-    v.codigoQr,
-    ve.id AS vehiculoId, 
-    ve.categoria, 
-    ve.color, 
-    ve.placa, 
-    ve.marca, 
-    ve.modelo, 
-    ve.conductorId,
-    c.nombre AS conductorNombre,
-    c.celular AS conductorCelular,
-    c.correo AS conductorCorreo,
-    c.puntuacionPromedio AS conductorPuntuacion
-FROM viaje v
-JOIN vehiculo ve ON v.vehiculoId = ve.id
-JOIN conductor c ON ve.conductorId = c.cId
-WHERE v.estado = 'pendiente' 
-AND c.institucionId = (SELECT institucionId FROM usuario WHERE usId = $1)
-    `,
+        v.id, 
+        v.estado, 
+        v.fechaSalida, 
+        v.puntoPartida, 
+        v.puntoDestino, 
+        v.tipoViaje, 
+        v.cantidadPasajeros, 
+        ST_AsText(v.rutaPlanificada) as rutaPlanificada,
+        v.codigoQr,
+        ve.id AS vehiculoId, 
+        ve.categoria, 
+        ve.color, 
+        ve.placa, 
+        ve.marca, 
+        ve.modelo, 
+        ve.conductorId,
+        c.nombre AS conductorNombre,
+        c.celular AS conductorCelular,
+        c.correo AS conductorCorreo,
+        c.puntuacionPromedio AS conductorPuntuacion
+      FROM viaje v
+      JOIN vehiculo ve ON v.vehiculoId = ve.id
+      JOIN conductor c ON ve.conductorId = c.cId
+      WHERE v.estado = 'pendiente' 
+      AND c.institucionId = (SELECT institucionId FROM usuario WHERE usId = $1)
+      AND NOT EXISTS (
+        SELECT 1 FROM pasajeros p 
+        WHERE p.viajeId = v.id AND p.usuarioId = $1
+      )
+      `,
       [usuarioId]
     );
 
-    viajes.rows.forEach(element => {
+    viajes.rows.forEach((element) => {
       element.rutaplanificada = wktToRutaPlanificada(element.rutaplanificada);
     });
-    
+
     return viajes.rows;
   } catch (error) {
     console.error("Error en viajesDisponibles:", error);
-    throw error;
-  }
-};
-
-export const aceptarViaje = async (vehiculoId, viajeId) => {
-  try {
-    const result = await pool.query(
-      `UPDATE viaje SET vehiculoId = $1, estado = 'en curso' WHERE id = $2`,
-      [vehiculoId, viajeId]
-    );
-    return result.rows;
-  } catch (error) {
     throw error;
   }
 };
@@ -227,6 +218,28 @@ export const crearRutaViaje = async (viajeData) => {
     return result.rows[0];
   } catch (error) {
     console.error("Error al crear ruta de viaje:", error);
+    throw error;
+  }
+};
+
+export const unirseViaje = async (viajeId, usuarioId) => {
+  try {
+    const result = await pool.query(
+      `INSERT INTO pasajeros (viajeId, usuarioId) VALUES ($1, $2) RETURNING *`,
+      [viajeId, usuarioId]
+    );
+
+    await pool.query(
+      `
+        UPDATE VIAJE 
+        SET cantidadPasajeros = cantidadPasajeros - 1 
+        WHERE id = $1
+      `,
+      [viajeId]
+    );
+
+    return result.rows[0];
+  } catch (error) {
     throw error;
   }
 };

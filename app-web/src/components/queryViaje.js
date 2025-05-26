@@ -141,8 +141,36 @@ export class QueryViaje {
           details: result.details,
         };
       }
-      
-      return result.result;  
+
+      return result.result;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message,
+      };
+    }
+  }
+
+  async unirseViaje(viajeId, usuarioId) {
+    try {
+      const response = await fetch(`${QueryViaje.BASE_URL}/unirse-viaje`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
+        },
+        body: JSON.stringify({ viajeId, usuarioId }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) {
+        return {
+          error: true,
+          message: result.message || "Error al unirse al viaje",
+          details: result.details,
+        };
+      }
     } catch (error) {
       return {
         error: true,

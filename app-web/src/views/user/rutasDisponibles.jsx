@@ -6,6 +6,7 @@ const RutasDisponibles = ({ userId, onViewRoute }) => {
   const [loading, setLoading] = useState(true);
   const [viajes, setViajes] = useState([]);
   const [error, setError] = useState(null);
+  const viajeQuery = new QueryViaje();
 
   const handleViewRoute = (viaje) => {
     if (onViewRoute) {
@@ -14,7 +15,15 @@ const RutasDisponibles = ({ userId, onViewRoute }) => {
   };
 
   const handleUnirseRuta = async (viajeId) => {
-    console.log("Unirse a la ruta:", viajeId);
+    try {
+      await viajeQuery.unirseViaje(viajeId, userId);
+      alert("Te has unido al viaje exitosamente");
+
+      const viajesActualizados = await viajeQuery.verViajesDisponibles(userId);
+      setViajes(viajesActualizados || []);
+    } catch (error) {
+      alert("Error al unirse al viaje");
+    }
   };
 
   useEffect(() => {
