@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, useMap, Marker, Popup } from "react-leaflet";
 import {
   FaCar,
   FaCalendarAlt,
@@ -13,7 +13,7 @@ import "leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility
 import "./css/Menu.css";
 
 import { Polyline } from "react-leaflet";
-import * as WKT from "wellknown";
+import L from 'leaflet';
 
 import { useAuthVerification } from "../../components/useAuth";
 
@@ -21,6 +21,13 @@ import Rutas from "./rutasDisponibles";
 import HistorialViajes from "./historialViajes";
 import AgendarReserva from "./agendarReserva";
 import HistorialReservas from "./historialReservas";
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
+  iconUrl: require('leaflet/dist/images/marker-icon.png'),
+  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
+});
 
 function MapViewUpdater({ center, zoom }) {
   const map = useMap();
@@ -39,34 +46,17 @@ export default function Menu() {
     atob(localStorage.getItem("jwt_token").split(".")[1])
   ).id;
 
-  const handleViewRoute = (wktString) => {
+  const handleViewRoute = (rutaPlanificada) => {
     try {
-      console.log("WKT recibido:", wktString); // Para depuración
-      
-      let wktToParse = wktString;
-      if (!wktString.startsWith("LINESTRING")) {
-        wktToParse = `LINESTRING(${wktString})`;
-      }
+      console.log(rutaPlanificada);
 
-      const geoJSON = WKT.parse(wktToParse);
-      console.log("geoJSON parseado:", geoJSON);
+      setRouteCoordinates([
+        [rutaPlanificada[0].latitud, rutaPlanificada[0].longitud],
+        [rutaPlanificada[1].latitud, rutaPlanificada[1].longitud],
+      ]);
       
-      if (geoJSON && geoJSON.coordinates && geoJSON.coordinates.length > 0) {
-        const leafletCoords = geoJSON.coordinates.map((coord) => [
-          coord[1], // latitud
-          coord[0], // longitud
-        ]);
-        setRouteCoordinates(leafletCoords);
-        
-        // Centrar el mapa en el primer punto de la ruta
-        if (leafletCoords.length > 0) {
-          setCurrentView("menu");
-        }
-      } else {
-        console.error("No se encontraron coordenadas válidas en el WKT");
-      }
-    } catch (error) {
-      console.error("Error al parsear WKT:", error);
+    } catch(error) {
+      console.error(error);
     }
   };
 
@@ -164,12 +154,20 @@ export default function Menu() {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {routeCoordinates && (
-            <Polyline 
-              positions={routeCoordinates} 
-              color="blue" 
-              weight={5}
-              opacity={0.7}
-            />
+            <>
+              <Polyline 
+                positions={routeCoordinates} 
+                color="blue" 
+                weight={5}
+                opacity={0.7}
+              />
+              <Marker position={routeCoordinates[0]}>
+                <Popup>Punto de inicio</Popup>
+              </Marker>
+              <Marker position={routeCoordinates[1]}>
+                <Popup>Punto de destino</Popup>
+              </Marker>
+            </>
           )}
         </MapContainer>
       </div>

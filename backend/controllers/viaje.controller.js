@@ -4,6 +4,20 @@ const { Pool } = pg;
 const pool = new Pool(DB_CONFIG);
 import QRCode from "qrcode";
 
+function wktToRutaPlanificada(wkt) {
+  try{
+    const matches = wkt.match(/^LINESTRING\((.+)\)$/);
+      if (!matches) return [];
+      return matches[1].split(",").map(pair => {
+        const [lon, lat] = pair.trim().split(" ").map(Number);
+        return { latitud: lat, longitud: lon };
+      });
+  }catch (error) {
+    console.error("Error en wktToRutaPlanificada:", error);
+    return [];
+  }
+}
+
 export const viajesDisponibles = async (usuarioId) => {
   try {
     const viajes = await pool.query(
@@ -16,7 +30,7 @@ export const viajesDisponibles = async (usuarioId) => {
     v.puntoDestino, 
     v.tipoViaje, 
     v.cantidadPasajeros, 
-    v.rutaPlanificada, 
+    ST_AsText(v.rutaPlanificada) as rutaPlanificada,
     v.codigoQr,
     ve.id AS vehiculoId, 
     ve.categoria, 
@@ -38,6 +52,10 @@ AND c.institucionId = (SELECT institucionId FROM usuario WHERE usId = $1)
       [usuarioId]
     );
 
+    viajes.rows.forEach(element => {
+      element.rutaplanificada = wktToRutaPlanificada(element.rutaplanificada);
+    });
+    
     return viajes.rows;
   } catch (error) {
     console.error("Error en viajesDisponibles:", error);
