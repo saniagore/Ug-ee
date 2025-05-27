@@ -95,7 +95,7 @@ export default function AdministrarConductores() {
   const handleLogout = async () => {
     try {
       const logoutEndpoint = "http://localhost:5000/api/institucion/logout";
-
+      goToHomePage();
       await fetch(logoutEndpoint, {
         method: "POST",
         credentials: "include",
@@ -103,7 +103,6 @@ export default function AdministrarConductores() {
           Authorization: `Bearer ${localStorage.getItem("jwt_token")}`,
         },
       });
-      goToHomePage();
       localStorage.removeItem("jwt_token");
       localStorage.removeItem("user_type");
     } catch (error) {

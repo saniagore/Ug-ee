@@ -71,6 +71,7 @@ router.post("/unirse-viaje", async (req, res) => {
     const result = await unirseViaje(viajeId, usuarioId);
     res.status(200).json({ result });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: "Error al unirse al viaje" });
   }
 });

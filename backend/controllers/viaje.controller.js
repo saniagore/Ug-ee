@@ -41,16 +41,24 @@ export const viajesDisponibles = async (usuarioId) => {
         c.nombre AS conductorNombre,
         c.celular AS conductorCelular,
         c.correo AS conductorCorreo,
-        c.puntuacionPromedio AS conductorPuntuacion
+        c.puntuacionPromedio AS conductorPuntuacion,
+        v.cantidadPasajeros - COALESCE((
+          SELECT COUNT(*) 
+          FROM pasajeros pa 
+          WHERE pa.viajeId = v.id
+        ), 0) AS pasajerosDisponibles
       FROM viaje v
       JOIN vehiculo ve ON v.vehiculoId = ve.id
       JOIN conductor c ON ve.conductorId = c.cId
+      JOIN usuario u ON u.id = $1
+      LEFT JOIN pasajeros pa ON pa.viajeId = v.id
       WHERE v.estado = 'pendiente' 
-      AND c.institucionId = (SELECT institucionId FROM usuario WHERE usId = $1)
+      AND c.institucionId = (SELECT institucionId FROM persona WHERE id = $1)
       AND NOT EXISTS (
         SELECT 1 FROM pasajeros p 
-        WHERE p.viajeId = v.id AND p.usuarioId = $1
+        WHERE p.viajeId = v.id AND p.usuarioId = u.id
       )
+      GROUP BY v.id, ve.id, c.cId, u.id, c.nombre, c.celular, c.correo, c.puntuacionpromedio
       `,
       [usuarioId]
     );
@@ -236,8 +244,9 @@ export const crearRutaViaje = async (viajeData) => {
 
 export const unirseViaje = async (viajeId, usuarioId) => {
   try {
+
     const result = await pool.query(
-      `INSERT INTO pasajeros (viajeId, usuarioId) VALUES ($1, $2) RETURNING *`,
+      `INSERT INTO pasajeros (viajeId, usuarioId) VALUES ($1, (SELECT usId FROM usuario WHERE id = $2)) RETURNING *`,
       [viajeId, usuarioId]
     );
 
@@ -275,7 +284,7 @@ export const historialViajes = async (usuarioId) => {
       JOIN vehiculo ve ON v.vehiculoId = ve.id
       JOIN conductor c ON ve.conductorId = c.cId
       WHERE v.id IN (
-        SELECT viajeId FROM pasajeros WHERE usuarioId = $1
+        SELECT viajeId FROM pasajeros WHERE usuarioId = (SELECT usId FROM usuario WHERE id = $1)
       )`,
       [usuarioId]
     );
@@ -293,7 +302,7 @@ export const historialViajes = async (usuarioId) => {
 export const cancelarViajeUsuario = async (viajeId, usuarioId) => {
   try {
     const result = await pool.query(
-      `DELETE FROM pasajeros WHERE viajeId = $1 AND usuarioId = $2 RETURNING *`,
+      `DELETE FROM pasajeros WHERE viajeId = $1 AND usuarioId = (SELECT usId FROM usuario WHERE id = $2) RETURNING *`,
       [viajeId, usuarioId]
     );
 

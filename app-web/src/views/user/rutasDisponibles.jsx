@@ -17,10 +17,10 @@ const RutasDisponibles = ({ userId, onViewRoute }) => {
   const handleUnirseRuta = async (viajeId) => {
     try {
       await viajeQuery.unirseViaje(viajeId, userId);
-      alert("Te has unido al viaje exitosamente");
-
       const viajesActualizados = await viajeQuery.verViajesDisponibles(userId);
       setViajes(viajesActualizados || []);
+      alert("Te has unido al viaje exitosamente");
+
     } catch (error) {
       alert("Error al unirse al viaje");
     }
@@ -132,7 +132,7 @@ const RutasDisponibles = ({ userId, onViewRoute }) => {
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Pasajeros</div>
-                  <div className="detail-value">{viaje.cantidadpasajeros}</div>
+                  <div className="detail-value">{viaje.pasajerosdisponibles}</div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Vehículo</div>
