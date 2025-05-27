@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaStar } from "react-icons/fa";
 import { QueryViaje } from "../../components/queryViaje";
+import { QueryCalificacion } from "../../components/queryCalificacion";
 import "./css/Historial.css";
 
 const HistorialViajes = ({ userId, onViewRoute }) => {
@@ -28,17 +29,15 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
       alert("Por favor selecciona una calificación");
       return;
     }
-
     try {
-      setLoading(true);
-      const viajeQuery = new QueryViaje();
-      await viajeQuery.calificarViaje(
-        ratingViajeId,
-        userId,
-        rating,
-        comentario
-      );
 
+      setLoading(true);
+      const queryCalificacion = new QueryCalificacion();
+      await queryCalificacion.calificarViaje(ratingViajeId,rating,comentario);
+      console.log(ratingViajeId, rating, comentario);
+
+
+      const viajeQuery = new QueryViaje();
       const result = await viajeQuery.obtenerHistorial(userId);
       setViajes(result || []);
 

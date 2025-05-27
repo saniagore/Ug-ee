@@ -9,6 +9,7 @@ import conductorRoutes from "./routes/conductor.routes.js";
 import viajeRoutes from "./routes/viaje.routes.js";
 import vehiculoRoutes from "./routes/vehiculo.routes.js";
 import reservaRoutes from "./routes/reserva.routes.js";
+import calificacionRoutes from "./routes/calificacion.routes.js";
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.use("/api/conductor", conductorRoutes);
 app.use("/api/viaje", viajeRoutes);
 app.use("/api/vehiculo", vehiculoRoutes);
 app.use("/api/reserva", reservaRoutes);
+app.use("/api/calificacion", calificacionRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
