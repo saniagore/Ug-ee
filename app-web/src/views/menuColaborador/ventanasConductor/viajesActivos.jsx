@@ -20,7 +20,6 @@ export default function ViajesActivos({ conductorId }) {
     try {
       const query = new QueryViaje();
       const resultado = await query.viajesActivos(conductorId);
-      console.log(resultado);
 
       if (resultado && !resultado.error) {
         const viajesData = Array.isArray(resultado)
@@ -130,6 +129,10 @@ export default function ViajesActivos({ conductorId }) {
             <div style={styles.detailItem}>
               <div style={styles.detailLabel}>Cantidad de Pasajeros Disponible</div>
               <div style={styles.detailValue}>{viaje.cantidadpasajeros}</div>
+            </div>
+            <div style={styles.detailItem}>
+              <div style={styles.detailLabel}>Cantidad de Pasajeros Aceptados</div>
+              <div style={styles.detailValue}>{viaje.pasajerosdisponibles}</div>
             </div>
           </div>
 

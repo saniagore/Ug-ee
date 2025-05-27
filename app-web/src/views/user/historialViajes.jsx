@@ -11,6 +11,7 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
     try{
       const viajeQuery = new QueryViaje();
       await viajeQuery.cancelarViajeUsuario(viajeId, userId);
+
       
       const result = await viajeQuery.obtenerHistorial(userId);
       setViajes(result || []);

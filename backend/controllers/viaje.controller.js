@@ -70,17 +70,29 @@ export const viajesActivos = async (conductorId) => {
   try {
     const viajesEnCurso = await pool.query(
       `
-      SELECT v.id, v.estado, v.fechaSalida, v.puntoPartida, v.puntoDestino, v.tipoViaje, v.cantidadPasajeros, v.rutaPlanificada
+      SELECT 
+        v.id, 
+        v.estado, 
+        v.fechaSalida, 
+        v.puntoPartida, 
+        v.puntoDestino, 
+        v.tipoViaje, 
+        v.cantidadPasajeros, 
+        v.rutaPlanificada,
+        COUNT(pa.usuarioId) AS pasajerosDisponibles
       FROM viaje v
       JOIN vehiculo ve ON v.vehiculoId = ve.id
       JOIN conductor c ON ve.conductorId = c.cId
+      LEFT JOIN pasajeros pa ON v.id = pa.viajeId
       WHERE c.id = $1
+      GROUP BY v.id, v.estado, v.fechaSalida, v.puntoPartida, v.puntoDestino, v.tipoViaje, v.cantidadPasajeros, v.rutaPlanificada
     `,
       [conductorId]
     );
 
     return viajesEnCurso.rows;
   } catch (error) {
+    console.error(error);
     throw error;
   }
 };
@@ -229,15 +241,6 @@ export const unirseViaje = async (viajeId, usuarioId) => {
       [viajeId, usuarioId]
     );
 
-    await pool.query(
-      `
-        UPDATE VIAJE 
-        SET cantidadPasajeros = cantidadPasajeros - 1 
-        WHERE id = $1
-      `,
-      [viajeId]
-    );
-
     return result.rows[0];
   } catch (error) {
     throw error;
@@ -292,15 +295,6 @@ export const cancelarViajeUsuario = async (viajeId, usuarioId) => {
     const result = await pool.query(
       `DELETE FROM pasajeros WHERE viajeId = $1 AND usuarioId = $2 RETURNING *`,
       [viajeId, usuarioId]
-    );
-
-    await pool.query(
-      `
-        UPDATE viaje
-        SET cantidadPasajeros = cantidadPasajeros + 1 
-        WHERE id = $1
-      `,
-      [viajeId]
     );
 
     return result.rows[0];

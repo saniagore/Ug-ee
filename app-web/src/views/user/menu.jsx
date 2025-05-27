@@ -60,10 +60,6 @@ export default function Menu() {
 
   const handleViewRoute = (rutaPlanificada) => {
     try {
-      if (!rutaPlanificada || rutaPlanificada.length < 2) {
-        throw new Error("Invalid route data");
-      }
-
       const startPoint = [
         rutaPlanificada[0].latitud,
         rutaPlanificada[0].longitud,
