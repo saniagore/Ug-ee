@@ -48,8 +48,8 @@ export const obtenerHistorialReservas = async (usuarioId) => {
       `
             SELECT r.id, r.estado, r.codigoQr, r.fecha, r.horaSalida, r.puntoPartida, r.puntoDestino
             FROM reserva r
-            INNER JOIN usuario u ON r.usuarioId = u.UsId
-            WHERE u.UsId = $1
+            INNER JOIN usuario u ON r.usuarioId = u.usId
+            WHERE u.id = $1
             ORDER BY r.horaSalida DESC
             `,
       [usuarioId]

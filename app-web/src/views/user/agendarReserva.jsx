@@ -1,6 +1,5 @@
 import { useState, useRef } from 'react';
-import { FaCalendarAlt, FaMapMarkerAlt, FaHome, FaPaperPlane, FaArrowLeft } from 'react-icons/fa';
-import { styles } from './css/reserva';
+import { FaCalendarAlt, FaMapMarkerAlt, FaHome, FaPaperPlane } from 'react-icons/fa';
 import { QueryReserva } from '../../components/queryReserva';
 import {
   MapContainer,
@@ -12,8 +11,8 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import './css/Reserva.css';
 
-// Configuración de iconos de Leaflet
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
@@ -60,7 +59,6 @@ const ReservaForm = ({ onBack }) => {
     const { lat, lng } = e.latlng;
     
     if (!formData.ubicacionPartida) {
-      // Primer click: establecer punto de partida
       setFormData(prev => ({
         ...prev,
         ubicacionPartida: { lat, lng },
@@ -68,7 +66,6 @@ const ReservaForm = ({ onBack }) => {
         rutaPlanificada: [{ lat, lng }]
       }));
     } else if (!formData.ubicacionDestino) {
-      // Segundo click: establecer punto de destino
       setFormData(prev => ({
         ...prev,
         ubicacionDestino: { lat, lng },
@@ -76,7 +73,6 @@ const ReservaForm = ({ onBack }) => {
         rutaPlanificada: [prev.ubicacionPartida, { lat, lng }]
       }));
 
-      // Ajustar vista para mostrar toda la ruta
       if (mapRef.current) {
         const bounds = L.latLngBounds([
           [formData.ubicacionPartida.lat, formData.ubicacionPartida.lng],
@@ -104,7 +100,7 @@ const ReservaForm = ({ onBack }) => {
     if (!formData.destino) newErrors.destino = 'Campo obligatorio';
     if (!formData.direccion) newErrors.direccion = 'Campo obligatorio';
     if (!formData.ubicacionPartida || !formData.ubicacionDestino) {
-      newErrors.ruta = 'Debes seleccionar una ruta en el mapa';
+      newErrors.ruta = 'Debes seleccionar ambos puntos (partida y destino) en el mapa';
     }
     return newErrors;
   };
@@ -126,31 +122,26 @@ const ReservaForm = ({ onBack }) => {
       ubicacionPartida: formData.ubicacionPartida
     };
 
-    try{
-      console.log(reservaData);
+    try {
       await reservaQuery.registrarReserva(reservaData);
-      
       alert('¡Reserva agendada con éxito!');
       onBack();
-    }catch(error){
+    } catch(error) {
       alert('Error al agendar la reserva. Por favor, inténtalo de nuevo.');
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.header}>
-        <button onClick={onBack} style={styles.backButton}>
-          <FaArrowLeft style={{ marginRight: '8px' }} /> Volver
-        </button>
-        <h2 style={styles.title}>Agendar Reserva</h2>
+    <div className="reserva-form-container">
+      <div className="reserva-form-header">
+        <h2 className="reserva-form-title">Agendar Reserva</h2>
       </div>
       
-      <div style={{ marginBottom: '20px' }}>
+      <div className="reserva-form-map-container">
         <MapContainer
           center={[3.374733, -76.535007]}
           zoom={13}
-          style={{ height: '400px', width: '100%', borderRadius: '8px' }}
+          style={{ height: '100%', width: '100%' }}
           whenCreated={(map) => {
             mapRef.current = map;
           }}
@@ -187,58 +178,44 @@ const ReservaForm = ({ onBack }) => {
             />
           )}
         </MapContainer>
-        
-        <div style={{ 
-          backgroundColor: '#f8fafc', 
-          padding: '12px', 
-          borderRadius: '8px',
-          marginTop: '10px',
-          border: '1px solid #e2e8f0'
-        }}>
-          <p style={{ margin: '0 0 8px 0', color: '#4a5568' }}>
-            {!formData.ubicacionPartida
-              ? "Haz clic en el mapa para seleccionar el punto de partida"
-              : !formData.ubicacionDestino
-              ? "Ahora haz clic para seleccionar el punto de destino"
-              : "Ruta seleccionada. Puedes reiniciar si es necesario"}
-          </p>
-          {(formData.ubicacionPartida || formData.ubicacionDestino) && (
-            <button
-              onClick={resetRouteSelection}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#fff5f5',
-                border: '1px solid #fed7d7',
-                color: '#e53e3e',
-                borderRadius: '6px',
-                fontSize: '14px',
-                cursor: 'pointer'
-              }}
-            >
-              Reiniciar selección
-            </button>
-          )}
-        </div>
+      </div>
+      
+      <div className="reserva-map-instructions">
+        <p>
+          {!formData.ubicacionPartida
+            ? "Haz clic en el mapa para seleccionar el punto de partida"
+            : !formData.ubicacionDestino
+            ? "Ahora haz clic para seleccionar el punto de destino"
+            : "Ruta seleccionada. Puedes reiniciar si es necesario"}
+        </p>
+        {(formData.ubicacionPartida || formData.ubicacionDestino) && (
+          <button
+            onClick={resetRouteSelection}
+            className="reserva-reset-button"
+          >
+            Reiniciar selección
+          </button>
+        )}
       </div>
 
-      <form onSubmit={handleSubmit} style={styles.form}>
-        <div style={styles.formGroup}>
-          <label style={styles.label}>
-            <FaCalendarAlt style={styles.icon} /> Fecha y Hora de Salida
+      <form onSubmit={handleSubmit} className="reserva-form">
+        <div className="reserva-form-group">
+          <label className="reserva-form-label">
+            <FaCalendarAlt className="reserva-form-icon" /> Fecha y Hora de Salida
           </label>
           <input
             type="datetime-local"
             name="fechaHora"
             value={formData.fechaHora}
             onChange={handleChange}
-            style={styles.input}
+            className="reserva-form-input"
           />
-          {errors.fechaHora && <span style={styles.error}>{errors.fechaHora}</span>}
+          {errors.fechaHora && <span className="reserva-form-error">{errors.fechaHora}</span>}
         </div>
 
-        <div style={styles.formGroup}>
-          <label style={styles.label}>
-            <FaMapMarkerAlt style={styles.icon} /> Punto de Destino
+        <div className="reserva-form-group">
+          <label className="reserva-form-label">
+            <FaMapMarkerAlt className="reserva-form-icon" /> Punto de Destino
           </label>
           <input
             type="text"
@@ -246,41 +223,35 @@ const ReservaForm = ({ onBack }) => {
             value={formData.destino}
             onChange={handleChange}
             placeholder="Selecciona en el mapa o escribe manualmente"
-            style={styles.input}
+            className="reserva-form-input"
           />
-          {errors.destino && <span style={styles.error}>{errors.destino}</span>}
+          {errors.destino && <span className="reserva-form-error">{errors.destino}</span>}
         </div>
 
-        <div style={styles.formGroup}>
-          <label style={styles.label}>
-            <FaHome style={styles.icon} /> Dirección Completa
+        <div className="reserva-form-group">
+          <label className="reserva-form-label">
+            <FaHome className="reserva-form-icon" /> Dirección Completa
           </label>
           <textarea
             name="direccion"
             value={formData.direccion}
             onChange={handleChange}
             placeholder="Selecciona en el mapa o escribe manualmente"
-            style={{ ...styles.input, minHeight: '80px' }}
+            className="reserva-form-input reserva-form-textarea"
           />
-          {errors.direccion && <span style={styles.error}>{errors.direccion}</span>}
+          {errors.direccion && <span className="reserva-form-error">{errors.direccion}</span>}
         </div>
 
         {errors.ruta && (
-          <div style={{ 
-            color: '#e53e3e', 
-            backgroundColor: '#fff5f5',
-            padding: '10px',
-            borderRadius: '6px',
-            marginBottom: '15px',
-            border: '1px solid #fed7d7'
-          }}>
+          <div className="reserva-route-error">
             {errors.ruta}
           </div>
         )}
 
-        <div style={styles.buttonGroup}>
-          <button type="submit" style={styles.submitButton}>
-            <FaPaperPlane style={{ marginRight: '8px' }} /> Confirmar Reserva
+        <div className="reserva-form-button-group"
+          style={{alignSelf: 'center'}}>
+          <button type="submit" className="reserva-submit-button">
+            <FaPaperPlane style={{ marginRight: '10px' }} /> Confirmar Reserva
           </button>
         </div>
       </form>

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { FaArrowLeft, FaHistory, FaMapMarkerAlt, FaCalendarAlt, FaQrcode } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { FaArrowLeft, FaHistory, FaMapMarkerAlt, FaCalendarAlt, FaQrcode, FaInfoCircle } from "react-icons/fa";
 import { QueryReserva } from "../../components/queryReserva";
 import "./css/HistorialReservas.css";
 
@@ -7,6 +7,7 @@ const HistorialReservas = ({ onBack }) => {
   const [reservas, setReservas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showInfo, setShowInfo] = useState(false);
 
   useEffect(() => {
     const fetchHistorial = async () => {
@@ -58,16 +59,6 @@ const HistorialReservas = ({ onBack }) => {
     }
   };
 
-  const formatFecha = (fechaString) => {
-    if (!fechaString) return 'Fecha no disponible';
-    try {
-      const options = { year: 'numeric', month: 'long', day: 'numeric' };
-      return new Date(fechaString).toLocaleDateString('es-ES', options);
-    } catch {
-      return fechaString;
-    }
-  };
-
   const getEstadoStyle = (estado) => {
     if (!estado) return { backgroundColor: '#9E9E9E', color: 'white' };
     switch(estado.toLowerCase()) {
@@ -85,8 +76,14 @@ const HistorialReservas = ({ onBack }) => {
   };
 
   const handleShowQR = (qrCode) => {
-    // Implementar lógica para mostrar el QR en un modal o nueva ventana
     window.open(qrCode, '_blank');
+  };
+
+  const handleShowInfo = () => {
+    setShowInfo(true);
+    setTimeout(() => {
+      setShowInfo(false);
+    }, 3000);
   };
 
   return (
@@ -124,7 +121,7 @@ const HistorialReservas = ({ onBack }) => {
               <div className="reserva-header">
                 <span className="reserva-fecha">
                   <FaCalendarAlt style={{ marginRight: '5px' }} />
-                  {formatFecha(reserva.fecha)} - {formatFechaHora(reserva.hora_salida)}
+                  {formatFechaHora(reserva.horasalida)}
                 </span>
                 <span 
                   className="reserva-estado" 
@@ -138,15 +135,31 @@ const HistorialReservas = ({ onBack }) => {
                 <div className="reserva-ruta">
                   <div className="ruta-item">
                     <FaMapMarkerAlt className="origen-icon" />
-                    <span className="ruta-text">{reserva.punto_partida || 'Origen no disponible'}</span>
+                    <span className="ruta-text">{reserva.puntopartida || 'Origen no disponible'}</span>
                   </div>
                   <div className="ruta-item">
                     <FaMapMarkerAlt className="destino-icon" />
-                    <span className="ruta-text">{reserva.punto_destino || 'Destino no disponible'}</span>
+                    <span className="ruta-text">{reserva.puntodestino || 'Destino no disponible'}</span>
                   </div>
                 </div>
                 
                 <div className="reserva-detalles">
+                  {reserva.estado && reserva.estado.toLowerCase() === 'confirmada' && (
+                    <>
+                      <button 
+                        className="info-button"
+                        onClick={handleShowInfo}
+                      >
+                        <FaInfoCircle style={{ marginRight: '5px' }} />
+                        Información
+                      </button>
+                      {showInfo && (
+                        <div className="info-message">
+                          Su reserva ha sido aceptada, puede visualizar más información en el historial de viajes donde encontrará a su conductor designado
+                        </div>
+                      )}
+                    </>
+                  )}
                   <button 
                     className="qr-button"
                     onClick={() => handleShowQR(reserva.codigo_qr)}
