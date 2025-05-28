@@ -12,7 +12,6 @@ export const crearReserva = async (formData) => {
     const fecha = formData.fechaHora.split("T")[0];
     const hora = fecha + " " + formData.fechaHora.split("T")[1] + ":00";
     
-
     const qrContent = JSON.stringify(formData);
     const qrCode = await QRCode.toDataURL(qrContent);
     
@@ -57,6 +56,21 @@ export const obtenerHistorialReservas = async (usuarioId) => {
 
     return result.rows;
   } catch (error) {
+    throw error;
+  }
+};
+
+
+export const obtenerReservasDisponibles = async (conductorId) => {
+  try {
+    const result = await pool.query(`
+      SELECT r.id, r.estado, r.codigoQr, r.fecha, r.horaSalida, r.puntoPartida, r.puntoDestino, r.usuarioId
+      FROM reserva r
+      JOIN usuario u ON r.usuarioId = u.usId
+      WHERE u.institucionId = (SELECT institucionId FROM conductor WHERE id = $1) AND r.estado = 'pendiente'`, [conductorId]);
+    
+    return result.rows;
+  }catch(error){
     throw error;
   }
 };

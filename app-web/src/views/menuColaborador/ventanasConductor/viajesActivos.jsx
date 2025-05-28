@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { QueryViaje } from "../../../components/queryViaje";
-import { styles } from "../../../css/menuConductor";
+import { styles } from "../css/menuConductor";
 
 export default function ViajesActivos({ conductorId }) {
   const [viajes, setViajes] = useState([]);

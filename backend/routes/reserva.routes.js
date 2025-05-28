@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   crearReserva,
   obtenerHistorialReservas,
+  obtenerReservasDisponibles,
 } from "../controllers/reserva.controller.js";
 
 const router = Router();
@@ -26,6 +27,16 @@ router.get("/historial/:usuarioId", async (req, res) => {
     res
       .status(500)
       .json({ error: "Error al obtener el historial de reservas" });
+  }
+});
+
+router.get("/disponibles/:conductorId", async (req, res) => {
+  try {
+    const { conductorId } = req.params;
+    const result = await obtenerReservasDisponibles(conductorId);
+    res.status(200).json({ result });
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener reservas disponibles" });
   }
 });
 

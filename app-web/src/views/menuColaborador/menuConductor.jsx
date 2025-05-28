@@ -1,8 +1,9 @@
 import { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { QueryVehicle } from "../../components/queryVehiculo";
-import { styles } from "../../css/menuConductor";
+import { styles } from "./css/menuConductor";
 
+import ReservasDisponibles from "./ventanasConductor/reservasDisponibles";
 import CrearRutaViaje from "./ventanasConductor/crearRuta";
 import ViajesActivos from "./ventanasConductor/viajesActivos";
 
@@ -118,6 +119,15 @@ export default function MenuConductor({ onLogout }) {
           onClick={() => setActiveTab("viajes Activos")}
         >
           Mis Viajes
+        </div>
+        <div
+          style={{
+            ...styles.tab,
+            ...(activeTab === "Reservas" ? styles.activeTab : {}),
+          }}
+          onClick={() => setActiveTab("Reservas")}
+        >
+          Reservas Disponibles
         </div>
         <div
           style={{
@@ -257,6 +267,14 @@ export default function MenuConductor({ onLogout }) {
         }}>
           <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Mis Viajes Activos</h2>
           <ViajesActivos
+            conductorId={userData?.id}
+          />
+        </div>
+      )}
+      {activeTab === "Reservas" && (
+        <div style={styles.card}>
+          <h2 style={{ marginTop: 0, color: "#2c3e50" }}>Reservas Disponibles</h2>
+          <ReservasDisponibles
             conductorId={userData?.id}
           />
         </div>

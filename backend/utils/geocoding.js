@@ -37,3 +37,24 @@ export function wktToRutaPlanificada(wkt) {
     return [];
   }
 }
+
+export async function obtenerCoordenadas(direccion) {
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(direccion)}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (!data || data.length === 0) return { lat: null, lon: null, mensaje: "Dirección no encontrada" };
+
+    const primerResultado = data[0];
+    return {
+      lat: parseFloat(primerResultado.lat),
+      lon: parseFloat(primerResultado.lon),
+      direccion: primerResultado.display_name
+    };
+  } catch (error) {
+    console.error("Error fetching coordinates:", error);
+    return { lat: null, lon: null, mensaje: "Error al obtener las coordenadas" };
+  }
+}
