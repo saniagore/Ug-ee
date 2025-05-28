@@ -13,7 +13,6 @@ export default function ReservasDisponibles({ conductorId }) {
     try {
       const query = new QueryReserva();
       const resultado = await query.reservasDisponibles(conductorId);
-      console.log(resultado);
 
       if (resultado && !resultado.error) {
         const reservasData = Array.isArray(resultado)
@@ -44,24 +43,30 @@ export default function ReservasDisponibles({ conductorId }) {
   }, [conductorId, cargarReservasDisponibles]);
 
   const handleAceptarReserva = async (reservaId) => {
-    try {
-      // Aquí deberías implementar la lógica para aceptar la reserva
-      // Por ejemplo:
-      // const query = new QueryReserva();
-      // const resultado = await query.aceptarReserva(reservaId, conductorId);
-      
-      // if (resultado.error) {
-      //   alert(resultado.message);
-      // } else {
-      //   alert("Reserva aceptada exitosamente");
-      //   cargarReservasDisponibles();
-      // }
-      alert(`Reserva ${reservaId} aceptada (implementar lógica)`);
-    } catch (err) {
-      alert("Error al aceptar la reserva");
-      console.error(err);
+  try {
+    const confirmacion = window.confirm(
+      `¿Está seguro que desea aceptar la reserva?\n\n` +
+      "ADVERTENCIA: Si acepta la reserva, ya no podrá ser rechazada."
+    );
+    
+    if (!confirmacion) {
+      alert("Operación cancelada");
+      return;
     }
-  };
+    
+    const query = new QueryReserva();
+    const resultado = await query.aceptarReserva(reservaId, conductorId);
+    if (resultado.error) {
+      alert(resultado.message || "Error al aceptar la reserva");
+      return;
+    }
+    alert(`Reserva aceptada correctamente`);
+    
+  } catch (err) {
+    alert("Error al aceptar la reserva");
+    console.error(err);
+  }
+};
 
   if (loading) {
     return <div style={styles.loading}>Cargando reservas disponibles...</div>;

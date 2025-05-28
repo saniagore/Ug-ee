@@ -220,7 +220,7 @@ export const unirseViaje = async (viajeId, usuarioId) => {
 
 export const historialViajes = async (usuarioId) => {
   try {
-    const viajes = await pool.query(
+    const viajes1 = await pool.query(
       `SELECT 
         v.id, 
         v.estado, 
@@ -250,6 +250,32 @@ export const historialViajes = async (usuarioId) => {
       )`,
       [usuarioId]
     );
+
+    const viajes2 = await pool.query(
+      `SELECT
+      v.id,
+      v.estado,
+      v.fechaSalida,
+      v.puntoPartida,
+      v.puntoDestino,
+      v.tipoViaje,
+      v.cantidadPasajeros,
+      ST_AsText(v.rutaPlanificada) as rutaPlanificada,
+      v.codigoQr,
+      c.nombre AS conductorNombre,
+      c.celular AS conductorCelular,
+      c.correo AS conductorCorreo,
+      c.puntuacionPromedio AS conductorPuntuacion
+    FROM viaje v
+    JOIN reserva r on v.reservaId = r.id
+    JOIN conductor c ON r.conductorId = c.cId
+    WHERE r.usuarioId = (SELECT usId FROM usuario WHERE id = $1)`,
+      [usuarioId]
+    );
+
+    const viajes = {
+      rows: [...viajes1.rows, ...viajes2.rows]
+    };
 
     viajes.rows.forEach((element) => {
       element.rutaplanificada = wktToRutaPlanificada(element.rutaplanificada);

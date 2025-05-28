@@ -1,8 +1,8 @@
 export class QueryReserva {
   static BASE_URL = "http://localhost:5000/api/reserva";
 
-  async registrarReserva(formData){
-    try{
+  async registrarReserva(formData) {
+    try {
       const response = await fetch(`${QueryReserva.BASE_URL}/registrar`, {
         method: "POST",
         credentials: "include",
@@ -23,18 +23,20 @@ export class QueryReserva {
       }
 
       return data;
-    }catch(error){
+    } catch (error) {
       return {
-                error: true,
-                message: "Error de conexión al servidor",
-                details: error.message
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message,
       };
     }
   }
 
-  async historialReservas(usuarioId){
-    try{
-      const response = await fetch(`${QueryReserva.BASE_URL}/historial/${usuarioId}`)
+  async historialReservas(usuarioId) {
+    try {
+      const response = await fetch(
+        `${QueryReserva.BASE_URL}/historial/${usuarioId}`
+      );
       const result = await response.json();
 
       if (!response.ok) {
@@ -46,7 +48,7 @@ export class QueryReserva {
       }
 
       return result.result;
-    }catch(error){
+    } catch (error) {
       return {
         error: true,
         message: "Error de conexión al servidor",
@@ -56,8 +58,10 @@ export class QueryReserva {
   }
 
   async reservasDisponibles(conductorId) {
-    try{
-      const response = await fetch(`${QueryReserva.BASE_URL}/disponibles/${conductorId}`);
+    try {
+      const response = await fetch(
+        `${QueryReserva.BASE_URL}/disponibles/${conductorId}`
+      );
       const result = await response.json();
 
       if (!response.ok) {
@@ -68,13 +72,43 @@ export class QueryReserva {
         };
       }
       return result.result;
-    }catch(error){
+    } catch (error) {
       return {
         error: true,
         message: "Error de conexión al servidor",
-        details: error.message
+        details: error.message,
       };
     }
   }
 
+  async aceptarReserva(reservaId, conductorId) {
+    try {
+      const response = await fetch(
+        `${QueryReserva.BASE_URL}/aceptar`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ reservaId, conductorId }),
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          error: true,
+          message: data.message || "Error al aceptar la reserva",
+          details: data.details,
+        };
+      }
+      return data;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message,
+      };
+    }
+  }
 }

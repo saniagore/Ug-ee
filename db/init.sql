@@ -123,6 +123,9 @@ CREATE TABLE reserva(
     puntoPartida VARCHAR(50) NOT NULL,
     puntoDestino VARCHAR(50) NOT NULL,
     usuarioId INTEGER NOT NULL,
+    conductorId INTEGER NOT NULL,
+
+    FOREIGN KEY (conductorId) REFERENCES conductor(cId) ON DELETE CASCADE,
     FOREIGN KEY (usuarioId) REFERENCES usuario(usId) ON DELETE CASCADE
 );
 
