@@ -34,8 +34,6 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
       setLoading(true);
       const queryCalificacion = new QueryCalificacion();
       await queryCalificacion.calificarViaje(ratingViajeId,rating,comentario);
-      console.log(ratingViajeId, rating, comentario);
-
 
       const viajeQuery = new QueryViaje();
       const result = await viajeQuery.obtenerHistorial(userId);
