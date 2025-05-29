@@ -21,4 +21,18 @@ export class QueryReporte {
         throw error;
         }
     }
+
+    async obtenerReportes(institucionId) {
+      try{
+        const response = await fetch(`${QueryReporte.BASE_URL}/obtener/${institucionId}`);
+        if (!response.ok) {
+          throw new Error("Error al obtener los reportes");
+        }
+        const data = await response.json();
+        return data.reportes;
+      } catch (error) {
+        console.error("Error en obtenerReportes:", error);
+        throw error;
+      }
+    }
 }

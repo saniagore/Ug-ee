@@ -9,6 +9,7 @@ import Colaborador from './views/home/colaborador.js';
 import VerificarColaborador from './views/verificarColaborador.js';
 import GestionConductores from './views/menuColaborador/ventanasInstitucion/gestionConductores.jsx';
 import GestionVehiculos from './views/menuColaborador/ventanasInstitucion/gestionVehiculos.jsx';
+import GestionReportes from './views/menuColaborador/ventanasInstitucion/gestionReportes.jsx';
 import RegistroVehiculo from './views/menuColaborador/ventanasConductor/registrarVehiculo.js';
 
 /**
@@ -103,6 +104,10 @@ function App() {
         <Route 
           path='/Colaborador/Registrar-vehiculo'
           element={<RegistroVehiculo/>}
+        />
+        <Route
+          path='/Colaborador/Gestion-reportes'
+          element={<GestionReportes/>}
         />
       </Routes>
     </Router>

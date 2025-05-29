@@ -16,3 +16,21 @@ export const registrarReporte = async (viajeId, descripcion, categoria) => {
         throw error;
     }
 };
+
+export const obtenerReportes = async (institucionId) => {
+    try{
+        const result = await pool.query(`
+            SELECT r.id, r.descripcion, r.tipo, c.nombre AS conductorNombre, c.celular, c.correo, v.fechaSalida
+            FROM reporte r
+            JOIN viaje v on r.viajeId = v.id
+            JOIN vehiculo ve on v.vehiculoId = ve.id
+            JOIN conductor c on ve.conductorId = c.cId
+            JOIN institucion i on c.institucionId = i.id
+            WHERE i.id = $1
+        `, [institucionId]);
+
+        return result.rows;
+    }catch(error){
+        throw error;
+    }
+};
