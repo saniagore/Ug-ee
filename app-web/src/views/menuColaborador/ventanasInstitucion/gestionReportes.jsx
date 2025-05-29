@@ -59,7 +59,6 @@ export default function GestionReportes() {
         setColorPrimario(decodedToken.colorPrimario || "#2c3e50");
         setColorSecundario(decodedToken.colorSecundario || "#ecf0f1");
 
-        // Obtener reportes de la institución
         const reportesData = await reporteQuery.obtenerReportes(decodedToken.id);
         console.log(reportesData);
         setReportes(reportesData || []);
@@ -72,20 +71,17 @@ export default function GestionReportes() {
     verifyAndFetch();
   }, [goToHomePage, reporteQuery]);
 
-  // Filtrar reportes según el tipo seleccionado
   const reportesFiltrados = reportes.filter((reporte) => {
     if (filtro === "todos") return true;
     return reporte.tipo === filtro;
   });
 
-  // Función para renderizar filas expandibles
   const renderReporteRow = (reporte, index) => {
     const isExpanded = reporteExpandido === reporte.id;
     const fechaReporte = new Date(reporte.fechasalida).toLocaleString();
 
     return (
       <React.Fragment key={reporte.id || `reporte-${index}`}>
-        {/* Fila principal - clickable */}
         <tr
           style={{
             backgroundColor: index % 2 === 0 ? "#fff" : "#f2f2f2",
