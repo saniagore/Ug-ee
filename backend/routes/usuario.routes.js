@@ -28,7 +28,7 @@ router.get("/existe/:celular", async (req, res) => {
   }
 });
 
-router.post("/verificar-contraseña", async (req, res) => {
+router.post("/verificar-contra", async (req, res) => {
   try {
     const { celular, contraseña } = req.body;
     const coincide = await verificarContraseña(celular, contraseña);

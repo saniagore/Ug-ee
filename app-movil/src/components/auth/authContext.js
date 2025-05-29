@@ -1,5 +1,5 @@
 import { createContext, useState, useContext } from "react";
-import { queryLogin } from "../validaciones/login";
+import { queryLogin } from "../validaciones/logIn";
 
 const AuthContext = createContext();
 

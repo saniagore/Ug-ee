@@ -4,7 +4,7 @@ export class queryLogin {
     
     async verificarUsuario(celular, contraseña){
         try{
-            const responseUsuario = await fetch(`${queryLogin.BASE_URL_USUARIO}/verificar-contraseña`, {
+            const responseUsuario = await fetch(`${queryLogin.BASE_URL_USUARIO}/verificar-contra`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -13,7 +13,7 @@ export class queryLogin {
             });
             const dataUsuario = await responseUsuario.json();
 
-            const responseConductor = await fetch(`${queryLogin.BASE_URL_CONDUCTOR}/verificar-contraseña`, {
+            const responseConductor = await fetch(`${queryLogin.BASE_URL_CONDUCTOR}/verificar-contra`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

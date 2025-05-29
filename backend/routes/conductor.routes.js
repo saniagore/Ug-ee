@@ -53,7 +53,7 @@ router.get("/existe/:celular", async (req, res) => {
 });
 
 // Verificar contraseña del conductor
-router.post("/verificar-contraseña", async (req, res) => {
+router.post("/verificar-contra", async (req, res) => {
   try {
     const { celular, contraseña } = req.body;
     const coincide = await verificarContraseñaConductor(celular, contraseña);
@@ -62,6 +62,7 @@ router.post("/verificar-contraseña", async (req, res) => {
     res.status(500).json({ error: "Error en el servidor" });
   }
 });
+
 
 // Obtener estado de verificación del conductor
 router.get("/estado/:celular", async (req, res) => {
