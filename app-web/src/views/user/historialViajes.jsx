@@ -3,16 +3,57 @@ import { FaStar } from "react-icons/fa";
 import { QueryViaje } from "../../components/queryViaje";
 import { QueryCalificacion } from "../../components/queryCalificacion";
 import "./css/Historial.css";
+import { QueryReporte } from "../../components/queryReporte";
 
 const HistorialViajes = ({ userId, onViewRoute }) => {
   const [loading, setLoading] = useState(true);
   const [viajes, setViajes] = useState([]);
   const [error, setError] = useState(null);
 
+  // Estados para calificación
   const [ratingViajeId, setRatingViajeId] = useState(null);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [comentario, setComentario] = useState("");
+
+  // Estados para reporte
+  const [reporteViajeId, setReporteViajeId] = useState(null);
+  const [descripcionReporte, setDescripcionReporte] = useState("");
+  const [categoriaReporte, setCategoriaReporte] = useState("");
+
+  const handleReportarViaje = (viajeId) => {
+    setReporteViajeId(viajeId);
+    setDescripcionReporte("");
+    setCategoriaReporte("");
+  };
+
+  const handleCancelarReporte = () => {
+    setReporteViajeId(null);
+  };
+
+  const handleEnviarReporte = async () => {
+    if (!descripcionReporte || !categoriaReporte) {
+      alert("Por favor completa todos los campos del reporte");
+      return;
+    }
+    
+    try {
+      setLoading(true);
+
+      const queryReporte = new QueryReporte();
+      await queryReporte.registrarReporte(reporteViajeId, descripcionReporte, categoriaReporte);  
+      
+      alert("Reporte enviado exitosamente. Gracias por tu feedback.");
+      setReporteViajeId(null);
+      const viajeQuery = new QueryViaje();
+      const result = await viajeQuery.obtenerHistorial(userId);
+      setViajes(result || []);
+    } catch (error) {
+      alert("Error al enviar el reporte: " + error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleCalificarViaje = async (viajeId) => {
     setRatingViajeId(viajeId);
@@ -30,7 +71,6 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
       return;
     }
     try {
-
       setLoading(true);
       const queryCalificacion = new QueryCalificacion();
       await queryCalificacion.calificarViaje(ratingViajeId,rating,comentario);
@@ -66,6 +106,66 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
             )}
           </button>
         ))}
+      </div>
+    );
+  };
+
+  const renderReporteForm = () => {
+    return (
+      <div className="reporte-mode">
+        <h3>Reportar este viaje</h3>
+        <p>
+          {viajes.find(v => v.id === reporteViajeId)?.puntopartida} → 
+          {viajes.find(v => v.id === reporteViajeId)?.puntodestino}
+        </p>
+        
+        <div className="reporte-form-group">
+          <label htmlFor="categoria-reporte">Categoría del reporte:</label>
+          <select
+            id="categoria-reporte"
+            value={categoriaReporte}
+            onChange={(e) => setCategoriaReporte(e.target.value)}
+            className="reporte-select"
+          >
+            <option value="">Selecciona una categoría</option>
+            <option value="reportes de movilidad y uso del servicio">
+              Reportes de movilidad y uso del servicio
+            </option>
+            <option value="reporte de desempeño de conductores y vehiculos">
+              Reporte de desempeño de conductores y vehículos
+            </option>
+            <option value="reporte de seguridad y geolocalizacion">
+              Reporte de seguridad y geolocalización
+            </option>
+          </select>
+        </div>
+        
+        <div className="reporte-form-group">
+          <label htmlFor="descripcion-reporte">Descripción del problema:</label>
+          <textarea
+            id="descripcion-reporte"
+            value={descripcionReporte}
+            onChange={(e) => setDescripcionReporte(e.target.value)}
+            placeholder="Describe detalladamente el problema que encontraste..."
+            className="reporte-textarea"
+            style={{width: "90%"}}
+          />
+        </div>
+        
+        <div className="reporte-actions">
+          <button
+            className="cancel-button"
+            onClick={handleCancelarReporte}
+          >
+            Cancelar
+          </button>
+          <button
+            className="submit-button"
+            onClick={handleEnviarReporte}
+          >
+            Enviar Reporte
+          </button>
+        </div>
       </div>
     );
   };
@@ -171,7 +271,6 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
         <div className="viajes-grid">
           {viajes.map((viaje) => (
             <div key={viaje.id} className="viaje-card">
-
               {ratingViajeId === viaje.id ? (
                 <div className="rating-mode">
                   <h3>Calificar este viaje</h3>
@@ -206,6 +305,8 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
                     </button>
                   </div>
                 </div>
+              ) : reporteViajeId === viaje.id ? (
+                renderReporteForm()
               ) : (
                 <>
                   {/* Contenido original de la tarjeta del viaje */}
@@ -218,99 +319,99 @@ const HistorialViajes = ({ userId, onViewRoute }) => {
                     </div>
                   </div>
 
-              <div className="details-grid">
-                <div className="detail-item">
-                  <div className="detail-label">Fecha y Hora</div>
-                  <div className="detail-value">
-                    {formatFecha(viaje.fechasalida)}
+                  <div className="details-grid">
+                    <div className="detail-item">
+                      <div className="detail-label">Fecha y Hora</div>
+                      <div className="detail-value">
+                        {formatFecha(viaje.fechasalida)}
+                      </div>
+                    </div>
+                    <div className="detail-item">
+                      <div className="detail-label">Tipo de Viaje</div>
+                      <div className="detail-value">
+                        {viaje.tipoviaje.charAt(0).toUpperCase() +
+                          viaje.tipoviaje.slice(1)}
+                      </div>
+                    </div>
+                    <div className="detail-item">
+                      <div className="detail-label">Pasajeros</div>
+                      <div className="detail-value">{viaje.cantidadpasajeros}</div>
+                    </div>
+                    {viaje.marca && (
+                      <div className="detail-item">
+                        <div className="detail-label">Vehículo</div>
+                        <div className="detail-value">
+                          {viaje.marca} {viaje.modelo} ({viaje.placa})
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">Tipo de Viaje</div>
-                  <div className="detail-value">
-                    {viaje.tipoviaje.charAt(0).toUpperCase() +
-                      viaje.tipoviaje.slice(1)}
-                  </div>
-                </div>
-                <div className="detail-item">
-                  <div className="detail-label">Pasajeros</div>
-                  <div className="detail-value">{viaje.cantidadpasajeros}</div>
-                </div>
-                {viaje.marca && (
-                  <div className="detail-item">
-                    <div className="detail-label">Vehículo</div>
+
+                  <div className="conductor-info">
+                    <div className="detail-label">
+                      {viaje.rol === "conductor" ? "Tú fuiste el" : "Conductor"}
+                    </div>
+                    <div className="detail-value">{viaje.conductornombre}</div>
+                    {viaje.rol !== "conductor" && (
+                      <>
+                        <div className="detail-value">{viaje.conductorcelular}</div>
+                        <div className="detail-value">{viaje.conductorcorreo}</div>
+                      </>
+                    )}
                     <div className="detail-value">
-                      {viaje.marca} {viaje.modelo} ({viaje.placa})
+                      Puntuación: {viaje.conductorpuntuacion || "Sin calificar"}
                     </div>
                   </div>
-                )}
-              </div>
 
-              <div className="conductor-info">
-                <div className="detail-label">
-                  {viaje.rol === "conductor" ? "Tú fuiste el" : "Conductor"}
-                </div>
-                <div className="detail-value">{viaje.conductornombre}</div>
-                {viaje.rol !== "conductor" && (
-                  <>
-                    <div className="detail-value">{viaje.conductorcelular}</div>
-                    <div className="detail-value">{viaje.conductorcorreo}</div>
-                  </>
-                )}
-                <div className="detail-value">
-                  Puntuación: {viaje.conductorpuntuacion || "Sin calificar"}
-                </div>
-              </div>
-
-              <div className="viaje-actions">
-                {viaje.estado === "pendiente" && (
-                  <>
-                    <button
-                      className="view-route-button"
-                      onClick={() => handleViewRoute(viaje)}
-                    >
-                      Visualizar ruta realizada
-                    </button>
-                    <button
-                      className="join-button"
-                      onClick={() => handleCancelarViaje(viaje.id)}
-                    >
-                      Cancelar Viaje
-                    </button>
-                  </>
-                )}
-                {viaje.estado === "finalizado" && (
-                  <>
-                    <button
-                      className="view-route-button"
-                      onClick={() => handleViewRoute(viaje)}
-                    >
-                      Visualizar ruta realizada
-                    </button>
-                    <button
-                      className="join-button"
-                      onClick={() => handleCalificarViaje(viaje.id)}
-                    >
-                      Calificar Viaje
-                    </button>
-                  </>
-                )}
-                {viaje.estado === "en curso" && (
-                  <button
-                    className="view-route-button"
-                    onClick={() => handleViewRoute(viaje)}
-                  >
-                    Visualizar ruta realizada
-                  </button>
-                )}
-              </div>
-            </>
-          )}
+                  <div className="viaje-actions">
+                    {viaje.estado === "pendiente" && (
+                      <>
+                        <button
+                          className="view-route-button"
+                          onClick={() => handleViewRoute(viaje)}
+                        >
+                          Visualizar ruta realizada
+                        </button>
+                        <button
+                          className="join-button"
+                          onClick={() => handleCancelarViaje(viaje.id)}
+                        >
+                          Cancelar Viaje
+                        </button>
+                      </>
+                    )}
+                    {viaje.estado === "finalizado" && (
+                      <>
+                        <button
+                          className="view-route-button"
+                          onClick={() => handleReportarViaje(viaje.id)}
+                        >
+                          Reportar Viaje
+                        </button>
+                        <button
+                          className="join-button"
+                          onClick={() => handleCalificarViaje(viaje.id)}
+                        >
+                          Calificar Viaje
+                        </button>
+                      </>
+                    )}
+                    {viaje.estado === "en curso" && (
+                      <button
+                        className="view-route-button"
+                        onClick={() => handleViewRoute(viaje)}
+                      >
+                        Visualizar ruta realizada
+                      </button>
+                    )}
+                  </div>
+                </>
+              )}
+            </div>
+          ))}
         </div>
-      ))}
+      </div>
     </div>
-  </div>
-</div>
   );
 };
 

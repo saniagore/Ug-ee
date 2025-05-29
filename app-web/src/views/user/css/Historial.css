@@ -288,3 +288,90 @@
 .viaje-card {
   transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
+
+.reporte-mode {
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 10px;
+  margin: -10px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.reporte-mode h3 {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+}
+
+.reporte-mode p {
+  color: #7f8c8d;
+  font-size: 0.95rem;
+  margin-bottom: 20px;
+}
+
+.reporte-form-group {
+  margin: 20px 0;
+}
+
+.reporte-form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #7f8c8d;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.reporte-select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #34495e;
+  background-color: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reporte-select:focus {
+  outline: none;
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+}
+
+.reporte-textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: #34495e;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.reporte-textarea:focus {
+  outline: none;
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.2);
+}
+
+.reporte-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.reporte-actions button {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
