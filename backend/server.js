@@ -37,6 +37,4 @@ app.use((err, req, res, next) => {
   res.status(500).send("Algo salió mal!");
 });
 
-app.listen(PORT, () => {
-  console.log(`Servidor backend corriendo en http://localhost:${PORT}`);
-});
+export default app;
