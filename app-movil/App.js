@@ -8,23 +8,23 @@ import { AuthProvider, useAuth } from './src/components/auth/authContext';
 import useEssentialPermissions from './src/components/permisosApp';
 
 import LoginScreen from './src/views/login';
-import { AppDrawerNavigator } from './src/views/menuUsuario';
+import HomeUserScreen from './src/views/usuario/menuUsuario';
+import HomeDriverScreen from './src/views/conductor/menuConductor';
 
 const Stack = createNativeStackNavigator();
 
-function AuthenticatedStack({ tipoUsuario }) {
+function AuthenticatedStack({ tipoUsuario, celular }) {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-
       {tipoUsuario === 1 && (
         <Stack.Screen name="MainUser">
-          {() => <AppDrawerNavigator userType="user" />}
+          {() => <HomeUserScreen celular={celular} />} 
         </Stack.Screen>
       )}
       
       {tipoUsuario === 2 && (
         <Stack.Screen name="MainDriver">
-          {() => <AppDrawerNavigator userType="driver" />}
+          {() => <HomeDriverScreen celular={celular} />}
         </Stack.Screen>
       )}
       
@@ -45,9 +45,11 @@ function UnauthenticatedStack() {
 
 function RootNavigator() {
   const { usuarioAuth } = useAuth();
-  
   return usuarioAuth ? (
-    <AuthenticatedStack tipoUsuario={Number(usuarioAuth?.tipoUsuario) || 0} />
+    <AuthenticatedStack 
+      tipoUsuario={Number(usuarioAuth?.tipoUsuario) || 0} 
+      celular={usuarioAuth?.usuario || ''} 
+    />
   ) : (
     <UnauthenticatedStack />
   );
