@@ -8,24 +8,28 @@ import { AuthProvider, useAuth } from './src/components/auth/authContext';
 import useEssentialPermissions from './src/components/permisosApp';
 
 import LoginScreen from './src/views/login';
+import { AppDrawerNavigator } from './src/views/menuUsuario';
 
 const Stack = createNativeStackNavigator();
 
 function AuthenticatedStack({ tipoUsuario }) {
-  if (!tipoUsuario) {
-    return (
-      <Stack.Navigator>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-      </Stack.Navigator>
-    );
-  }
   return (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+
       {tipoUsuario === 1 && (
-        <Stack.Screen name="Home Usuario" component={homeAdminScreen} />
+        <Stack.Screen name="MainUser">
+          {() => <AppDrawerNavigator userType="user" />}
+        </Stack.Screen>
       )}
+      
       {tipoUsuario === 2 && (
-        <Stack.Screen name="Home Conductor" component={homeUserScreen} />
+        <Stack.Screen name="MainDriver">
+          {() => <AppDrawerNavigator userType="driver" />}
+        </Stack.Screen>
+      )}
+      
+      {![1, 2].includes(tipoUsuario) && (
+        <Stack.Screen name="Login" component={LoginScreen} />
       )}
     </Stack.Navigator>
   );
@@ -34,21 +38,19 @@ function AuthenticatedStack({ tipoUsuario }) {
 function UnauthenticatedStack() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
     </Stack.Navigator>
   );
 }
 
-function RootNavigator(){
-  const { user } = useAuth();
-
-  if (!user) {
-    return <UnauthenticatedStack />;
-  }
-
-  const tipoUsuario = Number(user?.tipoUsuario) || 0;
-
-  return <AuthenticatedStack tipoUsuario={tipoUsuario} />;
+function RootNavigator() {
+  const { usuarioAuth } = useAuth();
+  
+  return usuarioAuth ? (
+    <AuthenticatedStack tipoUsuario={Number(usuarioAuth?.tipoUsuario) || 0} />
+  ) : (
+    <UnauthenticatedStack />
+  );
 }
 
 export default function App() {
@@ -63,4 +65,3 @@ export default function App() {
     </AuthProvider>
   );
 }
-

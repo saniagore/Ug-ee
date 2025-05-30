@@ -27,7 +27,6 @@ export class queryLogin {
             }
 
             return  dataUsuario.coincide ? 1 : dataConductor.coincide ? 2 : 0; 
-
         }catch(error){
             console.error("Error en verificarUsuario:", error);
             throw error;

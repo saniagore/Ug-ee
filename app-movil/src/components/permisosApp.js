@@ -59,7 +59,6 @@ const useEssentialPermissions = () => {
           'Error',
           'Ocurrió un problema al solicitar los permisos. Por favor intenta nuevamente.'
         );
-        console.error('Error al solicitar permisos:', error);
       }
     };
 

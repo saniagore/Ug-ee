@@ -1,10 +1,10 @@
 import { createContext, useState, useContext } from "react";
-import { queryLogin } from "../validaciones/logIn";
+import { queryLogin } from "../validaciones/login";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const [usuario, setUsuario] = useState({ usuario: null, tipoUsuario: null });
+    const [usuarioAuth, setUsuarioAuth] = useState({ usuario: null, tipoUsuario: null });
     
 
     const login = async (usuario, contraseña) => {
@@ -13,7 +13,7 @@ export function AuthProvider({ children }) {
             const esValido = await login.verificarUsuario(usuario, contraseña); 
         if (esValido===1 || esValido===2) {
             const userData = { usuario, tipoUsuario: esValido};
-            setUsuario(userData);
+            setUsuarioAuth(userData);
             return true;
         }
         return false;
@@ -24,7 +24,7 @@ export function AuthProvider({ children }) {
     };
 
     return (
-        <AuthContext.Provider value={{ usuario, login }}>
+        <AuthContext.Provider value={{ usuarioAuth, login }}>
             {children}
         </AuthContext.Provider>
     );
