@@ -349,4 +349,25 @@ export class QueryInstitucion {
       };
     }
   }
+
+  async obtenerEstadisticas(id){
+    try{
+      const response = await fetch(`${QueryInstitucion.BASE_URL}/estadisticas/${id}`);
+      const data = await response.json();
+      if (!response.ok) {
+        return {
+          error: true,
+          message: data.message || "Error al obtener estadísticas",
+          details: data.details,
+        };
+      }
+      return data.estadisticas;
+    }catch(error){
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message,
+      };
+    }
+  }
 }

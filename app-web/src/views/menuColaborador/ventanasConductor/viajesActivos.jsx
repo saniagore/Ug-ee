@@ -7,13 +7,6 @@ export default function ViajesActivos({ conductorId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const onViajeTerminado = () => {
-    console.log("Viaje terminado exitosamente");
-  };
-  const onViajeCancelado = () => {
-    console.log("Viaje cancelado exitosamente");
-  };
-
   const cargarViajesActivos = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -58,7 +51,6 @@ export default function ViajesActivos({ conductorId }) {
         alert(resultado.message);
       } else {
         alert("Viaje terminado exitosamente");
-        onViajeTerminado();
         cargarViajesActivos();
       }
     } catch (err) {
@@ -76,7 +68,6 @@ export default function ViajesActivos({ conductorId }) {
         alert(resultado.message);
       } else {
         alert("Viaje cancelado exitosamente");
-        onViajeCancelado();
         cargarViajesActivos();
       }
     } catch (err) {

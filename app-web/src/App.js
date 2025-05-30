@@ -11,6 +11,7 @@ import GestionConductores from './views/menuColaborador/ventanasInstitucion/gest
 import GestionVehiculos from './views/menuColaborador/ventanasInstitucion/gestionVehiculos.jsx';
 import GestionReportes from './views/menuColaborador/ventanasInstitucion/gestionReportes.jsx';
 import RegistroVehiculo from './views/menuColaborador/ventanasConductor/registrarVehiculo.js';
+import EstadisticasViajes from './views/menuColaborador/ventanasInstitucion/estadisticas.jsx';
 
 /**
  * Main application component that handles routing and navigation.
@@ -108,6 +109,10 @@ function App() {
         <Route
           path='/Colaborador/Gestion-reportes'
           element={<GestionReportes/>}
+        />
+        <Route
+          path='/Colaborador/Estadisticas'
+          element={<EstadisticasViajes/>}
         />
       </Routes>
     </Router>

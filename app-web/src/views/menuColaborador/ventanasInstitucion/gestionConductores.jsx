@@ -271,6 +271,12 @@ export default function AdministrarConductores() {
         </button>
         <button
           style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={() => navigate("/Colaborador/Estadisticas")}
+        >
+          Estadisticas
+        </button>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
           onClick={handleLogout}
         >
           Cerrar Sesión

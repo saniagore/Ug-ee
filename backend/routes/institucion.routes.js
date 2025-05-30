@@ -279,7 +279,7 @@ router.post("/logout", (req, res) => {
 });
 
 // Obtener estadísticas de la institución
-router.get("/:id/estadisticas", async (req, res) => {
+router.get("/estadisticas/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const estadisticas = await obtenerEstadisticasInstitucion(id);

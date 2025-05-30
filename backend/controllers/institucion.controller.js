@@ -43,7 +43,11 @@ export const obtenerInstitucionPorId = async (id) => {
 };
 
 // Obtener todas las instituciones (con paginación)
-export const obtenerTodasInstituciones = async (pagina = 1, limite = 10, verificadas = null) => {
+export const obtenerTodasInstituciones = async (
+  pagina = 1,
+  limite = 10,
+  verificadas = null
+) => {
   const offset = (pagina - 1) * limite;
   const params = [];
   let query = `
@@ -56,12 +60,14 @@ export const obtenerTodasInstituciones = async (pagina = 1, limite = 10, verific
     params.push(verificadas);
   }
 
-  query += ` ORDER BY nombre LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+  query += ` ORDER BY nombre LIMIT $${params.length + 1} OFFSET $${
+    params.length + 2
+  }`;
   params.push(limite, offset);
 
   const { rows } = await pool.query(query, params);
   return rows;
-}
+};
 
 // Verificar existencia de institución
 export const existeInstitucion = async (nombre) => {
@@ -72,7 +78,12 @@ export const existeInstitucion = async (nombre) => {
     );
 
     const { nombre_exists } = validationResult.rows[0];
-    return nombre_exists ? { error: true, details: { nombre: "Este nombre de institución ya existe" } } : true;
+    return nombre_exists
+      ? {
+          error: true,
+          details: { nombre: "Este nombre de institución ya existe" },
+        }
+      : true;
   } catch (err) {
     console.error("Error en existeInstitucion:", err);
     throw err;
@@ -83,14 +94,17 @@ export const existeInstitucion = async (nombre) => {
 export const crearInstitucion = async (formData) => {
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     const validation = await existeInstitucion(formData.nombre);
     if (validation.error) {
       return validation;
     }
 
-    const contraseñaHasheada = bcrypt.hashSync(formData.contraseña, SALT_ROUNDS);
+    const contraseñaHasheada = bcrypt.hashSync(
+      formData.contraseña,
+      SALT_ROUNDS
+    );
 
     const result = await client.query(
       `INSERT INTO institucion
@@ -108,11 +122,10 @@ export const crearInstitucion = async (formData) => {
       ]
     );
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return { success: true, institucion: result.rows[0] };
-
   } catch (err) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     console.error("Error al crear institución", err);
     return {
       error: true,
@@ -128,7 +141,7 @@ export const crearInstitucion = async (formData) => {
 export const actualizarInstitucion = async (id, formData) => {
   const client = await pool.connect();
   try {
-    await client.query('BEGIN');
+    await client.query("BEGIN");
 
     // Verificar si el nombre ya existe en otra institución
     if (formData.nombre) {
@@ -136,11 +149,11 @@ export const actualizarInstitucion = async (id, formData) => {
         "SELECT 1 FROM institucion WHERE nombre = $1 AND id != $2 LIMIT 1",
         [formData.nombre, id]
       );
-      
+
       if (nombreExiste.rows.length > 0) {
-        return { 
-          error: true, 
-          details: { nombre: "Este nombre de institución ya está en uso" } 
+        return {
+          error: true,
+          details: { nombre: "Este nombre de institución ya está en uso" },
         };
       }
     }
@@ -171,18 +184,17 @@ export const actualizarInstitucion = async (id, formData) => {
       formData.logo || null,
       formData.direccion || null,
       formData.estadoVerificacion || null,
-      id
+      id,
     ]);
 
     if (result.rows.length === 0) {
       throw new Error("Institución no encontrada");
     }
 
-    await client.query('COMMIT');
+    await client.query("COMMIT");
     return { success: true, institucion: result.rows[0] };
-
   } catch (err) {
-    await client.query('ROLLBACK');
+    await client.query("ROLLBACK");
     console.error("Error al actualizar institución", err);
     return {
       error: true,
@@ -218,16 +230,22 @@ export const eliminarInstitucion = async (id) => {
 };
 
 // Verificar login de institución
-export const verificarLoginInstitucion = async (nombre, contraseñaIngresada) => {
+export const verificarLoginInstitucion = async (
+  nombre,
+  contraseñaIngresada
+) => {
   try {
     const institucion = await obtenerDatosInstitucionCompletos(nombre);
     if (!institucion) {
       return { error: true, message: "Institución no encontrada" };
     }
 
-    const coincide = await bcrypt.compare(contraseñaIngresada, institucion.contraseña);
-    return coincide 
-      ? { success: true, institucion } 
+    const coincide = await bcrypt.compare(
+      contraseñaIngresada,
+      institucion.contraseña
+    );
+    return coincide
+      ? { success: true, institucion }
       : { error: true, message: "Contraseña incorrecta" };
   } catch (err) {
     console.error("Error en verificarLoginInstitucion:", err);
@@ -245,33 +263,6 @@ export const obtenerDatosInstitucionCompletos = async (nombre) => {
     return result.rows[0] || null;
   } catch (err) {
     console.error("Error en obtenerDatosInstitucionCompletos:", err);
-    throw err;
-  }
-};
-
-// Obtener estadísticas de la institución
-export const obtenerEstadisticasInstitucion = async (institucionId) => {
-  try {
-    const [
-      totalUsuarios,
-      totalConductores,
-      totalVehiculos,
-      totalViajes
-    ] = await Promise.all([
-      pool.query("SELECT COUNT(*) FROM persona WHERE institucionId = $1", [institucionId]),
-      pool.query("SELECT COUNT(*) FROM conductor WHERE institucionId = $1", [institucionId]),
-      pool.query("SELECT COUNT(*) FROM vehiculo v JOIN persona p ON v.conductorId = p.id WHERE p.institucionId = $1", [institucionId]),
-      pool.query("SELECT COUNT(*) FROM viaje v JOIN persona p ON v.usuarioId = p.id WHERE p.institucionId = $1", [institucionId])
-    ]);
-
-    return {
-      totalUsuarios: parseInt(totalUsuarios.rows[0].count),
-      totalConductores: parseInt(totalConductores.rows[0].count),
-      totalVehiculos: parseInt(totalVehiculos.rows[0].count),
-      totalViajes: parseInt(totalViajes.rows[0].count)
-    };
-  } catch (err) {
-    console.error("Error en obtenerEstadisticasInstitucion:", err);
     throw err;
   }
 };
@@ -304,9 +295,122 @@ export const obtenerNombresInstituciones = async () => {
     const result = await pool.query(
       "SELECT nombre FROM institucion ORDER BY nombre"
     );
-    return result.rows.map(row => row.nombre);
+    return result.rows.map((row) => row.nombre);
   } catch (err) {
     console.error("Error obteniendo nombres de instituciones:", err);
+    throw err;
+  }
+};
+
+export const obtenerEstadisticasInstitucion = async (institucionId) => {
+  try {
+    const query = `
+      WITH 
+stats_basicas AS (
+  SELECT 
+    (SELECT COUNT(*) FROM usuario WHERE institucionId = $1) AS total_usuarios,
+    (SELECT COUNT(*) FROM conductor WHERE institucionId = $1) AS total_conductores,
+    (SELECT COUNT(*) FROM vehiculo v 
+     JOIN conductor c ON v.conductorId = c.cId 
+     WHERE c.institucionId = $1) AS total_vehiculos,
+    (SELECT COUNT(*) FROM viaje vi
+     LEFT JOIN reserva r ON vi.reservaId = r.id
+     LEFT JOIN usuario u ON r.usuarioId = u.usId
+     WHERE (r.id IS NULL OR u.institucionId = $1)
+     AND (vi.vehiculoId IN (
+       SELECT v.id FROM vehiculo v
+       JOIN conductor c ON v.conductorId = c.cId
+       WHERE c.institucionId = $1
+     ))) AS total_viajes
+),
+
+viajes_por_estado AS (
+  SELECT 
+    vi.estado,
+    COUNT(*) AS cantidad
+  FROM viaje vi
+  LEFT JOIN reserva r ON vi.reservaId = r.id
+  LEFT JOIN usuario u ON r.usuarioId = u.usId
+  WHERE (r.id IS NULL OR u.institucionId = $1)
+  AND (vi.vehiculoId IN (
+    SELECT v.id FROM vehiculo v
+    JOIN conductor c ON v.conductorId = c.cId
+    WHERE c.institucionId = $1
+  ))
+  GROUP BY vi.estado
+),
+
+stats_vehiculos AS (
+  SELECT 
+    v.categoria,
+    COUNT(*) AS cantidad,
+    AVG(v.cantidadPasajeros) AS promedio_pasajeros
+  FROM vehiculo v 
+  JOIN conductor c ON v.conductorId = c.cId 
+  WHERE c.institucionId = $1
+  GROUP BY v.categoria
+),
+
+calificaciones AS (
+  SELECT 
+    AVG(cl.puntuacion) AS promedio_calificaciones,
+    COUNT(cl.id) AS total_calificaciones
+  FROM calificacion cl
+  JOIN viaje vi ON cl.viajeId = vi.id
+  LEFT JOIN reserva r ON vi.reservaId = r.id
+  LEFT JOIN usuario u ON r.usuarioId = u.usId
+  WHERE (r.id IS NULL OR u.institucionId = $1)
+  AND (vi.vehiculoId IN (
+    SELECT v.id FROM vehiculo v
+    JOIN conductor c ON v.conductorId = c.cId
+    WHERE c.institucionId = $1
+  ))
+),
+
+reportes AS (
+  SELECT 
+    rep.tipo,
+    COUNT(*) AS cantidad
+  FROM reporte rep
+  JOIN viaje vi ON rep.viajeId = vi.id
+  LEFT JOIN reserva r ON vi.reservaId = r.id
+  LEFT JOIN usuario u ON r.usuarioId = u.usId
+  WHERE (r.id IS NULL OR u.institucionId = $1)
+  AND (vi.vehiculoId IN (
+    SELECT v.id FROM vehiculo v
+    JOIN conductor c ON v.conductorId = c.cId
+    WHERE c.institucionId = $1
+  ))
+  GROUP BY rep.tipo
+)
+
+SELECT 
+  sb.*,
+  (SELECT json_agg(row_to_json(vpe)) FROM viajes_por_estado vpe) AS viajes_por_estado,
+  (SELECT json_agg(row_to_json(sv)) FROM stats_vehiculos sv) AS vehiculos_por_categoria,
+  COALESCE(c.promedio_calificaciones, 0) AS promedio_calificaciones,
+  COALESCE(c.total_calificaciones, 0) AS total_calificaciones,
+  (SELECT json_agg(row_to_json(r)) FROM reportes r) AS reportes_por_tipo
+FROM stats_basicas sb
+LEFT JOIN calificaciones c ON true
+    `;
+
+    const result = await pool.query(query, [institucionId]);
+    const stats = result.rows[0];
+
+    return {
+      totalUsuarios: parseInt(stats.total_usuarios),
+      totalConductores: parseInt(stats.total_conductores),
+      totalVehiculos: parseInt(stats.total_vehiculos),
+      totalViajes: parseInt(stats.total_viajes),
+      viajesPorEstado: stats.viajes_por_estado || [],
+      vehiculosPorCategoria: stats.vehiculos_por_categoria || [],
+      promedioCalificaciones: parseFloat(stats.promedio_calificaciones) || 0,
+      totalCalificaciones: parseInt(stats.total_calificaciones) || 0,
+      reportesPorTipo: stats.reportes_por_tipo || [],
+    };
+  } catch (err) {
+    console.error("Error en obtenerEstadisticasInstitucion:", err);
     throw err;
   }
 };

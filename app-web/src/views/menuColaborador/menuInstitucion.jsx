@@ -142,11 +142,17 @@ export default function MenuInstitucion({ onLogout }) {
         >
           Gestión de Vehiculos
         </button>
-          <button
+        <button
           style={buttonStyle(colorPrimario, colorSecundario)}
           onClick={() => navigate("/Colaborador/Gestion-reportes")}
         >
           Reportes
+        </button>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={() => navigate("/Colaborador/Estadisticas")}
+        >
+          Estadisticas
         </button>
         <button
           style={buttonStyle(colorPrimario, colorSecundario)}

@@ -202,6 +202,12 @@ export default function GestionReportes() {
         </button>
         <button
           style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={() => navigate("/Colaborador/Estadisticas")}
+        >
+          Estadisticas
+        </button>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
           onClick={handleLogout}
         >
           Cerrar Sesión
