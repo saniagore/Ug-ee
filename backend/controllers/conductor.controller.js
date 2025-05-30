@@ -242,9 +242,10 @@ export const obtenerVehiculosConductor = async (conductorId) => {
 export const obtenerConductoresInstitucion = async (institucionId) => {
   try {
     const conductoresResult = await pool.query(
-      `SELECT id,cid, nombre, correo, celular, estadoVerificacion, 
-       codigoEstudiante, tipoIdentificacion, direccion 
-       FROM conductor WHERE institucionId = $1`,
+      `SELECT id, cId, nombre, correo, celular, estadoVerificacion, 
+       codigoEstudiante, tipoIdentificacion, direccion, (SELECT COUNT(*) FROM vehiculo WHERE conductorId = cid) AS vehiculos
+       FROM conductor
+       WHERE institucionId = $1`,
       [institucionId]
     );
 

@@ -52,7 +52,6 @@ export default function AdministrarConductores() {
         const data = await conductorQuery.obtenerTodosConductores(
           decodedToken.id
         );
-        
         const docsConductores = {};
         for (const conductor of data) {
           if (conductor.documentos) {
@@ -136,7 +135,6 @@ export default function AdministrarConductores() {
   const renderConductorRow = (conductor, index) => {
     const isExpanded = conductorExpandido === conductor.id;
     const documentos = documentosConductores[conductor.id] || [];
-    const hasVehicles = conductor.vehiculos?.length > 0;
 
     return (
       <React.Fragment key={conductor.id || `conductor-${index}`}>
@@ -231,42 +229,6 @@ export default function AdministrarConductores() {
                     )}
                   </div>
                 </div>
-
-                {/* Vehicles section */}
-                {hasVehicles && (
-                  <div>
-                    <h4 style={{ color: colorPrimario, marginBottom: "0.5rem" }}>
-                      Vehículos del Conductor
-                    </h4>
-                    <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
-                      {conductor.vehiculos.map((vehiculo, vIndex) => (
-                        <div 
-                          key={`vehiculo-${vIndex}`}
-                          style={{
-                            border: "1px solid #ddd",
-                            padding: "0.5rem",
-                            borderRadius: "4px",
-                          }}
-                        >
-                          <div>
-                            <strong>Vehículo {vIndex + 1}:</strong> {vehiculo.marca} {vehiculo.modelo} ({vehiculo.placa})
-                          </div>
-                          <div>
-                            <strong>Categoría:</strong> {vehiculo.categoria}
-                          </div>
-                          <div>
-                            <strong>Estado:</strong>{" "}
-                            {vehiculo.estadoverificacion ? (
-                              <span style={{ color: "green" }}>Verificado</span>
-                            ) : (
-                              <span style={{ color: "orange" }}>Pendiente</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </td>
           </tr>
@@ -301,7 +263,10 @@ export default function AdministrarConductores() {
         >
           Gestión de Vehículos
         </button>
-        <button style={buttonStyle(colorPrimario, colorSecundario)}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={() => navigate("/Colaborador/Gestion-reportes")}
+        >
           Reportes
         </button>
         <button

@@ -150,19 +150,12 @@ export default function MenuInstitucion({ onLogout }) {
         </button>
         <button
           style={buttonStyle(colorPrimario, colorSecundario)}
-          onClick={() => navigate("/Colaborador/Gestion-reportes")}
-        >
-          Reportes
-        </button>
-        <button
-          style={buttonStyle(colorPrimario, colorSecundario)}
           onClick={onLogout}
         >
           Cerrar Sesión
         </button>
       </div>
 
-      {/* User Verification Table */}
       <div>
         <h3 style={{ color: colorPrimario }}>Usuarios Registrados</h3>
         <table style={tableStyle(colorPrimario)}>

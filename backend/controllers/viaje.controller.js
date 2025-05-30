@@ -104,6 +104,15 @@ export const terminarViaje = async (viajeId) => {
       [viajeId]
     );
 
+    const cId = await pool.query(`
+      SELECT c.cId FROM viaje v 
+      JOIN vehiculo ve ON v.vehiculoId = ve.id
+      JOIN conductor c ON ve.conductorId = c.cId
+      WHERE v.id = $1`, [viajeId]);
+    const conductorId = cId.rows[0].cId;
+
+    await pool.query(`UPDATE conductor SET cantidadViajes = cantidadViajes + 1 WHERE cId = $1`, [conductorId]);
+
     return result.rows;
   } catch (error) {
     throw error;

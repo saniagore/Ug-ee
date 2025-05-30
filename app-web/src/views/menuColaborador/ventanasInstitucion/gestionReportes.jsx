@@ -221,13 +221,12 @@ export default function GestionReportes() {
           }}
         >
           <option value="todos">Todos los reportes</option>
-          <option value="tecnicos">Problemas técnicos</option>
-          <option value="seguridad">Incidentes de seguridad</option>
-          <option value="comportamiento">Comportamiento inadecuado</option>
+          <option value="reportes de movilidad y uso del servicio">Problemas técnicos</option>
+          <option value="reporte de seguridad y geolocalizacion">Incidentes de seguridad</option>
+          <option value="reporte de desempeño de conductores y vehiculos">Comportamiento inadecuado</option>
         </select>
       </div>
 
-      {/* Reportes Table */}
       <div>
         <h3 style={{ color: colorPrimario }}>Reportes Registrados</h3>
         <table style={tableStyle}>

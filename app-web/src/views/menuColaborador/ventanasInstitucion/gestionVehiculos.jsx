@@ -348,7 +348,10 @@ export default function GestionVehiculos() {
         >
           Gestión de Conductores
         </button>
-        <button style={buttonStyle(colorPrimario, colorSecundario)}>
+        <button
+          style={buttonStyle(colorPrimario, colorSecundario)}
+          onClick={() => navigate("/Colaborador/Gestion-reportes")}
+        >
           Reportes
         </button>
         <button

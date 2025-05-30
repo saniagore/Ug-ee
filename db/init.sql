@@ -179,16 +179,3 @@ CREATE INDEX idx_persona_id ON persona(id);
 CREATE INDEX idx_persona_institucion ON persona(institucionId);
 CREATE INDEX idx_persona_celular_institucion ON persona(celular, institucionId);
 
--- CARGAR UNIVERSIDAD ( BASE PARA PRUEBAS ) --
-
-INSERT INTO institucion (nombre, contraseña, colorPrimario, colorSecundario, direccion, estadoVerificacion) VALUES
-('Universidad Nacional de Colombia', 'Un4l2023!', '#FFCD00', '#004B87', 'Carrera 45 # 26-85, Bogotá', TRUE),
-('Universidad de los Andes', 'And3s2023!', '#005FAB', '#FFFFFF', 'Carrera 1 # 18A-12, Bogotá', TRUE),
-('Pontificia Universidad Javeriana', 'J4v3r2023!', '#003366', '#FFFFFF', 'Carrera 7 # 40-62, Bogotá', TRUE),
-('Universidad del Rosario', 'R0s4r2023!', '#8B2635', '#F1D3B2', 'Carrera 6 # 12B-40, Bogotá', TRUE),
-('Universidad Externado de Colombia', 'Ext3rn2023!', '#005FAB', '#FFD700', 'Calle 12 # 1-17 Este, Bogotá', TRUE),
-('Colegio Gimnasio Moderno', 'G1m4s2023!', '#003366', '#FFCC00', 'Carrera 9 # 74-99, Bogotá', FALSE),
-('Colegio Anglo Colombiano', 'Angl02023!', '#00205B', '#FFFFFF', 'Calle 152 # 45-20, Bogotá', FALSE),
-('Universidad de Antioquia', 'Ant1oqu2023!', '#005A8C', '#FFFFFF', 'Calle 67 # 53-108, Medellín', TRUE),
-('Universidad del Valle', 'V4ll32023!', '#005A29', '#FFFFFF', 'Calle 13 # 100-00, Cali', TRUE),
-('Universidad Industrial de Santander', 'U1S2023!', '#E2001A', '#FFFFFF', 'Carrera 27 # 9, Bucaramanga', TRUE);
