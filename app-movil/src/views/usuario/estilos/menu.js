@@ -1,285 +1,202 @@
-import { StyleSheet, Dimensions } from 'react-native';
-
-const { width } = Dimensions.get('window');
+import { StyleSheet } from 'react-native';
 
 export const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
-    paddingHorizontal: 20,
-    paddingTop: 40,
+    backgroundColor: '#fff',
   },
-
   header: {
+    padding: 20,
+    backgroundColor: '#f8f9fa',
     alignItems: 'center',
-    marginBottom: 40,
+    justifyContent: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
   },
   welcomeText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
-  },
-  instructions: {
-    fontSize: 16,
-    color: '#666',
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-
-  // Estilos para el botón de emergencia
-  buttonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 30,
-  },
-  boton: {
-    width: width * 0.7,
-    height: width * 0.7,
-    borderRadius: width * 0.35,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
-  },
-  activeButton: {
-    backgroundColor: '#ff3b30',
-  },
-  disabledButton: {
-    backgroundColor: '#ff8a80',
-  },
-  buttonIcon: {
-    marginBottom: 15,
-  },
-  botonText: {
-    color: 'white',
     fontSize: 22,
     fontWeight: 'bold',
-    textAlign: 'center',
-    marginTop: 10,
-  },
-
-  // Estilos para mensajes de error
-  errorText: {
-    color: '#ff3b30',
-    textAlign: 'center',
-    marginTop: 20,
-    fontSize: 14,
-  },
-
-  // Estilos para el drawer
-  drawerContainer: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  drawerHeader: {
-    padding: 25,
-    borderBottomWidth: 1,
-    borderBottomColor: '#29235c',
-  },
-  userContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    color: '#333',
     marginBottom: 5,
   },
-  userInfo: {
-    marginLeft: 15,
-  },
-  username: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  menuItems: {
-    flex: 1,
-    paddingTop: 15,
-    paddingHorizontal: 10,
-  },
-  drawerItem: {
-    marginVertical: 8,
-    paddingHorizontal: 16,
-  },
-  drawerLabel: {
-    marginLeft: 15,
-    fontSize: 16,
-  },
-  logoutContainer: {
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#29235c',
-    marginTop: 'auto',
-  },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fb2f2f',
-    borderRadius: 8,
-    paddingVertical: 14,
-  },
-  logoutButtonContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-  },
-  logoutText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-
-  // Estilos adicionales para el chat
-  chatContainer: {
-    flex: 1,
-    backgroundColor: '#f5f5f5',
-  },
-  chatHeader: {
-    backgroundColor: '#4a8cff',
-    padding: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  chatTitle: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
-  },
-
-  // Estilos para el reporte
-  reportContainer: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
-  },
-  reportTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    color: '#333',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 15,
-    marginBottom: 20,
-    fontSize: 16,
-  },
-  submitButton: {
-    backgroundColor: '#4a8cff',
-    borderRadius: 8,
-    padding: 16,
-    alignItems: 'center',
-  },
-  submitButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  
-
-
-
-
-  reportContainer: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#f9f9f9',
-  },
-  reportTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-  reportSubtitle: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 15,
-    fontWeight: '500',
-  },
-  reportTypesContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: 25,
-  },
-  reportTypeButton: {
-    width: '48%',
-    height: 100,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    marginBottom: 15,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  reportTypeButtonSelected: {
-    borderColor: '#4a8cff',
-    backgroundColor: '#e6f0ff',
-  },
-  reportTypeText: {
-    marginTop: 8,
+  instructions: {
     fontSize: 14,
     color: '#666',
     textAlign: 'center',
   },
-  reportTypeTextSelected: {
-    color: '#4a8cff',
-    fontWeight: '500',
-  },
-  reportDescriptionInput: {
-    backgroundColor: '#fff',
+
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f1f3f4',
     borderRadius: 10,
-    padding: 15,
-    minHeight: 120,
-    textAlignVertical: 'top',
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    marginBottom: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginTop: 10,
+  },
+  searchText: {
+    marginLeft: 10,
+    color: '#666',
     fontSize: 16,
-    color: '#333',
+  },
+  viajesContainer: {
+    flex: 1,
+    padding: 15,
+    backgroundColor: '#f8f9fa',
+  },
+  viajeCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
+    shadowRadius: 6,
     elevation: 3,
   },
-  reportSubmitButton: {
-    backgroundColor: '#29235c',
-    padding: 15,
-    borderRadius: 10,
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 12,
   },
-  reportSubmitButtonDisabled: {
-    backgroundColor: '#a0c0ff',
-  },
-  reportSubmitButtonText: {
-    color: 'white',
+  viajeTitle: {
     fontSize: 18,
     fontWeight: 'bold',
+    color: '#333',
   },
-  logo: {
-    resizeMode: 'contain',
-    aspectRatio: 1,
-    width: 70,
-    height: 70,
-    marginRight: 20,
+  statusBadge: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
   },
-  });
+  statusText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  routeInfo: {
+    marginBottom: 12,
+  },
+  routePoint: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  routeText: {
+    marginLeft: 8,
+    fontSize: 15,
+    color: '#333',
+  },
+  routeDivider: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    marginVertical: 4,
+    marginLeft: 7,
+  },
+  dividerLine: {
+    width: 1,
+    height: 8,
+    backgroundColor: '#ddd',
+  },
+  detailRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  detailText: {
+    marginLeft: 8,
+    fontSize: 14,
+    color: '#555',
+  },
+  driverInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#eee',
+  },
+  driverAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#7e46d2',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  driverDetails: {
+    flex: 1,
+  },
+  driverName: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  ratingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  ratingText: {
+    marginLeft: 4,
+    fontSize: 13,
+    color: '#666',
+  },
+  driverPhone: {
+    fontSize: 13,
+    color: '#666',
+  },
+  messageButton: {
+    padding: 8,
+  },
+  bookButton: {
+    backgroundColor: '#7e46d2',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 12,
+  },
+  bookButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  loadingContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  loadingText: {
+    marginLeft: 10,
+    color: '#555',
+  },
+  errorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  errorText: {
+    marginLeft: 10,
+    color: '#F44336',
+  },
+  emptyContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#888',
+    marginTop: 16,
+  },
+  emptySubtext: {
+    fontSize: 14,
+    color: '#aaa',
+    marginTop: 8,
+    textAlign: 'center',
+  },
+});

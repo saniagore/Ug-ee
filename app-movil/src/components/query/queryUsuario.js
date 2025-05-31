@@ -5,15 +5,9 @@ export class QueryUsuario {
         try{
             const response = await fetch(`${QueryUsuario.BASE_URL}/id/${celular}`);
             const result = await response.json();
-            if(!response.ok){
-                return {
-                    error: true,
-                    message: result.message || "Error al obtener el ID del usuario",
-                    details: result.details,
-                };
-            }
-            return result.result;
+            return result.id;
         }catch(error){
+            console.error("Error al obtener el ID del usuario:", error);
             return {
                 error: true,
                 message: "Error de conexión al servidor",

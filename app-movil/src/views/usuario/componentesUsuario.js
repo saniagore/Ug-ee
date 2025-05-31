@@ -5,14 +5,13 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { styles } from "./estilos/menu";
+import { styles } from "./estilos/drawer";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { useState, useEffect } from "react";
+
+import HomeContent from "./menu";
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get("window");
-
-import HomeContent from "./inicio";
 
 function CustomDrawerContent(props) {
   const { user, logout } = useAuth();

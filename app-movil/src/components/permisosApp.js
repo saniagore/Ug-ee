@@ -3,19 +3,22 @@ import * as Notifications from 'expo-notifications';
 import * as Location from 'expo-location';
 import * as Camera from 'expo-camera';
 import { Alert } from 'react-native';
+import { Platform } from 'react-native';
 
 const useEssentialPermissions = () => {
   useEffect(() => {
     const requestPermissions = async () => {
       try {
         // Configurar manejador de notificaciones
-        await Notifications.setNotificationHandler({
-          handleNotification: async () => ({
-            shouldShowAlert: true,
-            shouldPlaySound: true,
-            shouldSetBadge: true,
-          }),
-        });
+        if(Platform.OS !== 'web') {
+          await Notifications.setNotificationHandler({
+            handleNotification: async () => ({
+              shouldShowAlert: true,
+              shouldPlaySound: true,
+              shouldSetBadge: true,
+            }),
+          });
+        }
 
         // Solicitar permiso de notificaciones
         const { status: notifStatus } = await Notifications.requestPermissionsAsync({

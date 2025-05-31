@@ -225,7 +225,7 @@ router.get("/id/:celular", async (req, res) => {
       `SELECT id FROM usuario WHERE celular = $1`,
       [celular]
     );
-    return usuario.rows;
+    return res.status(200).json({ id: usuario.rows[0]?.id || null });
   }catch(error){
     res.status(500).json({ success: false, error: "Error en el servidor" });
   }

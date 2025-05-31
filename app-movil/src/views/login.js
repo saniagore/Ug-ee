@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Image } from "react-native";
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity, Image, Platform } from "react-native";
 import { MaterialIcons, FontAwesome } from "@expo/vector-icons";
 import { useAuth } from "../components/auth/authContext";
 import { ValidarDatos } from "../components/validaciones/validacionesInfo";
@@ -104,14 +104,21 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingHorizontal: 15,
     marginBottom: 15,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Platform.select({
+      native: {
+        elevation: 5,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3.84,
+      },
+      web: {
+        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+      },
+      default: {
+        boxShadow: "0 2px 5px rgba(0,0,0,0.1)",
+      }
+    })
   },
   inputIcon: {
     marginRight: 10,
@@ -128,14 +135,21 @@ const styles = StyleSheet.create({
     padding: 15,
     alignItems: "center",
     marginTop: 20,
-    shadowColor: "#2980b9",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.4,
-    shadowRadius: 3.84,
-    elevation: 5,
+    ...Platform.select({
+      native: {
+        elevation: 5,
+        shadowColor: "#2980b9",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.4,
+        shadowRadius: 3.84,
+      },
+      web: {
+        boxShadow: "0 2px 5px rgba(41,128,185,0.4)",
+      },
+      default: {
+        boxShadow: "0 2px 5px rgba(41,128,185,0.4)",
+      }
+    })
   },
   loginButtonText: {
     color: "#fff",

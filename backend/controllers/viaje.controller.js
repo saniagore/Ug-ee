@@ -55,7 +55,6 @@ export const viajesDisponibles = async (usuarioId) => {
     viajes.rows.forEach((element) => {
       element.rutaplanificada = wktToRutaPlanificada(element.rutaplanificada);
     });
-    
     return viajes.rows;
   } catch (error) {
     console.error("Error en viajesDisponibles:", error);
