@@ -15,7 +15,8 @@ import {
   obtenerVehiculosConductor,
   obtenerConductoresInstitucion,
   actualizarEstadoConductor,
-  actualizarEstadoVehiculo
+  actualizarEstadoVehiculo,
+  obtenerIdConductor
 } from "../controllers/conductor.controller.js";
 
 
@@ -303,5 +304,15 @@ router.put("/vehiculo/estado/:vehiculoId", async (req, res) => {
   }
 });
 
+router.get("/id/:celular", async (req, res) => {
+  try{
+    const { celular } = req.params;
+    const conductor = await obtenerIdConductor(celular);
+    return res.status(200).json({ id: conductor.rows[0]?.id || null }); 
+  }catch(error){
+    console.error("Error obteniendo ID de conductor:", error);
+    return res.status(500).json({ error: "Error al obtener ID de conductor" });
+  }
+});
 
 export default router;

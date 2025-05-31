@@ -100,7 +100,7 @@ export default function HomeUserScreen({ celular }) {
         options={{
           drawerIcon: ({ color }) => (
             <Ionicons
-              name="home"
+              name="map"
               size={22}
               color={color}
               style={{ marginRight: 10 }}
@@ -110,29 +110,13 @@ export default function HomeUserScreen({ celular }) {
         }}
       />
       <Drawer.Screen
-        name="Agendar Reserva"
-        component={HomeContent}
-        initialParams={{celular}}
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons
-              name="home"
-              size={22}
-              color={color}
-              style={{ marginRight: 10 }}
-            />
-          ),
-          title: "Agendar Reserva",
-        }}
-      />
-      <Drawer.Screen
         name="Historial de Viajes"
         component={HistorialViajes}
         initialParams={{celular}}
         options={{
           drawerIcon: ({ color }) => (
             <Ionicons
-              name="home"
+              name="list"
               size={22}
               color={color}
               style={{ marginRight: 10 }}
@@ -148,7 +132,7 @@ export default function HomeUserScreen({ celular }) {
         options={{
           drawerIcon: ({ color }) => (
             <Ionicons
-              name="home"
+              name="book"
               size={22}
               color={color}
               style={{ marginRight: 10 }}

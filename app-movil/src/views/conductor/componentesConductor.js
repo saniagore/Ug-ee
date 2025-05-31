@@ -5,14 +5,16 @@ import {
   DrawerContentScrollView,
   DrawerItemList,
 } from "@react-navigation/drawer";
-import { styles } from "./estilos/menu";
+import { styles } from "./estilos/drawer";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
+import HomeContent from "./menu";
+
 const Drawer = createDrawerNavigator();
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
 
 function CustomDrawerContent(props) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <DrawerContentScrollView {...props} style={styles.drawerContainer}>
@@ -43,6 +45,7 @@ function CustomDrawerContent(props) {
             styles.logoutButton,
             { flexDirection: "row", alignItems: "center" },
           ]}
+          onPress={logout}
         >
           <MaterialIcons
             name="logout"
@@ -57,29 +60,11 @@ function CustomDrawerContent(props) {
   );
 }
 
-
-function HomeContent() {
-  const { user } = useAuth();
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>
-          Bienvenido, {user?.usuario || "Usuario"}
-        </Text>
-        <Text style={styles.instructions}>
-          Presiona el botón en caso de emergencia
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 export default function HomeUserScreen({ celular }) {
-
+  
   return (
     <Drawer.Navigator
-      initialRouteName="Inicio"
+      initialRouteName="Viajes Activos"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         drawerStyle: {
@@ -108,47 +93,19 @@ export default function HomeUserScreen({ celular }) {
       }}
     >
       <Drawer.Screen
-        name="Inicio"
+        name="Viajes Activos"
         component={HomeContent}
+        initialParams={{celular}}
         options={{
           drawerIcon: ({ color }) => (
             <Ionicons
-              name="home"
+              name="map"
               size={22}
               color={color}
               style={{ marginRight: 10 }}
             />
           ),
-          title: "Inicio",
-        }}
-      />
-      <Drawer.Screen
-        name="Chat en tiempo real"
-        component={HomeContent}
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons
-              name="chatbubbles"
-              size={22}
-              color={color}
-              style={{ marginRight: 10 }}
-            />
-          ),
-        }}
-      />
-
-      <Drawer.Screen
-        name="Realizar Reporte"
-        component={HomeContent}
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons
-              name="document-text"
-              size={22}
-              color={color}
-              style={{ marginRight: 10 }}
-            />
-          ),
+          title: "Viajes Activos",
         }}
       />
     </Drawer.Navigator>

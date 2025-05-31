@@ -3,7 +3,6 @@ import { StyleSheet, Dimensions } from 'react-native';
 const { width } = Dimensions.get('window');
 
 export const styles = StyleSheet.create({
-  // Estilos para el contenedor principal
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
@@ -11,7 +10,6 @@ export const styles = StyleSheet.create({
     paddingTop: 40,
   },
 
-  // Estilos para el encabezado
   header: {
     alignItems: 'center',
     marginBottom: 40,

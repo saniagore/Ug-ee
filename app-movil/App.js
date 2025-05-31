@@ -8,8 +8,9 @@ import 'react-native-reanimated';
 import { AuthProvider, useAuth } from './src/components/auth/authContext'; 
 import useEssentialPermissions from './src/components/permisosApp';
 import LoginScreen from './src/views/login';
+
 import HomeUserScreen from './src/views/usuario/componentesUsuario';
-import HomeDriverScreen from './src/views/conductor/menuConductor';
+import HomeDriverScreen from './src/views/conductor/componentesConductor';
 
 const Stack = createNativeStackNavigator();
 

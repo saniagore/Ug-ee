@@ -299,3 +299,13 @@ export const actualizarEstadoVehiculo = async (vehiculoId, estado) => {
     throw err;
   }
 };
+
+export const obtenerIdConductor = async (celular) => {
+  try{
+    const conductor = await pool.query(`SELECT id FROM conductor WHERE celular = $1`, [celular]); 
+    return conductor;
+  }catch(error){
+    console.error("Error en obtenerIdConductor:", error);
+    throw error;
+  }
+};
