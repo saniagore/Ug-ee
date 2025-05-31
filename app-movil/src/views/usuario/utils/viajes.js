@@ -65,7 +65,7 @@ export function obtenerHistorial(usuarioId){
 
 export async function cancelarViaje(viajeId, usuarioId){
     try{
-        await new QueryViaje().cancelarViajeUsuario(viajeId, usuarioId);
+        await new QueryViaje().cancelarViajeUsuario(viajeId,)
     }catch(error){
         console.error("Error al cancelar el viaje:", error);
     }

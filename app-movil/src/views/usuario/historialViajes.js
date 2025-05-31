@@ -1,6 +1,14 @@
-import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Pressable } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  TextInput,
+  Pressable,
+} from "react-native";
 import { useUsuarioId } from "./utils/useUsuarioId";
-import { obtenerHistorial,cancelarViaje } from "./utils/viajes";
+import { obtenerHistorial, cancelarViaje } from "./utils/viajes";
 import { calificarViaje } from "./utils/calificacion";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { styles } from "./estilos/historialViajes";
@@ -10,7 +18,7 @@ export default function HistorialViajes({ route }) {
   const { celular } = route.params || {};
   const { usuarioId, loading, error } = useUsuarioId(celular);
   const { viajes, loadingViajes, errorViajes } = obtenerHistorial(usuarioId);
-  
+
   const [selectedViaje, setSelectedViaje] = useState(null);
   const [rating, setRating] = useState(0);
   const [comentario, setComentario] = useState("");
@@ -36,18 +44,18 @@ export default function HistorialViajes({ route }) {
 
   const handleCalificarPress = (viaje) => {
     setSelectedViaje(viaje);
-    setRating(0); 
-    setComentario(""); 
+    setRating(0);
+    setComentario("");
     setIsRatingModalVisible(true);
   };
 
   const handleRatingSubmit = () => {
-    calificarViaje(selectedViaje.id,rating,comentario);
+    calificarViaje(selectedViaje.id, rating, comentario);
     setIsRatingModalVisible(false);
   };
 
   const handleCancelarViaje = (viajeId) => {
-    cancelarViaje(viajeId,usuarioId);
+    cancelarViaje(viajeId, usuarioId);
   };
 
   return (
@@ -164,12 +172,13 @@ export default function HistorialViajes({ route }) {
                 </View>
 
                 {viaje.estado === "pendiente" && (
-                    <View style={styles.historyActions}>
+                  <View style={styles.historyActions}>
                     <TouchableOpacity
-                      style={styles.historyButton}
+                      style={[styles.historyButton, styles.cancelButton]}
                       activeOpacity={0.7}
                       onPress={() => handleCancelarViaje(viaje.id)}
                     >
+                      <Ionicons name="close-circle" size={18} color="#fff" />
                       <Text style={styles.historyButtonText}>Cancelar</Text>
                     </TouchableOpacity>
                   </View>
@@ -178,11 +187,11 @@ export default function HistorialViajes({ route }) {
                 {viaje.estado === "finalizado" && (
                   <View style={styles.historyActions}>
                     <TouchableOpacity
-                      style={styles.historyButton}
+                      style={[styles.historyButton, styles.calificarButton]}
                       activeOpacity={0.7}
                       onPress={() => handleCalificarPress(viaje)}
                     >
-                      <Ionicons name="star" size={18} color="#FFC107" />
+                      <Ionicons name="star" size={18} color="#fff" />
                       <Text style={styles.historyButtonText}>Calificar</Text>
                     </TouchableOpacity>
                   </View>
@@ -211,16 +220,17 @@ export default function HistorialViajes({ route }) {
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Calificar Viaje #{selectedViaje?.id}</Text>
-            
-            <Text style={styles.modalSubtitle}>¿Cómo calificarías este viaje?</Text>
-            
+            <Text style={styles.modalTitle}>
+              Calificar Viaje #{selectedViaje?.id}
+            </Text>
+
+            <Text style={styles.modalSubtitle}>
+              ¿Cómo calificarías este viaje?
+            </Text>
+
             <View style={styles.starsContainer}>
               {[1, 2, 3, 4, 5].map((star) => (
-                <TouchableOpacity
-                  key={star}
-                  onPress={() => setRating(star)}
-                >
+                <TouchableOpacity key={star} onPress={() => setRating(star)}>
                   <Ionicons
                     name={star <= rating ? "star" : "star-outline"}
                     size={32}
@@ -229,7 +239,7 @@ export default function HistorialViajes({ route }) {
                 </TouchableOpacity>
               ))}
             </View>
-            
+
             <Text style={styles.commentLabel}>Comentario (opcional):</Text>
             <TextInput
               style={styles.commentInput}
@@ -239,7 +249,7 @@ export default function HistorialViajes({ route }) {
               value={comentario}
               onChangeText={setComentario}
             />
-            
+
             <View style={styles.modalButtons}>
               <Pressable
                 style={[styles.modalButton, styles.cancelButton]}
@@ -247,7 +257,7 @@ export default function HistorialViajes({ route }) {
               >
                 <Text style={styles.modalButtonText}>Cancelar</Text>
               </Pressable>
-              
+
               <Pressable
                 style={[styles.modalButton, styles.submitButton]}
                 onPress={handleRatingSubmit}
