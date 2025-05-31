@@ -218,4 +218,17 @@ router.post("/actualizar/estado", async(req,res)=> {
   }
 });
 
+router.get("/id/:celular", async (req, res) => {
+  try{
+    const { celular } = req.params;
+    const usuario = await pool.query(
+      `SELECT id FROM usuario WHERE celular = $1`,
+      [celular]
+    );
+    return usuario.rows;
+  }catch(error){
+    res.status(500).json({ success: false, error: "Error en el servidor" });
+  }
+});
+
 export default router;

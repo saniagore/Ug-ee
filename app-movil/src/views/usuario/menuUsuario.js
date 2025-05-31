@@ -7,12 +7,15 @@ import {
 } from "@react-navigation/drawer";
 import { styles } from "./estilos/menu";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { useState, useEffect } from "react";
 
 const Drawer = createDrawerNavigator();
-const { width, height } = Dimensions.get("window");
+const { width } = Dimensions.get("window");
+
+import HomeContent from "./inicio";
 
 function CustomDrawerContent(props) {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   return (
     <DrawerContentScrollView {...props} style={styles.drawerContainer}>
@@ -43,6 +46,7 @@ function CustomDrawerContent(props) {
             styles.logoutButton,
             { flexDirection: "row", alignItems: "center" },
           ]}
+          onPress={logout}
         >
           <MaterialIcons
             name="logout"
@@ -57,26 +61,7 @@ function CustomDrawerContent(props) {
   );
 }
 
-
-function HomeContent() {
-  const { user } = useAuth();
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.welcomeText}>
-          Bienvenido, {user?.usuario || "Usuario"}
-        </Text>
-        <Text style={styles.instructions}>
-          Presiona el botón en caso de emergencia
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 export default function HomeUserScreen({ celular }) {
-
   return (
     <Drawer.Navigator
       initialRouteName="Inicio"
@@ -110,6 +95,7 @@ export default function HomeUserScreen({ celular }) {
       <Drawer.Screen
         name="Inicio"
         component={HomeContent}
+        initialParams={{celular}}
         options={{
           drawerIcon: ({ color }) => (
             <Ionicons
@@ -120,35 +106,6 @@ export default function HomeUserScreen({ celular }) {
             />
           ),
           title: "Inicio",
-        }}
-      />
-      <Drawer.Screen
-        name="Chat en tiempo real"
-        component={HomeContent}
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons
-              name="chatbubbles"
-              size={22}
-              color={color}
-              style={{ marginRight: 10 }}
-            />
-          ),
-        }}
-      />
-
-      <Drawer.Screen
-        name="Realizar Reporte"
-        component={HomeContent}
-        options={{
-          drawerIcon: ({ color }) => (
-            <Ionicons
-              name="document-text"
-              size={22}
-              color={color}
-              style={{ marginRight: 10 }}
-            />
-          ),
         }}
       />
     </Drawer.Navigator>
