@@ -8,7 +8,7 @@ import {
   Pressable,
 } from "react-native";
 import { useUsuarioId } from "./utils/useUsuarioId";
-import { obtenerHistorial, cancelarViaje } from "./utils/viajes";
+import { useObtenerHistorial, cancelarViaje } from "./utils/viajes";
 import { calificarViaje } from "./utils/calificacion";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { styles } from "./estilos/historialViajes";
@@ -17,7 +17,7 @@ import { useState } from "react";
 export default function HistorialViajes({ route }) {
   const { celular } = route.params || {};
   const { usuarioId, loading, error } = useUsuarioId(celular);
-  const { viajes, loadingViajes, errorViajes } = obtenerHistorial(usuarioId);
+  const { viajes, loadingViajes, errorViajes, refetch } = useObtenerHistorial(usuarioId);
 
   const [selectedViaje, setSelectedViaje] = useState(null);
   const [rating, setRating] = useState(0);
@@ -49,13 +49,23 @@ export default function HistorialViajes({ route }) {
     setIsRatingModalVisible(true);
   };
 
-  const handleRatingSubmit = () => {
-    calificarViaje(selectedViaje.id, rating, comentario);
-    setIsRatingModalVisible(false);
+  const handleRatingSubmit = async() => {
+    try{
+      await calificarViaje(selectedViaje.id, rating, comentario);
+      setIsRatingModalVisible(false);
+      await refetch();
+    }catch(error){
+      console.error("Error al enviar calificación:", error);
+    }
   };
 
-  const handleCancelarViaje = (viajeId) => {
-    cancelarViaje(viajeId, usuarioId);
+  const handleCancelarViaje = async (viajeId) => {
+    try {
+      await cancelarViaje(viajeId, usuarioId);
+      await refetch();
+    } catch (error) {
+      console.error("Error al cancelar el viaje:", error);
+    }
   };
 
   return (
