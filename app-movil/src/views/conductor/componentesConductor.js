@@ -9,6 +9,7 @@ import { styles } from "./estilos/drawer";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import HomeContent from "./menu";
+import ReservasContent from "./reservas";
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get("window");
@@ -106,6 +107,22 @@ export default function HomeUserScreen({ celular }) {
             />
           ),
           title: "Viajes Activos",
+        }}
+      />
+      <Drawer.Screen
+        name="Reservas"
+        component={ReservasContent}
+        initialParams={{ celular }}
+        options={{
+          drawerIcon: ({ color }) => (
+            <MaterialIcons
+              name="book"
+              size={22}
+              color={color}
+              style={{ marginRight: 10 }}
+            />
+          ),
+          title: "Reservas",
         }}
       />
     </Drawer.Navigator>
