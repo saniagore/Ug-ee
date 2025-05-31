@@ -9,6 +9,7 @@ import { styles } from "./estilos/drawer";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import HomeContent from "./menu";
+import HistorialViajes from "./historialViajes";
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get("window");
@@ -63,7 +64,7 @@ function CustomDrawerContent(props) {
 export default function HomeUserScreen({ celular }) {
   return (
     <Drawer.Navigator
-      initialRouteName="Inicio"
+      initialRouteName="Viajes Disponibles"
       drawerContent={(props) => <CustomDrawerContent {...props} />}
       screenOptions={{
         drawerStyle: {
@@ -92,7 +93,7 @@ export default function HomeUserScreen({ celular }) {
       }}
     >
       <Drawer.Screen
-        name="Inicio"
+        name="Viajes Disponibles"
         component={HomeContent}
         initialParams={{celular}}
         options={{
@@ -104,7 +105,55 @@ export default function HomeUserScreen({ celular }) {
               style={{ marginRight: 10 }}
             />
           ),
-          title: "Inicio",
+          title: "Viajes Disponibles",
+        }}
+      />
+      <Drawer.Screen
+        name="Agendar Reserva"
+        component={HomeContent}
+        initialParams={{celular}}
+        options={{
+          drawerIcon: ({ color }) => (
+            <Ionicons
+              name="home"
+              size={22}
+              color={color}
+              style={{ marginRight: 10 }}
+            />
+          ),
+          title: "Agendar Reserva",
+        }}
+      />
+      <Drawer.Screen
+        name="Historial de Viajes"
+        component={HistorialViajes}
+        initialParams={{celular}}
+        options={{
+          drawerIcon: ({ color }) => (
+            <Ionicons
+              name="home"
+              size={22}
+              color={color}
+              style={{ marginRight: 10 }}
+            />
+          ),
+          title: "Historial de Viajes",
+        }}
+      />
+      <Drawer.Screen
+        name="Historial de Reservas"
+        component={HomeContent}
+        initialParams={{celular}}
+        options={{
+          drawerIcon: ({ color }) => (
+            <Ionicons
+              name="home"
+              size={22}
+              color={color}
+              style={{ marginRight: 10 }}
+            />
+          ),
+          title: "Historial de Reservas",
         }}
       />
     </Drawer.Navigator>

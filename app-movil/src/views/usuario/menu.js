@@ -1,8 +1,9 @@
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 import { useUsuarioId } from "./utils/useUsuarioId";
 import { useViajes, unirseViaje } from "./utils/viajes";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { styles } from "./estilos/menu";
+import { use } from "react";
 
 export default function HomeContent({route}) {
   const { celular } = route.params || {};
@@ -11,6 +12,9 @@ export default function HomeContent({route}) {
 
   const handleReservar = (viajeId) => {
     unirseViaje(viajeId, usuarioId);
+    if (typeof viajes.refetch === "function") {
+      viajes.refetch();
+    }
   };
 
   const formatDate = (dateString) => {

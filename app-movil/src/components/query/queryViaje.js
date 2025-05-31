@@ -54,5 +54,26 @@ export class QueryViaje {
     }
   }
 
-
+  async obtenerHistorial(usuarioId) {
+    try {
+      const response = await fetch(
+        `${QueryViaje.BASE_URL}/historial/${usuarioId}`
+      );
+      const result = await response.json();
+      if (!response.ok) {
+        return {
+          error: true,
+          message: result.message || "Error al obtener el historial",
+          details: result.details,
+        };
+      }
+      return result.result;
+    } catch (error) {
+      return {
+        error: true,
+        message: "Error de conexión al servidor",
+        details: error.message,
+      };
+    }
+  }
 }
