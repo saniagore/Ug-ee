@@ -1,2 +1,0 @@
-docker exec -it app2-db-1 psql -U admin -d uguee_db
-\dt
