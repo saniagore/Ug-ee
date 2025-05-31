@@ -79,7 +79,6 @@ router.post("/unirse-viaje", async (req, res) => {
 router.get("/historial/:usuarioId", async (req, res) => {
   try {
     const { usuarioId } = req.params;
-    console.log("A");
     const result = await historialViajes(usuarioId);
     res.status(200).json({ result });
   } catch (error) {

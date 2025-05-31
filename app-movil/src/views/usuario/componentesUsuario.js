@@ -10,6 +10,7 @@ import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import HomeContent from "./menu";
 import HistorialViajes from "./historialViajes";
+import HistorialReservas from "./historialReservas";
 
 const Drawer = createDrawerNavigator();
 const { width } = Dimensions.get("window");
@@ -142,7 +143,7 @@ export default function HomeUserScreen({ celular }) {
       />
       <Drawer.Screen
         name="Historial de Reservas"
-        component={HomeContent}
+        component={HistorialReservas}
         initialParams={{celular}}
         options={{
           drawerIcon: ({ color }) => (

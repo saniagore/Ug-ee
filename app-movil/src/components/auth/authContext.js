@@ -6,31 +6,33 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
     const [usuarioAuth, setUsuarioAuth] = useState({ usuario: null, tipoUsuario: null });
     
-
     const login = async (usuario, contraseña) => {
-        try{
+        try {
             const login = new queryLogin();
             const esValido = await login.verificarUsuario(usuario, contraseña); 
-        if (esValido===1 || esValido===2) {
-            const userData = { usuario, tipoUsuario: esValido};
-            setUsuarioAuth(userData);
-            return true;
-        }
-        return false;
-        }catch(error){
+            if (esValido === 1 || esValido === 2) {
+                const userData = { usuario, tipoUsuario: esValido };
+                setUsuarioAuth(userData);
+                return true;
+            }
+            return false;
+        } catch(error) {
             console.error(error);
             return false;
         }
     };
+    
+    const logout = () => {
+        setUsuarioAuth({ usuario: null, tipoUsuario: null });
+    };
 
     return (
-        <AuthContext.Provider value={{ usuarioAuth, login }}>
+        <AuthContext.Provider value={{ usuarioAuth, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 }
 
-export function useAuth(){
+export function useAuth() {
     return useContext(AuthContext);
 }
-
