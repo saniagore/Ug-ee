@@ -307,3 +307,16 @@ export const cancelarViajeUsuario = async (viajeId, usuarioId) => {
     throw error;
   }
 };
+
+export const iniciarViaje = async (viajeId) => {
+  try{
+    const result = await pool.query(`
+      UPDATE viaje
+      SET estado = 'en curso' 
+      WHERE id = $1`
+      , [viajeId]);
+    return result.rows;
+  }catch(error){
+    throw error;
+  }
+}

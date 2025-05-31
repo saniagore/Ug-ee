@@ -7,7 +7,8 @@ import {
   cancelarViaje,
   unirseViaje,
   historialViajes,
-  cancelarViajeUsuario
+  cancelarViajeUsuario,
+  iniciarViaje
 } from "../controllers/viaje.controller.js";
 
 const router = Router();
@@ -93,6 +94,16 @@ router.post("/cancelar-viaje-usuario", async (req, res) => {
     res.status(200).json({ result });
   } catch (error) {
     res.status(500).json({ error: "Error al cancelar el viaje" });
+  }
+});
+
+router.post("/iniciar-viaje", async (req, res) => {
+  try{
+    const { viajeId } = req.body;
+    const result = await iniciarViaje(viajeId);
+    res.status(200).json({ result });
+  }catch (error) {
+    res.status(500).json({ error: "Error al iniciar el viaje" });
   }
 });
 
