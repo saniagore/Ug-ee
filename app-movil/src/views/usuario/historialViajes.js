@@ -1,13 +1,20 @@
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Modal, TextInput, Pressable } from "react-native";
 import { useUsuarioId } from "./utils/useUsuarioId";
-import { obtenerHistorial } from "./utils/viajes";
+import { obtenerHistorial,cancelarViaje } from "./utils/viajes";
+import { calificarViaje } from "./utils/calificacion";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { styles } from "./estilos/menu";
+import { styles } from "./estilos/historialViajes";
+import { useState } from "react";
 
 export default function HistorialViajes({ route }) {
   const { celular } = route.params || {};
   const { usuarioId, loading, error } = useUsuarioId(celular);
   const { viajes, loadingViajes, errorViajes } = obtenerHistorial(usuarioId);
+  
+  const [selectedViaje, setSelectedViaje] = useState(null);
+  const [rating, setRating] = useState(0);
+  const [comentario, setComentario] = useState("");
+  const [isRatingModalVisible, setIsRatingModalVisible] = useState(false);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -25,6 +32,22 @@ export default function HistorialViajes({ route }) {
       default:
         return "#7e46d2";
     }
+  };
+
+  const handleCalificarPress = (viaje) => {
+    setSelectedViaje(viaje);
+    setRating(0); 
+    setComentario(""); 
+    setIsRatingModalVisible(true);
+  };
+
+  const handleRatingSubmit = () => {
+    calificarViaje(selectedViaje.id,rating,comentario);
+    setIsRatingModalVisible(false);
+  };
+
+  const handleCancelarViaje = (viajeId) => {
+    cancelarViaje(viajeId,usuarioId);
   };
 
   return (
@@ -145,6 +168,7 @@ export default function HistorialViajes({ route }) {
                     <TouchableOpacity
                       style={styles.historyButton}
                       activeOpacity={0.7}
+                      onPress={() => handleCancelarViaje(viaje.id)}
                     >
                       <Text style={styles.historyButtonText}>Cancelar</Text>
                     </TouchableOpacity>
@@ -156,13 +180,13 @@ export default function HistorialViajes({ route }) {
                     <TouchableOpacity
                       style={styles.historyButton}
                       activeOpacity={0.7}
+                      onPress={() => handleCalificarPress(viaje)}
                     >
                       <Ionicons name="star" size={18} color="#FFC107" />
                       <Text style={styles.historyButtonText}>Calificar</Text>
                     </TouchableOpacity>
                   </View>
                 )}
-
               </TouchableOpacity>
             ))
           : !loadingViajes && (
@@ -177,6 +201,64 @@ export default function HistorialViajes({ route }) {
               </View>
             )}
       </ScrollView>
+
+      {/* Modal de Calificación */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={isRatingModalVisible}
+        onRequestClose={() => setIsRatingModalVisible(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Calificar Viaje #{selectedViaje?.id}</Text>
+            
+            <Text style={styles.modalSubtitle}>¿Cómo calificarías este viaje?</Text>
+            
+            <View style={styles.starsContainer}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <TouchableOpacity
+                  key={star}
+                  onPress={() => setRating(star)}
+                >
+                  <Ionicons
+                    name={star <= rating ? "star" : "star-outline"}
+                    size={32}
+                    color="#FFC107"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+            
+            <Text style={styles.commentLabel}>Comentario (opcional):</Text>
+            <TextInput
+              style={styles.commentInput}
+              multiline
+              numberOfLines={4}
+              placeholder="Escribe tu experiencia con este viaje..."
+              value={comentario}
+              onChangeText={setComentario}
+            />
+            
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[styles.modalButton, styles.cancelButton]}
+                onPress={() => setIsRatingModalVisible(false)}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </Pressable>
+              
+              <Pressable
+                style={[styles.modalButton, styles.submitButton]}
+                onPress={handleRatingSubmit}
+                disabled={rating === 0}
+              >
+                <Text style={styles.modalButtonText}>Enviar Calificación</Text>
+              </Pressable>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

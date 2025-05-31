@@ -1,4 +1,4 @@
-import {useState, useEffect, use} from "react";
+import {useState, useEffect } from "react";
 import { QueryViaje } from "../../../components/query/queryViaje";
 
 export function useViajes(usuarioId) {
@@ -61,4 +61,12 @@ export function obtenerHistorial(usuarioId){
     }, [usuarioId]);
 
     return { viajes, loading, error };
+}
+
+export async function cancelarViaje(viajeId, usuarioId){
+    try{
+        await new QueryViaje().cancelarViajeUsuario(viajeId, usuarioId);
+    }catch(error){
+        console.error("Error al cancelar el viaje:", error);
+    }
 }
