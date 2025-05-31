@@ -3,17 +3,26 @@ import { useUsuarioId } from "./utils/useUsuarioId";
 import { useViajes, unirseViaje } from "./utils/viajes";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import { styles } from "./estilos/menu";
-import { use } from "react";
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 export default function HomeContent({route}) {
   const { celular } = route.params || {};
   const { usuarioId, loading, error } = useUsuarioId(celular);
-  const { viajes, loadingViajes, errorViajes } = useViajes(usuarioId);
+  const { viajes, loadingViajes, errorViajes, refetch } = useViajes(usuarioId);
 
-  const handleReservar = (viajeId) => {
-    unirseViaje(viajeId, usuarioId);
-    if (typeof viajes.refetch === "function") {
-      viajes.refetch();
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
+  const handleReservar = async(viajeId) => {
+    try{
+      await unirseViaje(viajeId, usuarioId);
+      await refetch();
+    }catch(error){
+      console.error("Error al reservar el viaje:", error);
     }
   };
 
