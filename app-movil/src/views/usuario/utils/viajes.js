@@ -27,6 +27,10 @@ export function useViajes(usuarioId) {
     return { viajes, loading, error };  
 }
 
-export function unirseViaje(viajeId, usuarioId) {
-    console.log("Unirse al viaje:", viajeId, "Usuario:", usuarioId);
+export async function unirseViaje(viajeId, usuarioId) {
+    try{
+        await new QueryViaje().unirseViaje(viajeId, usuarioId);
+    }catch (error) {
+        console.error("Error al unirse al viaje:", error);
+    }
 }

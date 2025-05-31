@@ -45,7 +45,7 @@ export const viajesDisponibles = async (usuarioId) => {
       AND c.institucionId = (SELECT institucionId FROM persona WHERE id = $1)
       AND NOT EXISTS (
         SELECT 1 FROM pasajeros p 
-        WHERE p.viajeId = v.id AND p.usuarioId = u.id
+        WHERE p.viajeId = v.id AND p.usuarioId = u.usId
       )
       GROUP BY v.id, ve.id, c.cId, u.id, c.nombre, c.celular, c.correo, c.puntuacionpromedio
       `,
