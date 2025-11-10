@@ -56,6 +56,6 @@ La interfaz del sistema es moderna, responsive (web y móvil) y está diseñada 
 
 ## 👨‍💻 Autor
 
-**Desarrollado por:** [Santiago Gore](https://github.com/saniagore)  
+**Desarrollado por:** [Santiago Vanegas](https://github.com/saniagore)  
 🌐 GitHub: [https://github.com/saniagore](https://github.com/saniagore)
 
